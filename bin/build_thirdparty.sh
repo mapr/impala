@@ -29,7 +29,7 @@ set -e
 
 USE_PIC_LIB_PATH=${PIC_LIB_PATH:-}
 
-clean_action=1
+clean_action=0
 
 for ARG in $*
 do

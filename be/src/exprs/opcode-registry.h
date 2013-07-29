@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 #include <boost/thread/mutex.hpp>
+#include <boost/thread/lock_guard.hpp>
 #include "common/logging.h"
 #include "exprs/expr.h"   // For ComputeFn typedef
 #include "gen-cpp/Opcodes_types.h"

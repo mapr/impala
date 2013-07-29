@@ -526,7 +526,7 @@ Status Coordinator::FinalizeQuery() {
         for (int i = 0; i < num_files; ++i) {
           if (existing_files[i].mKind == kObjectKindFile) {
             VLOG(2) << "Deleting: " << string(existing_files[i].mName);
-            if (hdfsDelete(hdfs_connection, existing_files[i].mName, 1) == -1) {
+            if (hdfsDelete(hdfs_connection, existing_files[i].mName/*, 1*/) == -1) {
               delete_status = Status(AppendHdfsErrorMessage("Failed to delete existing "
                   "HDFS file as part of INSERT OVERWRITE query: ",
                   string(existing_files[i].mName)));
@@ -542,7 +542,7 @@ Status Coordinator::FinalizeQuery() {
         if (hdfsExists(hdfs_connection, ss.str().c_str()) != -1) {
           // TODO: There's a potential race here between checking for the directory
           // and a third-party deleting it.
-          if (hdfsDelete(hdfs_connection, ss.str().c_str(), 1) == -1) {
+          if (hdfsDelete(hdfs_connection, ss.str().c_str()/*, 1*/) == -1) {
             return Status(AppendHdfsErrorMessage("Failed to delete partition directory "
                     "as part of INSERT OVERWRITE query: ", ss.str()));
           }
@@ -574,7 +574,7 @@ Status Coordinator::FinalizeQuery() {
 
   // 4. Delete temp directories
   BOOST_FOREACH(const string& tmp_path, tmp_dirs_to_delete) {
-    if (hdfsDelete(hdfs_connection, tmp_path.c_str(), 1) == -1) {
+    if (hdfsDelete(hdfs_connection, tmp_path.c_str()/*, 1*/) == -1) {
       return Status(AppendHdfsErrorMessage("Failed to delete temporary directory: ",
           tmp_path));
     }

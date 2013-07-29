@@ -24,7 +24,7 @@ set -e
 set -u
 
 BUILD_THIRDPARTY=0
-TARGET_BUILD_TYPE=Debug
+TARGET_BUILD_TYPE=Release
 
 for ARG in $*
 do

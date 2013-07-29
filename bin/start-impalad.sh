@@ -19,7 +19,7 @@
 
 . ${IMPALA_HOME}/bin/set-classpath.sh
 
-BUILD_TYPE=debug
+BUILD_TYPE=release
 IMPALAD_ARGS=""
 
 # Everything except for -build_type should be passed an an Impalad argument
