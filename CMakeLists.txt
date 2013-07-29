@@ -16,7 +16,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 # generate CTest input files
-enable_testing()
+#enable_testing()
 
 # where to find cmake modules
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake_modules")
@@ -27,7 +27,7 @@ find_package(PICLibs REQUIRED)
 # find boost headers and libs
 set(Boost_DEBUG TRUE)
 set(Boost_USE_MULTITHREADED ON)
-find_package(Boost REQUIRED COMPONENTS thread regex-mt system-mt filesystem-mt)
+find_package(Boost REQUIRED COMPONENTS thread regex-mt system-mt filesystem-mt date_time-mt)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 set(LIBS ${LIBS} ${Boost_LIBRARIES})
 message(STATUS ${Boost_INCLUDE_DIRS})

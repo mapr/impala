@@ -64,10 +64,10 @@ export IMPALA_SNAPPY_VERSION=1.0.5
 export IMPALA_CYRUS_SASL_VERSION=2.1.23
 export IMPALA_MONGOOSE_VERSION=3.3
 
-export IMPALA_HADOOP_VERSION=2.0.0-cdh4.3.0
-export IMPALA_HBASE_VERSION=0.94.6-cdh4.3.0
-export IMPALA_HIVE_VERSION=0.10.0-cdh4.3.0
+export IMPALA_HADOOP_VERSION=1.0.3-mapr-3.0.2
+export IMPALA_HIVE_VERSION=0.12-mapr-1311
 export IMPALA_SENTRY_VERSION=1.1.0
+export IMPALA_HBASE_VERSION=0.94.9-mapr-1308
 export IMPALA_THRIFT_VERSION=0.9.0
 export IMPALA_AVRO_VERSION=1.7.4
 export IMPALA_LLVM_VERSION=3.3
@@ -81,23 +81,25 @@ export IMPALA_AUX_DATASET_DIR=$IMPALA_AUX_TEST_HOME/testdata/datasets
 export IMPALA_COMMON_DIR=$IMPALA_HOME/common
 export PATH=$IMPALA_HOME/bin:$PATH
 
-export HADOOP_HOME=$IMPALA_HOME/thirdparty/hadoop-${IMPALA_HADOOP_VERSION}/
-export HADOOP_CONF_DIR=$IMPALA_FE_DIR/src/test/resources
+export HADOOP_HOME=/opt/mapr/hadoop/hadoop-0.20.2
+export HADOOP_CONF_DIR=/opt/mapr/hadoop/hadoop-0.20.2/conf
 export MINI_DFS_BASE_DATA_DIR=$IMPALA_HOME/hdfs-data
 export PATH=$HADOOP_HOME/bin:$PATH
 
-export HIVE_HOME=$IMPALA_HOME/thirdparty/hive-${IMPALA_HIVE_VERSION}/
+export HIVE_HOME=/opt/mapr/hive/hive-0.12
 export PATH=$HIVE_HOME/bin:$PATH
-export HIVE_CONF_DIR=$IMPALA_FE_DIR/src/test/resources
+export HIVE_CONF_DIR=$HIVE_HOME/conf
+export HIVE_JDBC_DRIVER_CLASSPATH=${HIVE_JDBC_DRIVER_CLASSPATH-\
+$IMPALA_HOME/thirdparty/hive-${IMPALA_HIVE_VERSION}/lib/*}
 
 ### Hive looks for jar files in a single directory from HIVE_AUX_JARS_PATH plus
 ### any jars in AUX_CLASSPATH. (Or a list of jars in HIVE_AUX_JARS_PATH.)
 export HIVE_AUX_JARS_PATH=$IMPALA_FE_DIR/target
 export AUX_CLASSPATH=$HADOOP_LZO/build/hadoop-lzo-0.4.15.jar
 
-export HBASE_HOME=$IMPALA_HOME/thirdparty/hbase-${IMPALA_HBASE_VERSION}/
+export HBASE_HOME=/opt/mapr/hbase/hbase-0.94.9
 export PATH=$HBASE_HOME/bin:$PATH
-export HBASE_CONF_DIR=$HIVE_CONF_DIR
+export HBASE_CONF_DIR=$HBASE_HOME/conf
 
 export THRIFT_SRC_DIR=${IMPALA_HOME}/thirdparty/thrift-${IMPALA_THRIFT_VERSION}/
 export THRIFT_HOME=${THRIFT_SRC_DIR}build/
@@ -114,7 +116,8 @@ LIBHDFS_OPTS="${LIBHDFS_OPTS} -Djava.library.path=${HADOOP_HOME}/lib/native/"
 # READER BEWARE: This always points to the debug build.
 # TODO: Consider having cmake scripts change this value depending on
 # the build type.
-export LIBHDFS_OPTS="${LIBHDFS_OPTS}:${IMPALA_HOME}/be/build/debug/service"
+#export LIBHDFS_OPTS="${LIBHDFS_OPTS}:${IMPALA_HOME}/be/build/debug/service"
+export LIBHDFS_OPTS="${LIBHDFS_OPTS}:${IMPALA_HOME}/be/build/release/service"
 
 export ARTISTIC_STYLE_OPTIONS=$IMPALA_BE_DIR/.astylerc
 
@@ -128,9 +131,12 @@ LIB_JVM=` find ${JAVA_HOME}/   -name libjvm.so  | head -1`
 LIB_HDFS=`find ${HADOOP_HOME}/ -name libhdfs.so | head -1`
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:`dirname ${LIB_JAVA}`:`dirname ${LIB_JSIG}`"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:`dirname ${LIB_JVM}`:`dirname ${LIB_HDFS}`"
-LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IMPALA_HOME}/be/build/debug/service"
+#LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IMPALA_HOME}/be/build/debug/service"
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IMPALA_HOME}/be/build/release/service"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IMPALA_HOME}/thirdparty/snappy-${IMPALA_SNAPPY_VERSION}/build/lib"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$IMPALA_LZO/build"
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$HADOOP_HOME/lib/native/Linux-amd64-64/"
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/mapr/lib"
 export LD_LIBRARY_PATH
 export LD_PRELOAD="${LD_PRELOAD}:${LIB_JSIG}"
 

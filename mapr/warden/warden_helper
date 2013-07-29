@@ -1,0 +1,174 @@
+#!/bin/bash  
+THIS=$_    # Before everything else, remember the name of this file
+
+##########################################################3
+#
+# Starts/stops a generic Warden service
+#  warden-generic-service  <service>  <start, stop or status>
+#  
+#   This script does the start/stop/status functions for a
+#   basic daemon, running the daemon as a particular user if
+#   requested
+#
+# The following arguments are passed to this script
+#  $1) HOME           - where the software is installed
+#  $2) SERVICE        - The name of the warden service.  eg. oozied
+#  $2) ACTION         - What is to be done - "start", "stop", "status", ...
+#
+# Assumes the following directories:
+#    HOME/bin/SERVICE   - a script or binary to run the service
+#    HOME/logs          - directory where .out and .pid files are created
+#
+##############################################################
+
+
+main() {  # <service> <action>
+    HOME="$1"; SERVICE="$2"; ACTION="$3"
+
+    # Get the mapr configuration information
+    configure
+
+    # execute the action
+    do_action $ACTION
+}
+
+
+
+configure() { 
+
+    # Point to the script or binary to run 
+    DAEMON=$HOME/bin/$SERVICE
+    [ -f "$DAEMON" ] || (echo "warden-helper couldn't find daemon"; exit 1)
+        
+    # point to the runtime files used by the script
+    PIDFILE=${PIDFILE:-$HOME/logs/$SERVICE.pid}
+    LOGFILE=${LOGFILE:-$HOME/logs/$SERVICE.out}
+
+    # Get the user and group for running the script, if not already set
+    OWNER=${OWNER:-$(get_daemon_owner)}
+    GROUP=${GROUP:-$(get_daemon_group $OWNER)}
+
+    MAPR_HOME=${MAPR_HOME:-/opt/mapr}    # TODO: Hardcode this when installing ...
+}
+
+
+
+
+get_daemon_owner() {
+
+    # get the mapr user out of the daemon.conf file
+    local conf=$MAPR_HOME/conf/daemon.conf
+    local owner=$(awk -F = '$1 == "mapr.daemon.user" { print $2 }' $conf)
+
+    # if not valid, then use mapr or root
+    valid_user $owner || owner=mapr
+    valid_user $owner || owner=root
+
+    echo $owner
+}
+  
+
+get_daemon_group() { # <owner>
+
+    # get the mapr group out of the daemon.conf file
+    local conf=$MAPR_HOME/conf/daemon.conf
+    local group=$(awk -F = '$1 == "mapr.daemon.group" { print $2 }' $conf)
+    
+    # if not a valid group, then use owner's login group
+    valid_group $group || group=$(get_group $owner)
+
+    echo $group
+}
+
+
+
+valid_user() {  # <user name>
+    [ "`id -u $1 2>/dev/null`" != "" ]
+}
+
+valid_group() { # <group name>
+   [ "`id -g $1 2>/dev/null`" != "" ]
+}
+
+get_group() { # <user name>
+    id -g -n 2>/dev/null
+}
+
+
+
+# include the functions
+. /etc/init.d/functions
+
+
+## Start the service
+start() {
+
+  # start the daemon
+  mydaemon 
+}
+
+
+# Schedule the daemon in the background, creating PID file
+#   This is what /etc/init.d/functions should be doing in the first place
+#   Note: getting the quotes correct is extremely tricky. 
+mydaemon() {
+    local user_arg
+ 
+    # if we are changing users, then set the --user argument
+    [ $(id -u) -ne $(id -u "$OWNER") ] && user_arg=--user=$OWNER
+
+    # invoke the init.d daemon to run the command
+    daemon $user_arg --pidfile=$PIDFILE  \
+        "bash -c 'echo \$\$ >$PIDFILE; exec $DAEMON' >$LOGFILE 2>&1 &"
+}
+
+
+
+# Stop the daemon
+stop() {
+  killproc -p $PIDFILE $SERVICE
+}
+
+restart() {
+  stop
+  start
+}
+
+
+
+################################################################
+# output the status of the daemon, and return 0 if it is running
+################################################################
+checkstatus(){
+  status -p $PIDFILE $SERVICE
+}
+
+condrestart(){
+    restart
+}
+
+
+do_action() {  # <action>
+  case "$1" in
+    start)
+      start
+      ;;
+    stop)
+      stop
+      ;;
+    status)
+      checkstatus
+      ;;
+    restart)
+      restart
+      ;;
+    condrestart|try-restart)
+      condrestart
+      ;;
+    *)
+      echo "Usage: $0 {start|stop|status|restart|try-restart|condrestart}"
+      exit 1
+  esac
+}
+
+main "$@"

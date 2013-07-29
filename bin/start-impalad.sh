@@ -18,8 +18,10 @@
 # impalad instance.
 
 
-BUILD_TYPE=debug
-IMPALAD_ARGS=""
+BUILD_TYPE=release
+export JAVA_TOOL_OPTIONS="-Dmapr.library.flatclass -verbose:class"
+[ -f /etc/default/impala ] && . /etc/default/impala
+IMPALAD_ARGS="" # "-state_store_host $IMPALA_STATE_STORE_HOST"
 CLASSPATH_PREFIX=""
 # Everything except for -build_type should be passed as an Impalad argument
 for ARG in $*
@@ -46,4 +48,4 @@ done
 . ${IMPALA_HOME}/bin/set-classpath.sh
 
 CLASSPATH=$CLASSPATH_PREFIX:$CLASSPATH \
-  $IMPALA_HOME/be/build/${BUILD_TYPE}/service/impalad ${IMPALAD_ARGS}
+  exec $IMPALA_HOME/be/build/${BUILD_TYPE}/service/impalad ${IMPALAD_ARGS}

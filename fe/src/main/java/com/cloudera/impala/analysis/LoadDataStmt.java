@@ -20,7 +20,6 @@ import java.io.IOException;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
 
 import com.cloudera.impala.authorization.Privilege;
 import com.cloudera.impala.catalog.AuthorizationException;
@@ -135,7 +134,7 @@ public class LoadDataStmt extends StatementBase {
     try {
       Path source = sourceDataPath.getPath();
       FileSystem fs = source.getFileSystem(FileSystemUtil.getConfiguration());
-      DistributedFileSystem dfs = (DistributedFileSystem) fs;
+      FileSystem dfs = fs;
       if (!dfs.exists(source)) {
         throw new AnalysisException(String.format(
             "INPATH location '%s' does not exist.", sourceDataPath));

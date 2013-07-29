@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
 #include "runtime/coordinator.h"
 
 #include <limits>
@@ -65,6 +66,54 @@ using namespace apache::thrift;
 
 DECLARE_int32(be_port);
 DECLARE_string(hostname);
+
+
+////////////////////////////////////////////////////////////////////
+//
+// Create dummy versions of some hdfs routines to work around
+// a bug where the URI is prepended to the file path.
+// Our quick+dirty solution is to strip off the uri portion
+//
+///////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////
+// Strip the leading URI from the path string.
+////////////////////////////////////////////////////////////////////
+static
+const char* PATHONLY(const char* uri) {
+
+    // Scan to the ':', and return the rest of the string
+    for (const char* p=uri; *p!='\0'; p++)
+        if (*p == ':') return p+1;
+
+    // if none found, return the original string
+    return uri;
+}
+
+static
+const char* REMOVETRAILINGSLASH(string path) {
+
+    if (path[path.length() - 1] == '/') {
+      const char* newPath = path.substr(0, path.length() - 1).c_str();
+      return newPath;
+    }
+    // if none found, return the original string
+    return path.c_str();
+}
+
+static int FIX_hdfsRename(hdfsFS fs, const char* p1, const char* p2) {
+    return hdfsRename(fs, PATHONLY(p1), PATHONLY(p2));
+}
+
+// For the rest of the file, refer to the fixed versions
+#define hdfsRename FIX_hdfsRename
+
+//////////////////////////////////////
+//
+// END OF DUMMY ROUTINES
+//
+///////////////////////////////////////
+
 
 namespace impala {
 
@@ -530,7 +579,7 @@ Status Coordinator::FinalizeQuery() {
         for (int i = 0; i < num_files; ++i) {
           if (existing_files[i].mKind == kObjectKindFile) {
             VLOG(2) << "Deleting: " << string(existing_files[i].mName);
-            if (hdfsDelete(hdfs_connection, existing_files[i].mName, 1) == -1) {
+            if (hdfsDelete(hdfs_connection, existing_files[i].mName/*, 1*/) == -1) {
               delete_status = Status(AppendHdfsErrorMessage("Failed to delete existing "
                   "HDFS file as part of INSERT OVERWRITE query: ",
                   string(existing_files[i].mName)));
@@ -546,7 +595,7 @@ Status Coordinator::FinalizeQuery() {
         if (hdfsExists(hdfs_connection, ss.str().c_str()) != -1) {
           // TODO: There's a potential race here between checking for the directory
           // and a third-party deleting it.
-          if (hdfsDelete(hdfs_connection, ss.str().c_str(), 1) == -1) {
+          if (hdfsDelete(hdfs_connection, REMOVETRAILINGSLASH(ss.str())/*, 1*/) == -1) {
             return Status(AppendHdfsErrorMessage("Failed to delete partition directory "
                     "as part of INSERT OVERWRITE query: ", ss.str()));
           }
@@ -578,7 +627,7 @@ Status Coordinator::FinalizeQuery() {
 
   // 4. Delete temp directories
   BOOST_FOREACH(const string& tmp_path, tmp_dirs_to_delete) {
-    if (hdfsDelete(hdfs_connection, tmp_path.c_str(), 1) == -1) {
+    if (hdfsDelete(hdfs_connection, REMOVETRAILINGSLASH(tmp_path)/*, 1*/) == -1) {
       return Status(AppendHdfsErrorMessage("Failed to delete temporary directory: ",
           tmp_path));
     }
@@ -1527,3 +1576,4 @@ void Coordinator::SetExecPlanFragmentParams(
 }
 
 }
+

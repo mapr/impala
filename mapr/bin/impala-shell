@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# get the configuration information
+. $IMPALA_HOME/conf/env.sh
+
+# now invoke the real thing
+export IMPALA_SHELL_HOME=$IMPALA_HOME/shell
+exec $IMPALA_SHELL_HOME/impala-shell  "$@"

@@ -49,6 +49,7 @@ else
   echo "Using existing version.info file."
 fi
 
+mkdir -p ${SHELL_HOME}/gen-py
 rm -f ${SHELL_HOME}/gen-py/impala_build_version.py
 cat > ${SHELL_HOME}/gen-py/impala_build_version.py <<EOF
 # Copyright 2012 Cloudera Inc.

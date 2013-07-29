@@ -1,0 +1,229 @@
+#!/bin/bash  
+
+
+# When running scripts standalone. Normally, these will be set on installation.
+MAPR_HOME=${MAPR_HOME:-/opt/mapr/}
+IMPALA_HOME=${IMPALA_HOME:-/opt/mapr/impala/impala-1.1.1}
+
+# get the configuration information
+. /opt/mapr/impala/impala-1.1.1/conf/env.sh
+
+# Not sure why we need this ...
+export JAVA_TOOL_OPTIONS+=" -Dmapr.library.flatclass "
+
+
+
+
+################################################################33
+# Check the configuration and start the impala server
+#  Note: some of this script should be moved to mapr's configure.sh
+####################################################################3
+main() {
+
+    # point to the HIVE and HADOOP directories
+    HIVE_HOME=$(findHome hive)
+    HADOOP_HOME=$(findHome hadoop)
+    HBASE_HOME=$(findHome hbase)
+
+    # make sure the system has what we need
+    validateSystem 
+
+    # set the class path
+    setCLASSPATH
+
+    # We packaged our own version of Boost libraries
+    export LD_LIBRARY_PATH+=:${IMPALA_HOME}/lib
+
+    # Pick up the java libraries
+    export LD_LIBRARY_PATH+=:$JAVA_HOME/jre/lib/amd64:$JAVA_HOME/jre/lib/amd64/server
+    export LD_PRELOAD=$JAVA_HOME/jre/lib/amd64/libjsig.so
+
+    # Pick up mapr libraries if needed
+    export LD_LIBRARY_PATH+=:$HADOOP_HOME/lib/native/Linux-amd64-64:/opt/mapr/lib
+    
+    # run in the "logs" directory, so any unplanned logs go there
+    cd ${IMPALA_HOME}/logs
+
+    # Enable core dumps if requested
+    if [ "$ENABLE_CORE_DUMPS" == "true" ] ; then
+        ulimit -c unlimited
+    elif [ -z "$ENABLE_CORE_DUMPS" -o "$ENABLE_CORE_DUMPS" == "false" ] ; then
+        ulimit -c 0
+    else
+        echo 'WARNING: $ENABLE_CORE_DUMPS must be either "true" or "false"'
+    fi
+
+
+    # invoke the impala server
+    exec ${IMPALA_HOME}/sbin/impalad  $IMPALA_SERVER_ARGS "$@"
+
+    # shouldn't be here
+    exit 1;
+}
+
+
+
+#############################################################
+# Ensure the system has everything set up properly
+############################################################
+validateSystem() {
+
+    if [ -z "$IMPALA_STATE_STORE_HOST" ]; then
+        echo IMPALA ERROR: must configure statestore host in env.sh
+        exit 1;
+    fi 
+
+    if [ -z "$HIVE_HOME" ]; then
+        echo IMPALA ERROR: hive must be installed.
+        exit 1
+    fi
+
+    if [ -z "$HADOOP_HOME" ]; then
+        echo IMPALA ERROR: hadoop must be installed
+        exit 1
+    fi
+
+    # There must be a valid hive-site.xml
+    HIVE_SITE_DIR=$(findHiveSite)
+    if [ -z "$HIVE_SITE_DIR" ]; then
+        echo IMPALA ERROR: hive must be configured with hive-site.xml
+        exit 1
+    fi
+   
+    return 0
+}
+
+
+findHiveSite()
+{
+    # CASE: we have our own XML which was not generated automatically, use it
+    if [ -f ${IMPALA_HOME}/conf/hive-site.xml ]   \
+       && ! grep -q GENERATED ${IMPALA_HOME}/conf/hive-site.xml; then
+         echo "${IMPALA_HOME}/conf"
+ 
+    # CASE: we have an env variable, create our own site.xml
+    elif [ ! -z "$HIVE_METASTORE_URI" ]; then
+         createSiteXML
+         echo "${IMPALA_HOME}/conf"
+       
+    # CASE: valid HIVE xml, use it
+    elif grep -q hive.metastore.uris $HIVE_HOME/conf/hive-site.xml; then
+        echo $HIVE_HOME/conf
+
+    # OTHERWISE, error
+    else
+        echo ""
+    fi
+}
+
+
+createSiteXML() { # <uri>
+cat <<- EOF > ${IMPALA_HOME}/conf/hive-site.xml
+<!--  GENERATED automatically by impalaserver -->
+<configuration>
+   <property>
+     <name>hive.metastore.uris</name>
+     <value>$HIVE_METASTORE_URI</value>
+   </property>
+</configuration>
+EOF
+}
+
+
+setCLASSPATH() {
+    local h=$HADOOP_HOME/lib
+
+    # get the jars associated with impala
+    CLASSPATH+=:$(getPath ${IMPALA_HOME}/lib/*.jar)
+
+    # get jars from the other modules
+    CLASSPATH+=:$(getPath $HIVE_HOME/lib/*.jar)
+    CLASSPATH+=:$(getPath $HADOOP_HOME/lib/*.jar)
+    CLASSPATH+=:$(getPath $HBASE_HOME/*.jar)  # Note: not "lib"
+
+    # set the class path to pick up configuration files
+    CLASSPATH+=:/opt/mapr/impala/impala-1.1.1/conf:$HIVE_SITE_DIR:$HADOOP_HOME/conf:$HBASE_HOME/conf:
+    export CLASSPATH
+
+    # as a last resort, pick up files which would be preferred to
+    # come from other modules earlier on the class path.
+    CLASSPATH+=:$(getPath ${IMPALA_HOME}/lib/fallback/*.jar)
+}
+
+
+
+##################################################################3
+# create a path from a list of things - adds ":"
+################################################333
+getPath() {  # <list of things on path>
+    local path=$1; shift
+    local p;
+    for p in "$@"; do
+        path+=:$p
+    done
+    echo $path
+}
+
+
+
+##################################################
+# Create Hive xml file if we have a metastore URL
+#####################################################
+createHiveConf() {
+    cat <<-EOF > ${IMPALA_HOME}/conf/hive-site.xml
+       <configuration>
+           <property>
+              <name>hive.metastore.uris</name>
+              <value>$HIVE_METASTORE_URI</value>
+           </property>
+           <property>
+               <name>hive.metastore.local</name>
+               <value>false</value>
+           </property>
+        </configuration>
+EOF
+}
+
+############################################################
+# Find the home directory where a package is installed
+###########################################################
+findHome() { # package
+    local name=$1
+    # The following works in bash-4 and later
+    #local home=${name^^}_HOME  # name of variable.  eg. IMPALA_HOME
+    local home=$(toupper $name)_HOME  # name of variable.  eg. IMPALA_HOME
+
+    # CASE: environment variable is set, then return it's value
+    if [ ! -z "${!home}" ]; then
+        echo ${!home}
+
+    # CASE: not installed, return empty
+    elif [ ! -d /opt/mapr/$name ]; then
+        echo
+
+    # CASE: has a version file. use it.
+    elif [ -f /opt/mapr/$name/${name}version ]; then
+        local version=`cat /opt/mapr/$name/${name}version`
+        echo /opt/mapr/$name/$name-$version
+
+    # OTHERWISE, get directory of highest version installed so far
+    else
+        local dir
+        for dir in /opt/mapr/$name/*; do
+           echo >/dev/null # need something here
+        done
+        echo $dir
+    fi
+}
+
+
+#################################################################
+# Convert the string to upper case
+#   Note: in bash-4, this is accomplished with the "^^" substitution
+#################################################################
+toupper() {
+    echo $* | tr [:lower:]  [:upper:]
+}
+
+
+main "$@"

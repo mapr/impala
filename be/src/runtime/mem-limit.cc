@@ -14,6 +14,8 @@
 
 #include "runtime/mem-limit.h"
 #include "util/uid-util.h"
+#include <boost/thread/lock_guard.hpp>
+
 
 using namespace boost;
 using namespace std;

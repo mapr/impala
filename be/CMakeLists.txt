@@ -226,7 +226,7 @@ set (IMPALA_LINK_LIBS
   ${LIBZ}
   ${LIBBZ2}
   ${AVRO_STATIC_LIB}
-  -lrt -lboost_date_time
+  -lrt 
 )
 
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "CODE_COVERAGE")

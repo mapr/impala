@@ -58,12 +58,3 @@ wget http://mongoose.googlecode.com/files/mongoose-${IMPALA_MONGOOSE_VERSION}.tg
 tar xzf mongoose-${IMPALA_MONGOOSE_VERSION}.tgz
 rm mongoose-${IMPALA_MONGOOSE_VERSION}.tgz
 
-echo "Fetching Apache Hive"
-wget http://archive.cloudera.com/cdh4/cdh/4/hive-${IMPALA_HIVE_VERSION}.tar.gz
-tar xzf hive-${IMPALA_HIVE_VERSION}.tar.gz
-rm hive-${IMPALA_HIVE_VERSION}.tar.gz
-
-echo "Fetching Apache Thrift"
-wget http://archive.apache.org/dist/thrift/${IMPALA_THRIFT_VERSION}/thrift-${IMPALA_THRIFT_VERSION}.tar.gz
-tar xzf thrift-${IMPALA_THRIFT_VERSION}.tar.gz
-rm thrift-${IMPALA_THRIFT_VERSION}.tar.gz

@@ -278,14 +278,11 @@ void DiskIoMgr::ScanRange::CloseScanRange(hdfsFS hdfs_connection, ReaderContext*
   unique_lock<mutex> scan_range_lock(lock_);
   if (hdfs_connection != NULL) {
     if (hdfs_file_ == NULL) return;
-
-    struct hdfsReadStatistics* read_statistics;
-    int success = hdfsFileGetReadStatistics(hdfs_file_, &read_statistics);
-    if (success == 0) {
-      reader->bytes_read_local_ += read_statistics->totalLocalBytesRead;
+/* struct hdfsReadStatistics* read_statistics; int success = hdfsFileGetReadStatistics(hdfs_file_, &read_statistics); if (success == 0) { reader->bytes_read_local_ += read_statistics->totalLocalBytesRead;
       reader->bytes_read_short_circuit_ += read_statistics->totalShortCircuitBytesRead;
       hdfsFileFreeReadStatistics(read_statistics);
     }
+*/
 
     hdfsCloseFile(hdfs_connection, hdfs_file_);
     hdfs_file_ = NULL;

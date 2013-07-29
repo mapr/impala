@@ -1,6 +1,7 @@
 *~
 *.pyc
-.*.swp
+*.swp
+*.Plo
 derby.log
 thirdparty
 cscope.files
@@ -10,6 +11,7 @@ org.eclipse.jdt.ui.prefs
 *benchmark_results.csv*
 load-*-generated.sql
 bin/version.info
+*.tgz
 
 pprof.out
 
