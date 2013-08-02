@@ -1,20 +1,55 @@
-# Cloudera Impala
+# Impala on MapR
 
-Cloudera Impala is a distributed query execution engine that runs against data stored natively in Apache HDFS and Apache HBase. This public repository is a snapshot of our internal development repository that will be updated periodically as we prepare new releases. 
+Impala is a distributed query execution engine that runs against data stored natively in MapRFS and HBase.
 
-The rest of this README describes how to build Cloudera Impala from this repository. Further documentation about Cloudera Impala can be found [here](https://ccp.cloudera.com/display/IMPALA10BETADOC/Cloudera+Impala+1.0+Beta+Documentation). 
 
-# Building Cloudera Impala on CentOS 6.2
+# Building Impala on CentOS 6.3
 
 ## Prerequisites
 
 ### Installing prerequisite packages
 
-    sudo yum install boost-test boost-program-options libevent-devel automake libtool flex bison gcc-c++ openssl-devel \
-    make cmake doxygen.x86_64 glib-devel boost-devel python-devel bzip2-devel svn libevent-devel cyrus-sasl-devel \
-    wget git unzip
+    sudo yum install libevent-devel automake libtool flex bison gcc-c++ openssl-devel make cmake doxygen.x86_64 \
+    python-devel bzip2-devel svn libevent-devel cyrus-sasl-devel wget git unzip rpm-build
 
-*Note:* Impala requires Boost 1.4.2 or later.
+*Note:* Impala requires Boost 1.42 or later.
+
+### Install MapR packages
+
+    sudo yum install mapr-core mapr-hive
+
+### Install Boost
+
+    Add yum repository:
+    [jur-linux]
+    name=Jur Linux
+    baseurl=http://jur-linux.org/download/el-updates/6.5/x86_64/
+    gpgcheck=0
+    enabled=1
+
+    sudo yum install  libicu-devel chrpath openmpi-devel mpich2-devel
+    sudo yum install python3-devel
+
+    wget ftp://ftp.icm.edu.pl/vol/rzm2/linux-fedora-secondary/development/rawhide/source/SRPMS/b/boost-1.53.0-6.fc19.src.rpm
+    sudo rpmbuild --rebuild boost-1.53.0-6.fc19.src.rpm
+
+    sudo rpm -Uvh /root/rpmbuild/RPMS/x86_64/*
+
+    Make the following change to /usr/include/boost/move/core.hpp:
+
+       class rv
+          : public ::boost::move_detail::if_c
+             < ::boost::move_detail::is_class_or_union<T>::value
+             , T
+             , ::boost::move_detail::empty
+             >::type
+       {
+          rv();
+    ---  ~rv();
+    +++  ~rv() throw();
+          rv(rv const&);
+          void operator=(rv const&);
+       } BOOST_MOVE_ATTRIBUTE_MAY_ALIAS;
 
 *Note:* Ubuntu 12.04 (and later) requires the libevent1-dev package to work with Thrift v0.9
 
@@ -37,12 +72,12 @@ Make sure that the Oracle Java Development Kit 6 is installed (not OpenJDK), and
 
 ### Install Maven
 
-    wget http://www.fightrice.com/mirrors/apache/maven/maven-3/3.0.4/binaries/apache-maven-3.0.4-bin.tar.gz
-    tar xvf apache-maven-3.0.4.tar.gz && sudo mv apache-maven-3.0.4 /usr/local
+    wget http://www.fightrice.com/mirrors/apache/maven/maven-3/3.0.5/binaries/apache-maven-3.0.5-bin.tar.gz
+    tar xvf apache-maven-3.0.5.tar.gz && sudo mv apache-maven-3.0.5 /usr/local
    
 Add the following three lines to your .bashrc:
 
-    export M2_HOME=/usr/local/apache-maven-3.0.4
+    export M2_HOME=/usr/local/apache-maven-3.0.5
     export M2=$M2_HOME/bin  
     export PATH=$M2:$PATH 
 
@@ -56,13 +91,13 @@ Confirm by running:
 
 and you should see at least:
 
-    Apache Maven 3.0.4...
+    Apache Maven 3.0.5...
 
-## Building Cloudera Impala
+## Building Impala
 
 ### Clone the Impala repository
 
-    git clone https://github.com/cloudera/impala.git
+    git clone https://github.com/mapr/private-impala
 
 ### Set the Impala environment
   
@@ -71,16 +106,19 @@ and you should see at least:
 
 Confirm your environment looks correct:
 
-    (11:11:21@desktop) ~/src/cloudera/impala-public (master) $ env | grep "IMPALA.*VERSION"
+# env | grep "IMPALA.*VERSION"
+
+
+    IMPALA_AVRO_VERSION=1.7.1-cdh4.2.0
     IMPALA_CYRUS_SASL_VERSION=2.1.23
-    IMPALA_HBASE_VERSION=0.92.1-cdh4.1.0
+    IMPALA_HBASE_VERSION=0.94.9-mapr
     IMPALA_SNAPPY_VERSION=1.0.5
     IMPALA_GTEST_VERSION=1.6.0
     IMPALA_GPERFTOOLS_VERSION=2.0
     IMPALA_GFLAGS_VERSION=2.0
     IMPALA_GLOG_VERSION=0.3.2
-    IMPALA_HADOOP_VERSION=2.0.0-cdh4.1.0
-    IMPALA_HIVE_VERSION=0.9.0-cdh4.1.0
+    IMPALA_HADOOP_VERSION=1.0.3-mapr-3.0.0
+    IMPALA_HIVE_VERSION=0.11-mapr
     IMPALA_MONGOOSE_VERSION=3.3
     IMPALA_THRIFT_VERSION=0.9.0
 
@@ -96,7 +134,7 @@ Confirm your environment looks correct:
 
 ## Wrapping up
 
-After a successful build, there should be an `impalad` binary in `${IMPALA_HOME}/be/build/debug/service`.
+After a successful build, there should be an `impalad` binary in `${IMPALA_HOME}/be/build/release/service`.
 
 You can start an Impala backend by running:
 
@@ -108,6 +146,6 @@ To configure Impala's use of HDFS, HBase or the Hive metastore, place the releva
 
 ## The Impala Shell
 
-The Impala shell is a convenient command-line interface to Cloudera Impala. To run from a source repository, do the following:
+The Impala shell is a convenient command-line interface to Impala. To run from a source repository, do the following:
 
     ${IMPALA_HOME}/bin/impala-shell.sh
