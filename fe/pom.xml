@@ -476,7 +476,7 @@
     <repository>
         <id>mapr-releases</id>
         <url>http://repository.mapr.com/maven/</url>
-        <snapshots><enabled>false</enabled></snapshots>
+        <snapshots><enabled>true</enabled></snapshots>
         <releases><enabled>true</enabled></releases>
       </repository>
 <!--    <repository>
