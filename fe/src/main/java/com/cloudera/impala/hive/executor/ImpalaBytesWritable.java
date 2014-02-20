@@ -27,7 +27,7 @@ public class ImpalaBytesWritable extends BytesWritable {
     string_ = new ImpalaStringWritable(ptr);
   }
 
-  @Override
+  // -- PSC -- @Override
   public byte[] copyBytes() {
     byte[] src = getBytes();
     return src.clone();

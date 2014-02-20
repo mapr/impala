@@ -54,15 +54,11 @@ public class HdfsURI {
     }
 
     uriPath = new Path(location);
-    if (!uriPath.isUriPathAbsolute()) {
+    if (!uriPath.isAbsolute()) {
       throw new AnalysisException("URI path must be absolute: " + uriPath);
     }
     try {
       FileSystem fs = uriPath.getFileSystem(FileSystemUtil.getConfiguration());
-      if (!(fs instanceof DistributedFileSystem)) {
-        throw new AnalysisException(String.format("URI location '%s' " +
-            "must point to an HDFS file system.", uriPath));
-      }
     } catch (IOException e) {
       throw new AnalysisException(e.getMessage(), e);
     }

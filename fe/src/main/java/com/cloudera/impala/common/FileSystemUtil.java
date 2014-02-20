@@ -24,7 +24,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.log4j.Logger;
 
 import com.google.common.base.Preconditions;
@@ -43,11 +42,11 @@ public class FileSystemUtil {
   public static int deleteAllVisibleFiles(Path directory)
       throws IOException {
     FileSystem fs = directory.getFileSystem(CONF);
-    Preconditions.checkState(fs.getFileStatus(directory).isDirectory());
+    Preconditions.checkState(fs.getFileStatus(directory).isDir());
     int numFilesDeleted = 0;
     for (FileStatus fStatus: fs.listStatus(directory)) {
       // Only delete files that are not hidden.
-      if (fStatus.isFile() && !isHiddenFile(fStatus.getPath().getName())) {
+      if (!fStatus.isDir() && !isHiddenFile(fStatus.getPath().getName())) {
         LOG.debug("Removing: " + fStatus.getPath());
         fs.delete(fStatus.getPath(), false);
         ++numFilesDeleted;
@@ -61,11 +60,11 @@ public class FileSystemUtil {
    */
   public static int getTotalNumVisibleFiles(Path directory) throws IOException {
     FileSystem fs = directory.getFileSystem(CONF);
-    Preconditions.checkState(fs.getFileStatus(directory).isDirectory());
+    Preconditions.checkState(fs.getFileStatus(directory).isDir());
     int numFiles = 0;
     for (FileStatus fStatus: fs.listStatus(directory)) {
       // Only delete files that are not hidden.
-      if (fStatus.isFile() && !isHiddenFile(fStatus.getPath().getName())) {
+      if (!fStatus.isDir() && !isHiddenFile(fStatus.getPath().getName())) {
         ++numFiles;
       }
     }
@@ -80,8 +79,8 @@ public class FileSystemUtil {
   public static int moveAllVisibleFiles(Path sourceDir, Path destDir)
       throws IOException {
     FileSystem fs = destDir.getFileSystem(CONF);
-    Preconditions.checkState(fs.isDirectory(destDir));
-    Preconditions.checkState(fs.isDirectory(sourceDir));
+    Preconditions.checkState(!fs.isFile(destDir));
+    Preconditions.checkState(!fs.isFile(sourceDir));
 
     // Use the same UUID to resolve all file name conflicts. This helps mitigate problems
     // that might happen if there is a conflict moving a set of files that have
@@ -91,7 +90,7 @@ public class FileSystemUtil {
     // Enumerate all the files in the source
     int numFilesMoved = 0;
     for (FileStatus fStatus: fs.listStatus(sourceDir)) {
-      if (fStatus.isDirectory()) {
+      if (fStatus.isDir()) {
         LOG.debug("Skipping copy of directory: " + fStatus.getPath());
         continue;
       } else if (isHiddenFile(fStatus.getPath().getName())) {
@@ -121,11 +120,11 @@ public class FileSystemUtil {
       boolean renameIfAlreadyExists) throws IOException {
     FileSystem fs = dest.getFileSystem(CONF);
 
-    Path destFile = fs.isDirectory(dest) ? new Path(dest, sourceFile.getName()) : dest;
+    Path destFile = (fs.exists(dest) && fs.getFileStatus(dest).isDir()) ? new Path(dest, sourceFile.getName()) : dest;
     // If a file with the same name does not already exist in the destination location
     // then use the same file name. Otherwise, generate a unique file name.
     if (renameIfAlreadyExists && fs.exists(destFile)) {
-      Path destDir = fs.isDirectory(dest) ? dest : dest.getParent();
+      Path destDir = !fs.isFile(dest) ? dest : dest.getParent();
       destFile = new Path(destDir,
           appendToBaseFileName(destFile.getName(), UUID.randomUUID().toString()));
     }
@@ -176,7 +175,7 @@ public class FileSystemUtil {
     FileSystem fs = directory.getFileSystem(CONF);
     // Enumerate all the files in the source
     for (FileStatus fStatus: fs.listStatus(directory)) {
-      if (fStatus.isDirectory()) {
+      if (fStatus.isDir()) {
         return true;
       }
     }
@@ -198,11 +197,10 @@ public class FileSystemUtil {
     return fileName.startsWith(".") || fileName.startsWith("_");
   }
 
-  public static DistributedFileSystem getDistributedFileSystem(Path path)
+  public static FileSystem getDistributedFileSystem(Path path)
       throws IOException {
     FileSystem fs = path.getFileSystem(CONF);
-    Preconditions.checkState(fs instanceof DistributedFileSystem);
-    return (DistributedFileSystem) fs;
+    return fs;
   }
 
   /**

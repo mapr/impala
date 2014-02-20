@@ -20,8 +20,10 @@
 set -e
 set -u
 
-BUILD_TYPE=debug
-IMPALAD_ARGS=""
+BUILD_TYPE=release
+export JAVA_TOOL_OPTIONS="-Dmapr.library.flatclass -verbose:class"
+[ -f /etc/default/impala ] && . /etc/default/impala
+IMPALAD_ARGS="" # "-state_store_host $IMPALA_STATE_STORE_HOST"
 BINARY_BASE_DIR=${IMPALA_HOME}/be/build
 IN_PROCESS=false
 

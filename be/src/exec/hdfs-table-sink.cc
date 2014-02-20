@@ -293,7 +293,7 @@ Status HdfsTableSink::CreateNewTmpFile(RuntimeState* state,
   Status status = output_partition->writer->InitNewFile();
   if (!status.ok()) {
     ClosePartitionFile(state, output_partition);
-    hdfsDelete(hdfs_connection_, output_partition->current_file_name.c_str(), 0);
+    hdfsDelete(hdfs_connection_, output_partition->current_file_name.c_str()/*, 0*/);
   }
   return status;
 }

@@ -47,7 +47,7 @@ void HdfsOp::Execute() const {
   hdfsFS* hdfs_connection = op_set_->hdfs_connection();
   switch (op_) {
     case DELETE:
-      err = hdfsDelete(*hdfs_connection, src_.c_str(), 1);
+      err = hdfsDelete(*hdfs_connection, src_.c_str()/*, 1*/);
       break;
     case CREATE_DIR:
       err = hdfsCreateDirectory(*hdfs_connection, src_.c_str());
@@ -56,7 +56,7 @@ void HdfsOp::Execute() const {
       err = hdfsRename(*hdfs_connection, src_.c_str(), dst_.c_str());
       break;
     case DELETE_THEN_CREATE:
-      err = hdfsDelete(*hdfs_connection, src_.c_str(), 1);
+      err = hdfsDelete(*hdfs_connection, src_.c_str()/*, 1*/);
       if (err != -1) err = hdfsCreateDirectory(*hdfs_connection, src_.c_str());
       break;
   }
