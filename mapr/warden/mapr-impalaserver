@@ -1,0 +1,3 @@
+#!/bin/sh
+
+exec $MAPR_HOME/initscripts/warden_helper  $IMPALA_HOME  impalaserver  $1

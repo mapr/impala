@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hive.service.cli.thrift.TGetColumnsReq;
 import org.apache.hive.service.cli.thrift.TGetFunctionsReq;
 import org.apache.hive.service.cli.thrift.TGetSchemasReq;
@@ -353,7 +353,7 @@ public class Frontend {
     }
 
     Path destPath = new Path(destPathString);
-    DistributedFileSystem dfs = FileSystemUtil.getDistributedFileSystem(destPath);
+    FileSystem dfs = FileSystemUtil.getDistributedFileSystem(destPath);
 
     // Create a temporary directory within the final destination directory to stage the
     // file move.

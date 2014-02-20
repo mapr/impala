@@ -293,6 +293,7 @@ void DiskIoMgr::ScanRange::Close() {
   if (reader_->hdfs_connection_ != NULL) {
     if (hdfs_file_ == NULL) return;
 
+/*
     struct hdfsReadStatistics* read_statistics;
     int success = hdfsFileGetReadStatistics(hdfs_file_, &read_statistics);
     if (success == 0) {
@@ -301,6 +302,7 @@ void DiskIoMgr::ScanRange::Close() {
       reader_->bytes_read_dn_cache_ += read_statistics->totalZeroCopyBytesRead;
       hdfsFileFreeReadStatistics(read_statistics);
     }
+*/
 
     if (cached_buffer_ != NULL) {
       hadoopRzBufferFree(hdfs_file_, cached_buffer_);

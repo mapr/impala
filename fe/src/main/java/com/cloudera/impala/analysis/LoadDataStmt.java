@@ -124,7 +124,7 @@ public class LoadDataStmt extends StatementBase {
     try {
       Path source = sourceDataPath_.getPath();
       FileSystem fs = source.getFileSystem(FileSystemUtil.getConfiguration());
-      DistributedFileSystem dfs = (DistributedFileSystem) fs;
+      FileSystem dfs = fs;
       if (!dfs.exists(source)) {
         throw new AnalysisException(String.format(
             "INPATH location '%s' does not exist.", sourceDataPath_));

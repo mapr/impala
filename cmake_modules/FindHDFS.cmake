@@ -10,7 +10,7 @@ exec_program(hadoop ARGS version OUTPUT_VARIABLE Hadoop_VERSION
 
 # currently only looking in HADOOP_HOME
 find_path(HDFS_INCLUDE_DIR hdfs.h PATHS
-  $ENV{HADOOP_HOME}/include/
+  $ENV{HADOOP_HOME}/src/c++/libhdfs/
   # make sure we don't accidentally pick up a different version
   NO_DEFAULT_PATH
 )
@@ -25,19 +25,24 @@ endif()
 
 message(STATUS "Architecture: ${arch_hint}")
 
-if ("${arch_hint}" STREQUAL "x64")
-  set(HDFS_LIB_PATHS $ENV{HADOOP_HOME}/lib/native)
-else ()
-  set(HDFS_LIB_PATHS $ENV{HADOOP_HOME}/lib/native)
-endif ()
+# Include the hdfs library (Note: we are only 64-bit)
+#set(HDFS_LIB_PATHS $ENV{HADOOP_HOME}/c++/lib)
+#
+#find_library(HDFS_LIB NAMES hdfs PATHS 
+#  ${HDFS_LIB_PATHS}
+#  # make sure we don't accidentally pick up a different version
+#  NO_DEFAULT_PATH
+#)
 
-message(STATUS "HDFS_LIB_PATHS: ${HDFS_LIB_PATHS}")
+set(HDFS_LIB_PATHS $ENV{HADOOP_HOME}/c++/lib)
 
 find_library(HDFS_LIB NAMES hdfs PATHS 
   ${HDFS_LIB_PATHS}
   # make sure we don't accidentally pick up a different version
   NO_DEFAULT_PATH
 )
+
+message(STATUS "HDFS_LIB_PATHS: ${HDFS_LIB_PATHS}")
 
 if (HDFS_LIB)
   set(HDFS_FOUND TRUE)

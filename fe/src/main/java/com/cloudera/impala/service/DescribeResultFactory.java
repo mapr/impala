@@ -93,8 +93,13 @@ public class DescribeResultFactory {
     hiveTable.setTTable(msTable);
     StringBuilder sb = new StringBuilder();
     // First add all the columns (includes partition columns).
-    sb.append(MetaDataFormatUtils.getAllColumnsInformation(msTable.getSd().getCols(),
-        msTable.getPartitionKeys(), true));
+    //sb.append(MetaDataFormatUtils.getAllColumnsInformation(msTable.getSd().getCols(),
+        //msTable.getPartitionKeys(), true));
+
+    // -- PSC -- 
+    // sb.append(MetaDataFormatUtils.getAllColumnsInformation(
+    //    msTable.getSd().getCols(), msTable.getPartitionKeys(), true));
+    
     // Add the extended table metadata information.
     sb.append(MetaDataFormatUtils.getTableInformation(hiveTable));
 

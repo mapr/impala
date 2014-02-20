@@ -49,6 +49,13 @@ rm -rf ${TARBALL_ROOT}/gen-py/* 2>&1 > /dev/null
 rm -rf ${TARBALL_ROOT}/ext-py/* 2>&1 > /dev/null
 mkdir -p ${TARBALL_ROOT}/lib
 mkdir -p ${TARBALL_ROOT}/ext-py
+mkdir -p ${SHELL_HOME}/gen-py
+if [ ! -f ${IMPALA_VERSION_INFO_FILE} ]; then
+  echo "No version.info file found. Generating new version info"
+  ${IMPALA_HOME}/bin/save-version.sh
+else
+  echo "Using existing version.info file."
+fi
 
 rm -f ${SHELL_HOME}/gen-py/impala_build_version.py
 cat > ${SHELL_HOME}/gen-py/impala_build_version.py <<EOF
