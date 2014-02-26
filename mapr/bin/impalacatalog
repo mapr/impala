@@ -6,19 +6,29 @@ IMPALA_HOME=${IMPALA_HOME:-/opt/mapr/impala/impala-1.2.3}
 # get the configuration information
 . $IMPALA_HOME/conf/env.sh
 
+# set environment
+. /opt/mapr/impala/impala-1.2.3/conf/set_path_env.sh
+
 # Pick up the packaged boost libraries
 export LD_LIBRARY_PATH+=:$IMPALA_HOME/lib
 
 # Pick up the java libraries
 export LD_LIBRARY_PATH+=:$JAVA_HOME/jre/lib/amd64:$JAVA_HOME/jre/lib/amd64/server
 
+# point to the HIVE and HADOOP directories
+HIVE_HOME=$(findHome hive)
+HADOOP_HOME=$(findHome hadoop)
+HBASE_HOME=$(findHome hbase)
+
+# set the class path
+setCLASSPATH
 
     if [ "$ENABLE_CORE_DUMPS" == "true" ] ; then
-        ulimit -c unlimited
+    ulimit -c unlimited
     elif [ -z "$ENABLE_CORE_DUMPS" -o "$ENABLE_CORE_DUMPS" == "false" ] ; then
-        ulimit -c 0
+    ulimit -c 0
     else
-        echo 'WARNING: $ENABLE_CORE_DUMPS must be either "true" or "false"'
+    echo 'WARNING: $ENABLE_CORE_DUMPS must be either "true" or "false"'
     fi
 
 
