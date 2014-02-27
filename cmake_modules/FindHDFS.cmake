@@ -34,9 +34,10 @@ message(STATUS "Architecture: ${arch_hint}")
 #  NO_DEFAULT_PATH
 #)
 
-set(HDFS_LIB_PATHS $ENV{HADOOP_HOME}/c++/lib)
+#set(HDFS_LIB_PATHS $ENV{HADOOP_HOME}/c++/lib)
+set(HDFS_LIB_PATHS $ENV{HADOOP_HOME}/lib/native/Linux-amd64-64)
 
-find_library(HDFS_LIB NAMES hdfs PATHS 
+find_library(HDFS_LIB NAMES MapRClient PATHS 
   ${HDFS_LIB_PATHS}
   # make sure we don't accidentally pick up a different version
   NO_DEFAULT_PATH
