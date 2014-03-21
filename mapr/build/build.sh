@@ -8,10 +8,12 @@ main()
     export PATH+=:$M2_HOME/bin
     export JAVA_HOME=${JAVA_HOME:-/usr/java/latest}
 
-    # Build Impala (including the shell)
+    # Build Impala 
     cd $IMPALA_HOME
     ./build_public.sh  -build_thirdparty
 
+    # Build the shell
+    (. bin/impala-config.sh;  shell/make_shell_tarball.sh)
 }
 
 
