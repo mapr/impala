@@ -32,6 +32,9 @@ do
     -build_thirdparty)
       BUILD_THIRDPARTY=1
     ;;
+    -debug)
+      TARGET_BUILD_TYPE=Debug
+      ;;
   esac
 done
 
