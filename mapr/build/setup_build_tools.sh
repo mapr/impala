@@ -1,6 +1,6 @@
 #!/bin/bash -x
 
-
+OS="redhat"
 
 ###################################################################
 # Setup the build machine with the tools needed to build impala
@@ -10,8 +10,12 @@ main()
    check_OS_version
    check_jdk
    check_sudo
-   add_yum_repositories
-   install_yum_packages
+
+   if [[ "$OS" == "redhat" ]]; then
+       add_yum_repositories
+       install_yum_packages
+   fi
+
    build_boost
    install_maven
    build_llvm
@@ -22,24 +26,45 @@ main()
 # Verify we have CentOS 6.1 or later
 ###########################################
 check_OS_version() {
-   if [ ! -f /etc/redhat-release ]; then
-       echo "Must be a CentOS 6.1 or later operating system"
-       exit 1;
-   fi
-    BAD_CENTOS_VERSION=0
-    BAD_REDHAT_VERSION=0
-    if [[ "$(cat /etc/redhat-release)" != *"CentOS release 6."[123456789]* ]]; then
-        echo "CentOS 6.1 or later not detected"
-        BAD_CENTOS_VERSION=1
-    fi
-    if [[ "$(cat /etc/redhat-release)" != *"Red Hat Enterprise Linux"*"release 6."[123456789]* ]]; then
-        echo "RedHat 6.1 or later not detected"
-        BAD_REDHAT_VERSION=1
-    fi
-    let NUMBER_OF_BADS=$BAD_CENTOS_VERSION+$BAD_REDHAT_VERSION
-    if [ $NUMBER_OF_BADS -gt 1 ]; then
-        echo "Must be RedHat or CentOS version 6.1 or later"
-        exit 1
+
+   #
+   # Redhat
+   #
+   if [ -z "$(uname -a | grep -i "ubuntu")" ]; then
+       if [ ! -f /etc/redhat-release ]; then
+           echo "Must be a CentOS 6.1 or later operating system"
+           exit 1;
+       fi
+
+       BAD_CENTOS_VERSION=0
+       BAD_REDHAT_VERSION=0
+       if [[ "$(cat /etc/redhat-release)" != *"CentOS release 6."[123456789]* ]]; then
+           echo "CentOS 6.1 or later not detected"
+           BAD_CENTOS_VERSION=1
+       fi
+
+       if [[ "$(cat /etc/redhat-release)" != *"Red Hat Enterprise Linux"*"release 6."[123456789]* ]]; then
+           echo "RedHat 6.1 or later not detected"
+           BAD_REDHAT_VERSION=1
+       fi
+
+       let NUMBER_OF_BADS=$BAD_CENTOS_VERSION+$BAD_REDHAT_VERSION
+
+       if [ $NUMBER_OF_BADS -gt 1 ]; then
+           echo "Must be RedHat or CentOS version 6.1 or later"
+           exit 1
+       fi
+
+    #
+    # Ubuntu
+    #
+    else
+       OS="ubuntu"
+
+       if [ "$(lsb_release -a 2> /dev/null | grep -i "release:" | awk '{print $NF}' | cut -d. -f1)" -lt 12 ]; then 
+           echo "Ubuntu 12.0 or later not detected"
+           exit 1
+       fi
     fi
 }
 
@@ -79,7 +104,7 @@ check_jdk() {
 # Make sure we have sudo privileges
 #################################################
 check_sudo() {
-    if [ ! sudo true ]; then
+    if [ "$(id -u)" != "0" ]; then
         echo "User $(id -u) must have sudo priveleges"
         exit 1
     fi
@@ -148,15 +173,27 @@ install_yum_packages() {
 valid_boost() {
 
     # we must have boost installed
-    [ -f /usr/include/boost/version.hpp ] || return 1
+    if [ -f /usr/include/boost/version.hpp ]; then
 
-    # it must have a "define BOOST_VERSION"
-    local define=$(grep '#define BOOST_VERSION ' /usr/include/boost/version.hpp)
-    [ -z "$define" ] && return 1;
+        # it must have a "define BOOST_VERSION"
+        local define=$(grep '#define BOOST_VERSION ' /usr/include/boost/version.hpp)
+        [ -z "$define" ] && return 1;
+
+    elif [ -f /usr/local/include/boost/version.hpp ]; then
+
+        # it must have a "define BOOST_VERSION"
+        local define=$(grep '#define BOOST_VERSION ' /usr/local/include/boost/version.hpp)
+        [ -z "$define" ] && return 1;
+
+    else
+        return 1
+    fi
 
     # the version must bo 1.53 or greater
     local version=${define##*BOOST_VERSION}
     [[ $version -ge 105300 ]]
+
+    return 0
 }
     
 
@@ -169,24 +206,45 @@ build_boost() {
     # see if we already have a valid boost installation
     valid_boost && return
 
-    echo Installing Boost 1.53
+    if [[ "$OS" == "redhat" ]]; then 
 
-    # But first, remove any previous boost
-    [ -d /usr/lib/boost ] && sudo yum -y erase boost
+        echo Installing Boost 1.53
 
-    # fetch the boost source rpm and create binary rpms
-    wget ftp://ftp.icm.edu.pl/vol/rzm2/linux-fedora-secondary/development/rawhide/source/SRPMS/b/boost-1.53.0-6.fc19.src.rpm
-    rpmbuild --rebuild boost-1.53.0-6.fc19.src.rpm
+        # But first, remove any previous boost
+        [ -d /usr/lib/boost ] && sudo yum -y erase boost
 
-    # install the binary rpms, removing old versions if present
-    # (Note: the "rpm" utility does not clean up old versions very well.)
-    sudo yum -y install ~/rpmbuild/RPMS/x86_64/*
+        # fetch the boost source rpm and create binary rpms
+        wget ftp://ftp.icm.edu.pl/vol/rzm2/linux-fedora-secondary/development/rawhide/source/SRPMS/b/boost-1.53.0-6.fc19.src.rpm
+        rpmbuild --rebuild boost-1.53.0-6.fc19.src.rpm
 
-    # Make the following change to /usr/include/boost/move/core.hpp:
-    #  (Note: this is probably not the best way to fix the problem.)
-    sudo mv /usr/include/boost/move/core.hpp /usr/include/boost/move/core.hpp.orig
-    sudo sed 's/~rv();/~rv() throw();/' < /usr/include/boost/move/core.hpp.orig \
+        # install the binary rpms, removing old versions if present
+        # (Note: the "rpm" utility does not clean up old versions very well.)
+        sudo yum -y install ~/rpmbuild/RPMS/x86_64/*
+
+        # Make the following change to /usr/include/boost/move/core.hpp:
+        #  (Note: this is probably not the best way to fix the problem.)
+        sudo mv /usr/include/boost/move/core.hpp /usr/include/boost/move/core.hpp.orig
+        sudo sed 's/~rv();/~rv() throw();/' < /usr/include/boost/move/core.hpp.orig \
                                  > /usr/include/boost/move/core.hpp
+    else
+        echo Installing Boost 1.55
+
+        wget -O /tmp/boost_1_55_0.tar.gz http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.gz/download
+        tar -xzvf /tmp/boost_1_55_0.tar.gz -C /tmp
+
+        #
+        # Now we are inside the boost directory we can get the installation script and execute it.
+        #
+        wget -O /tmp/boost_1_55_0/install_boost.sh https://dl.dropbox.com/u/88131281/install_boost.sh
+        chmod +x /tmp/boost_1_55_0/install_boost.sh
+        /tmp/boost_1_55_0/install_boost.sh
+
+        # Make the following change to /usr/local/include/boost/move/core.hpp:
+        #  (Note: this is probably not the best way to fix the problem.)
+        sudo mv /usr/local/include/boost/move/core.hpp /usr/local/include/boost/move/core.hpp.orig
+        sudo sed 's/~rv();/~rv() throw();/' < /usr/local/include/boost/move/core.hpp.orig \
+                                 > /usr/local/include/boost/move/core.hpp
+    fi
 }
 
 
@@ -266,7 +324,6 @@ EOF
 valid_maven() {
     [ -f /usr/local/apache-maven-3.1.1/bin/mvn ]
 }
-
 
 
 main "$@"
