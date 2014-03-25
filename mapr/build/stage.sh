@@ -114,21 +114,40 @@ copy_mapr_files() {
 }
 
 copy_boost_files() {
-    local l=/usr/lib64
-    copy_lib $l/libboost_thread-mt.so $STAGE/lib
-    copy_lib $l/libboost_system-mt.so $STAGE/lib
-    copy_lib $l/libboost_filesystem-mt.so $STAGE/lib
-    copy_lib $l/libboost_date_time-mt.so $STAGE/lib
-    copy_lib $l/libboost_regex-mt.so $STAGE/lib
+    if [ -z "$(uname -a | grep -i ubuntu)" ]; then
+        local l=/usr/lib64
+        copy_lib $l/libboost_thread-mt.so $STAGE/lib
+        copy_lib $l/libboost_system-mt.so $STAGE/lib
+        copy_lib $l/libboost_filesystem-mt.so $STAGE/lib
+        copy_lib $l/libboost_date_time-mt.so $STAGE/lib
+        copy_lib $l/libboost_regex-mt.so $STAGE/lib
 
-    # specific fix for libboost_threat-mt.so, which is actually a linker script that pulls in two other files
-    BOOST_THREAD_FIND_RESULTS=`find $STAGE/lib -n "libboost_thread-mt*"`
-    echo "Looking to see if we got libboost_thread.mt.so"
-    echo "$BOOST_THREAD_FIND_RESULTS"
-    if [[ -z "$BOOST_THREAD_FIND_RESULTS" ]]; then
-        echo "libboost_thread.mt.so was not found the first time"
-        echo "trying to copy it now..."
-        cp -vf $l/libboost_thread-mt.so.1.* $STAGE/lib/.
+        # specific fix for libboost_threat-mt.so, which is actually a linker script that pulls in two other files
+        BOOST_THREAD_FIND_RESULTS=`find $STAGE/lib -n "libboost_thread-mt*"`
+        echo "Looking to see if we got libboost_thread.mt.so"
+        echo "$BOOST_THREAD_FIND_RESULTS"
+        if [[ -z "$BOOST_THREAD_FIND_RESULTS" ]]; then
+            echo "libboost_thread.mt.so was not found the first time"
+            echo "trying to copy it now..."
+            cp -vf $l/libboost_thread-mt.so.1.* $STAGE/lib/.
+        fi
+    else
+        local l=/usr/local/lib
+        copy_lib $l/libboost_thread.so $STAGE/lib
+        copy_lib $l/libboost_system.so $STAGE/lib
+        copy_lib $l/libboost_filesystem.so $STAGE/lib
+        copy_lib $l/libboost_date_time.so $STAGE/lib
+        copy_lib $l/libboost_regex.so $STAGE/lib
+
+        # specific fix for libboost_threat-mt.so, which is actually a linker script that pulls in two other files
+        BOOST_THREAD_FIND_RESULTS=`find $STAGE/lib -name "libboost_thread.so.*"`
+        echo "Looking to see if we got libboost_thread.so"
+        echo "$BOOST_THREAD_FIND_RESULTS"
+        if [[ -z "$BOOST_THREAD_FIND_RESULTS" ]]; then
+            echo "libboost_thread.so was not found the first time"
+            echo "trying to copy it now..."
+            cp -vf $l/libboost_thread.so.1.* $STAGE/lib/.
+        fi
     fi
 }
 
