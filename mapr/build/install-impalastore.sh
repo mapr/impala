@@ -41,6 +41,11 @@ main()
     touch ${MAPR_HOME}/roles/impalastore
     chown $owner ${MAPR_HOME}/roles/impalastore
 
+    # create the conf.d directory if not exists
+    if [ ! -d $MAPR_HOME/conf/conf.d ]; then
+        mkdir -p $MAPR_HOME/conf/conf.d
+    fi
+
     # create the warden configuration file
     configure_file  $IMPALA_HOME/mapr/warden/warden.impalastore.conf \
                     $MAPR_HOME/conf/conf.d/warden.impalastore.conf
