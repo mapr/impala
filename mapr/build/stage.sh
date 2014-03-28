@@ -132,7 +132,7 @@ copy_boost_files() {
             cp -vf $l/libboost_thread-mt.so.1.* $STAGE/lib/.
         fi
     else
-        local l=/usr/local/lib
+        local l=/usr/lib
         copy_lib $l/libboost_thread.so $STAGE/lib
         copy_lib $l/libboost_system.so $STAGE/lib
         copy_lib $l/libboost_filesystem.so $STAGE/lib
