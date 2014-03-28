@@ -175,15 +175,15 @@ install_yum_packages() {
 install_apt_packages() {
 
     # get the normal build tools
-    sudo apt-get install -y automake bison build-essential chrpath \
-	cmake doxygen doxygen.x86_64 flex g++-4.4 gcc-c++ libboost1.53-dev \
-        libboost1.53-all-dev libevent-dev libffi-dev libicu-dev \
-        libldap2-dev libsasl2-dev libssl-dev libtool make mpich2-dev \
-        openmpi-dev openssl-dev unzip xhrpath 
-
-    sudo apt-get install -y python3-dev python-dev python-setuptools 
-
-    sudo apt-get install -y zlib1g-dev 
+    sudo apt-get install -y automake bison build-essential chrpath
+    sudo apt-get install -y cmake coreutils doxygen fakeroot flex
+    sudo apt-get install -y libtool make mpich2-dev openmpi-dev
+    sudo apt-get install -y g++-4.4 gcc-4.4 unzip zlib1g-dev
+    sudo apt-get install -y libboost1.53-all-dev libboost1.53-dev
+    sudo apt-get install -y libcurl4-openssl-dev libevent-dev
+    sudo apt-get install -y libffi-dev libicu-dev libldap2-dev libsasl2-dev
+    sudo apt-get install -y libssl-dev openssl-dev
+    sudo apt-get install -y python3-dev python-dev python-setuptools
 }
 
 
