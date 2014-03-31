@@ -15,7 +15,7 @@ main()
        add_yum_repositories
        install_yum_packages
    else
-       install_apt_pacakges
+       install_apt_packages
    fi
 
    build_boost
@@ -184,6 +184,8 @@ install_apt_packages() {
     sudo apt-get install -y libffi-dev libicu-dev libldap2-dev libsasl2-dev
     sudo apt-get install -y libssl-dev openssl-dev
     sudo apt-get install -y python3-dev python-dev python-setuptools
+    sudo apt-get install -y asciidoc  t2html liblzma-dev
+    sudo apt-get install -y source-highlight
 }
 
 
@@ -201,7 +203,7 @@ valid_boost() {
 
     # the version must bo 1.49 or greater
     local version=${define##*BOOST_VERSION}
-    [[ $version -ge 105300 ]]
+    [[ $version -ge 104900 ]]
 
     return 0
 }
