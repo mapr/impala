@@ -14,6 +14,8 @@ main()
    if [[ "$OS" == "redhat" ]]; then
        add_yum_repositories
        install_yum_packages
+   else
+       install_apt_packages
    fi
 
    build_boost
@@ -167,31 +169,41 @@ install_yum_packages() {
 }
 
 
+##############################################################33
+# Install packages which come from the apt-get repositories
+##################################################################
+install_apt_packages() {
+
+    # get the normal build tools
+    sudo apt-get install -y automake bison build-essential chrpath
+    sudo apt-get install -y cmake coreutils doxygen fakeroot flex
+    sudo apt-get install -y libtool make mpich2-dev openmpi-dev
+    sudo apt-get install -y g++-4.4 gcc-4.4 unzip zlib1g-dev
+    sudo apt-get install -y libboost1.53-all-dev libboost1.53-dev
+    sudo apt-get install -y libcurl4-openssl-dev libevent-dev
+    sudo apt-get install -y libffi-dev libicu-dev libldap2-dev libsasl2-dev
+    sudo apt-get install -y libssl-dev openssl-dev
+    sudo apt-get install -y python3-dev python-dev python-setuptools
+    sudo apt-get install -y asciidoc  t2html liblzma-dev
+    sudo apt-get install -y source-highlight
+}
+
+
 ##################################################################
 # Verify we have a valid (1.53 or later) boost installed
 #################################################################
 valid_boost() {
 
     # we must have boost installed
-    if [ -f /usr/include/boost/version.hpp ]; then
+    [ -f /usr/include/boost/version.hpp ] || return 1
 
-        # it must have a "define BOOST_VERSION"
-        local define=$(grep '#define BOOST_VERSION ' /usr/include/boost/version.hpp)
-        [ -z "$define" ] && return 1;
+    # it must have a "define BOOST_VERSION"
+    local define=$(grep '#define BOOST_VERSION ' /usr/include/boost/version.hpp)
+    [ -z "$define" ] && return 1;
 
-    elif [ -f /usr/local/include/boost/version.hpp ]; then
-
-        # it must have a "define BOOST_VERSION"
-        local define=$(grep '#define BOOST_VERSION ' /usr/local/include/boost/version.hpp)
-        [ -z "$define" ] && return 1;
-
-    else
-        return 1
-    fi
-
-    # the version must bo 1.53 or greater
+    # the version must bo 1.49 or greater
     local version=${define##*BOOST_VERSION}
-    [[ $version -ge 105300 ]]
+    [[ $version -ge 104900 ]]
 
     return 0
 }
@@ -221,30 +233,13 @@ build_boost() {
         # (Note: the "rpm" utility does not clean up old versions very well.)
         sudo yum -y install ~/rpmbuild/RPMS/x86_64/*
 
-        # Make the following change to /usr/include/boost/move/core.hpp:
-        #  (Note: this is probably not the best way to fix the problem.)
-        sudo mv /usr/include/boost/move/core.hpp /usr/include/boost/move/core.hpp.orig
-        sudo sed 's/~rv();/~rv() throw();/' < /usr/include/boost/move/core.hpp.orig \
-                                 > /usr/include/boost/move/core.hpp
-    else
-        echo Installing Boost 1.55
-
-        wget -O /tmp/boost_1_55_0.tar.gz http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.gz/download
-        tar -xzvf /tmp/boost_1_55_0.tar.gz -C /tmp
-
-        #
-        # Now we are inside the boost directory we can get the installation script and execute it.
-        #
-        wget -O /tmp/boost_1_55_0/install_boost.sh https://dl.dropbox.com/u/88131281/install_boost.sh
-        chmod +x /tmp/boost_1_55_0/install_boost.sh
-        /tmp/boost_1_55_0/install_boost.sh
-
-        # Make the following change to /usr/local/include/boost/move/core.hpp:
-        #  (Note: this is probably not the best way to fix the problem.)
-        sudo mv /usr/local/include/boost/move/core.hpp /usr/local/include/boost/move/core.hpp.orig
-        sudo sed 's/~rv();/~rv() throw();/' < /usr/local/include/boost/move/core.hpp.orig \
-                                 > /usr/local/include/boost/move/core.hpp
     fi
+
+    # Make the following change to /usr/include/boost/move/core.hpp:
+    #  (Note: this is probably not the best way to fix the problem.)
+    sudo mv /usr/include/boost/move/core.hpp /usr/include/boost/move/core.hpp.orig
+    sudo sed 's/~rv();/~rv() throw();/' < /usr/include/boost/move/core.hpp.orig \
+                                 > /usr/include/boost/move/core.hpp
 }
 
 
