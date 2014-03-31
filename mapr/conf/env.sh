@@ -9,6 +9,7 @@ export IMPALA_VERSION=$IMPALA_VERSION
 # This MUST point to the node running statestore
 IMPALA_STATE_STORE_HOST=localhost
 IMPALA_STATE_STORE_PORT=24000
+CATALOG_SERVICE_HOST=localhost
 
 # By default, we use the Hive configuration.
 # Uncomment this If hive is not configured, or we wish to override it.
@@ -22,6 +23,7 @@ IMPALA_SERVER_ARGS=" \
     -state_store_port=${IMPALA_STATE_STORE_PORT} \
     -use_statestore \
     -state_store_host=${IMPALA_STATE_STORE_HOST} \
+    -catalog_service_host=${CATALOG_SERVICE_HOST} \
     -be_port=${IMPALA_BACKEND_PORT}"
 
 # These impact the state store daemon and can be optionally changed
