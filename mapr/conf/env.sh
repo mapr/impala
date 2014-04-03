@@ -27,7 +27,7 @@ IMPALA_SERVER_ARGS=" \
     -be_port=${IMPALA_BACKEND_PORT}"
 
 # These impact the state store daemon and can be optionally changed
-IMPALA_STATE_STORE_ARGS=" -log_dir=${IMPALA_LOG_DIR} -state_store_port=${IMPALA_STATE_STORE_PORT}"
+IMPALA_STATE_STORE_ARGS=" -log_dir=${IMPALA_LOG_DIR} -state_store_port=${IMPALA_STATE_STORE_PORT} -catalog_service_host=${CATALOG_SERVICE_HOST} "
 IMPALA_CATALOG_ARGS=" -log_dir=${IMPALA_LOG_DIR} "
 
 # for troubleshooting
