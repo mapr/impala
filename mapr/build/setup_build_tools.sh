@@ -157,7 +157,7 @@ install_yum_packages() {
     # get the normal build tools
     sudo yum -y install libevent-devel automake libtool flex bison gcc-c++ \
           openssl-devel make cmake doxygen.x86_64 python-devel bzip2-devel \
-          svn libevent-devel cyrus-sasl-devel wget git unzip rpm-build
+          svn cyrus-sasl-devel wget git unzip rpm-build
     sudo yum -y install  libicu-devel chrpath openmpi-devel mpich2-devel
     sudo yum -y install python3-devel
 
@@ -180,7 +180,7 @@ install_apt_packages() {
     sudo apt-get install -y libtool make mpich2-dev openmpi-dev
     sudo apt-get install -y g++-4.4 gcc-4.4 unzip zlib1g-dev
     sudo apt-get install -y libboost1.53-all-dev libboost1.53-dev
-    sudo apt-get install -y libcurl4-openssl-dev libevent-dev
+    sudo apt-get install -y libcurl4-openssl-dev libevent1-dev
     sudo apt-get install -y libffi-dev libicu-dev libldap2-dev libsasl2-dev
     sudo apt-get install -y libssl-dev openssl-dev
     sudo apt-get install -y python3-dev python-dev python-setuptools
