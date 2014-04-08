@@ -1,6 +1,7 @@
 #!/bin/bash -x
 
 OS="redhat"
+IMPALA_HOME=$(cd ../../../$(dirname $0) 2>/dev/null && echo $(pwd))
 
 ###################################################################
 # Setup the build machine with the tools needed to build impala
@@ -21,6 +22,14 @@ main()
    build_boost
    install_maven
    build_llvm
+   
+   #
+   # temporary hack until the CMake files
+   # can be updated.
+   #
+   if [[ "$OS" == "ubuntu" ]]; then
+       ubuntu_build_setup
+   fi
 }
 
 
@@ -319,6 +328,17 @@ EOF
 valid_maven() {
     [ -f /usr/local/apache-maven-3.1.1/bin/mvn ]
 }
+
+
+##################################################################33
+# Changes so impala builds on Ubuntu
+###################################################################3
+ubuntu_build_setup() {
+
+    sed -i -e "s|void ImpalaAuxpropLookup|int ImpalaAuxpropLookup|" ${IMPALA_HOME}/be/src/rpc/authentication.cc
+    sed -i -e 's|-lrt|-lrt\'$'\n  -lcrypto|' ${IMPALA_HOME}/be/CMakeLists.txt
+}
+
 
 
 main "$@"
