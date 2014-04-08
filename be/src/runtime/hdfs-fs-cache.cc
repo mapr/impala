@@ -34,6 +34,7 @@ void HdfsFsCache::Init() {
 }
 
 hdfsFS HdfsFsCache::GetConnection(const string& host, int port) {
+  char * hostStr=NULL;
   lock_guard<mutex> l(lock_);
   HdfsFsMap::iterator i = fs_map_.find(make_pair(host, port));
   if (i == fs_map_.end()) {
@@ -48,7 +49,13 @@ hdfsFS HdfsFsCache::GetConnection(const string& host, int port) {
     hdfsBuilderSetNameNodePort(hdfs_builder, port);
     hdfsFS conn = hdfsBuilderConnect(hdfs_builder);
 */
-    hdfsFS conn = hdfsConnect(host.c_str(), port);  
+    // if host string is empty, pass NULL to the 
+    // call to connect, else pass the hostname.
+    if(!host.empty()){
+       hostStr=(char*)host.c_str();
+    }
+    hdfsFS conn = hdfsConnect(hostStr, port);  
+
     DCHECK(conn != NULL);
     fs_map_.insert(make_pair(make_pair(host, port), conn));
     return conn;
