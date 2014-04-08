@@ -1,7 +1,7 @@
 #!/bin/bash -x
 
 OS="redhat"
-IMPALA_HOME=$(cd ../../../$(dirname $0) 2>/dev/null && echo $(pwd))
+IMPALA_HOME=$(cd $(dirname $0)/../.. 2>/dev/null && echo $(pwd))
 
 ###################################################################
 # Setup the build machine with the tools needed to build impala
