@@ -20,8 +20,11 @@ HIVE_HOME=$(findHome hive)
 HADOOP_HOME=$(findHome hadoop)
 HBASE_HOME=$(findHome hbase)
 
+HIVE_SITE_DIR=$(findHiveSite)
+
 # set the class path
 setCLASSPATH
+echo ${CLASSPATH}
 
     if [ "$ENABLE_CORE_DUMPS" == "true" ] ; then
     ulimit -c unlimited
