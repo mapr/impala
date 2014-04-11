@@ -741,7 +741,10 @@ public class HdfsTable extends Table {
 
   private static String loadAvroSchemaFromUrl(String url)
       throws TableLoadingException {
-    if (url.toLowerCase().startsWith("hdfs://")) {
+      if (url.toLowerCase().startsWith("hdfs://") ||
+              url.toLowerCase().startsWith("maprfs://") ||
+              url.toLowerCase().startsWith("file://") 
+         ) {
       try {
         return FileSystemUtil.readFile(new Path(url));
       } catch (IOException e) {
