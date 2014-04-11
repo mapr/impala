@@ -33,9 +33,11 @@ uninstall()
 
     # remove the warden configuration files
     rm -f $MAPR_HOME/conf/conf.d/warden.impalaserver.conf
+    rm -f $MAPR_HOME/conf/conf.d/warden.impalacatalog.conf
     rm -f $MAPR_HOME/conf/conf.d/warden.impalastore.conf
-    rm -f $MAPR_HOME/initscripts/impalaserver
-    rm -f $MAPR_HOME/initscripts/impalastore
+    rm -f $MAPR_HOME/initscripts/mapr-impalaserver
+    rm -f $MAPR_HOME/initscripts/mapr-impalacatalog
+    rm -f $MAPR_HOME/initscripts/mapr-impalastore
 
     # remove user accessible links
     rm -f /usr/bin/impala-shell
