@@ -731,7 +731,10 @@ public class HdfsTable extends Table {
     }
 
     if (!url.toLowerCase().startsWith("hdfs://") &&
-        !url.toLowerCase().startsWith("http://")) {
+        !url.toLowerCase().startsWith("http://") &&
+        !url.toLowerCase().startsWith("file://") &&
+        !url.toLowerCase().startsWith("maprfs://")
+       ) {
       throw new TableLoadingException("avro.schema.url must be of form " +
           "\"http://path/to/schema/file\" or " +
           "\"hdfs://namenode:port/path/to/schema/file\", got " + url);
