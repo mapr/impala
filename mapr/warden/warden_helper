@@ -94,7 +94,6 @@ get_group() { # <user name>
     id -g -n 2>/dev/null
 }
 
-
 ## Start the service
 start() {
 
