@@ -94,11 +94,27 @@ get_group() { # <user name>
     id -g -n 2>/dev/null
 }
 
+ 
+#
+# Ubuntu 
+#
+if [ ! -z "$(uname -a | grep -i ubuntu)" ]; then
+    . /lib/lsb/init-functions
+    
+else
+    #
+    # SuSE 
+    #
+    if [ -f "/etc/SuSE-release" ]; then
+        . /etc/rc.status
 
-
-# include the functions
-. /etc/init.d/functions
-
+    #
+    # RedHat 
+    #
+    else
+        . /etc/init.d/functions
+    fi
+fi
 
 ## Start the service
 start() {
