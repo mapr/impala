@@ -1,4 +1,4 @@
-#!/bin/bash  
+#!/bin/bash -x  
 THIS=$_    # Before everything else, remember the name of this file
 
 ##########################################################3
@@ -95,11 +95,6 @@ get_group() { # <user name>
 }
 
 
-
-# include the functions
-. /etc/init.d/functions
-
-
 ## Start the service
 start() {
 
@@ -140,7 +135,11 @@ restart() {
 # output the status of the daemon, and return 0 if it is running
 ################################################################
 checkstatus(){
-  status -p $PIDFILE $SERVICE
+  if [ ! -z "$(uname -a | grep -i ubuntu)" ]; then
+      status $SERVICE
+  else
+      status -p $PIDFILE $SERVICE
+  fi
 }
 
 condrestart(){
@@ -170,5 +169,30 @@ do_action() {  # <action>
       exit 1
   esac
 }
+
+##
+## MAIN
+##
+
+#
+# source Ubuntu's init-functions file 
+#
+if [ ! -z "$(uname -a | grep -i ubuntu)" ]; then
+    . /lib/lsb/init-functions
+    
+else
+    #
+    # source SuSE's rc.status file 
+    #
+    if [ -f "/etc/SuSE-release" ]; then
+        . /etc/rc.status
+
+    #
+    # source RedHat' functions file
+    #
+    else
+        . /etc/init.d/functions
+    fi
+fi
 
 main "$@"
