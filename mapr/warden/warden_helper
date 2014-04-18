@@ -13,7 +13,8 @@ THIS=$_    # Before everything else, remember the name of this file
 # The following arguments are passed to this script
 #  $1) HOME           - where the software is installed
 #  $2) SERVICE        - The name of the warden service.  eg. oozied
-#  $2) ACTION         - What is to be done - "start", "stop", "status", ...
+#  $3  executable name -The name of the executable that is started 
+#  $4) ACTION         - What is to be done - "start", "stop", "status", ...
 #
 # Assumes the following directories:
 #    HOME/bin/SERVICE   - a script or binary to run the service
@@ -23,7 +24,7 @@ THIS=$_    # Before everything else, remember the name of this file
 
 
 main() {  # <service> <action>
-    HOME="$1"; SERVICE="$2"; ACTION="$3"
+    HOME="$1"; SERVICE="$2"; EXENAME="$3";  ACTION="$4"
 
     # Get the mapr configuration information
     configure
@@ -123,6 +124,7 @@ mydaemon() {
 # Stop the daemon
 stop() {
   killproc -p $PIDFILE $SERVICE
+  for EXE in `pgrep $EXENAME`; do  kill -9 $EXE;  done
 }
 
 restart() {

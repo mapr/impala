@@ -28,7 +28,11 @@ IMPALA_SERVER_ARGS=" \
 
 # These impact the state store daemon and can be optionally changed
 IMPALA_STATE_STORE_ARGS=" -log_dir=${IMPALA_LOG_DIR} -state_store_port=${IMPALA_STATE_STORE_PORT} -catalog_service_host=${CATALOG_SERVICE_HOST} "
-IMPALA_CATALOG_ARGS=" -log_dir=${IMPALA_LOG_DIR} "
+IMPALA_CATALOG_ARGS=" -log_dir=${IMPALA_LOG_DIR} \
+    -state_store_port=${IMPALA_STATE_STORE_PORT} \
+    -use_statestore \
+    -state_store_host=${IMPALA_STATE_STORE_HOST} \
+"
 
 # for troubleshooting
 ENABLE_CORE_DUMPS=false
