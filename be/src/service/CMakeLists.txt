@@ -41,6 +41,7 @@ add_executable(impalad
 
 # This permits libraries loaded by dlopen to link to the symbols in the program.
 set_target_properties(impalad PROPERTIES LINK_FLAGS -rdynamic)
+set_target_properties(impalad PROPERTIES SKIP_BUILD_RPATH TRUE)
 
 target_link_libraries(impalad
   ${JAVA_JSIG_LIBRARY}
