@@ -1,4 +1,4 @@
-#!/bin/bash  -x
+#!/bin/bash
 this=$_
 
 
@@ -106,6 +106,16 @@ copy_impala_files() {
 
     # Stage a log directory
     mkdir -p $STAGE/logs
+
+    # copy some UDF files
+    mkdir -p $STAGE/include
+    mkdir -p $STAGE/include/impala_udf
+    cp $BUILT/be/src/udf/*.h     $STAGE/include/impala_udf
+
+    cp $BUILT/be/build/$BUILD_TYPE/udf/libImpalaUdf.a $STAGE/lib
+
+    
+
 }
 
 
