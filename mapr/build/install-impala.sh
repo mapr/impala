@@ -50,10 +50,6 @@ main()
     # set ownership of impala files
     local owner=$(get_mapr_owner)
     set_ownership $owner
-
-    # hack: create a link to use libMapRClient
-    ln -s $MAPR_HOME/lib/libMapRClient.so.1 $IMPALA_HOME/lib/libhdfs.so
-    ln -s $MAPR_HOME/lib/libMapRClient.so.1 $IMPALA_HOME/lib/libhdfs.so.0
 }    
 
 
