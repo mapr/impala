@@ -114,9 +114,14 @@ mydaemon() {
     # if we are changing users, then set the --user argument
     [ $(id -u) -ne $(id -u "$OWNER") ] && user_arg=--user=$OWNER
 
-    # invoke the init.d daemon to run the command
-    daemon $user_arg --pidfile=$PIDFILE  \
-        "bash -c 'echo \$\$ >$PIDFILE; exec $DAEMON' >$LOGFILE 2>&1 &"
+    if [ ! -z "$(uname -a | grep -i ubuntu)" ]; then
+        # invoke the init.d daemon to run the command
+        daemon $user_arg --pidfile=$PIDFILE  \
+            "bash -c 'echo \$\$ >$PIDFILE; exec $DAEMON' >$LOGFILE 2>&1 &"
+    else
+        start-stop-daemon --user $OWNER --start --pidfile $PIDFILE --exec $DAEMON >$LOGFILE 2>&1 &
+    fi
+
 }
 
 
