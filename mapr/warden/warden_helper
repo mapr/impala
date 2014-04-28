@@ -1,4 +1,4 @@
-#!/bin/bash -x  
+#!/bin/bash  
 THIS=$_    # Before everything else, remember the name of this file
 
 ##########################################################3
