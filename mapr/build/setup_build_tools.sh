@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash 
 
 OS="redhat"
 IMPALA_HOME=$(cd $(dirname $0)/../.. 2>/dev/null && echo $(pwd))
