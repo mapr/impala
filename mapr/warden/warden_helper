@@ -1,4 +1,4 @@
-#!/bin/bash  
+#!/bin/bash 
 THIS=$_    # Before everything else, remember the name of this file
 
 ##########################################################3
@@ -21,6 +21,8 @@ THIS=$_    # Before everything else, remember the name of this file
 #    HOME/logs          - directory where .out and .pid files are created
 #
 ##############################################################
+
+export PATH=$PATH:/sbin
 
 
 main() {  # <service> <action>
@@ -115,13 +117,18 @@ mydaemon() {
     [ $(id -u) -ne $(id -u "$OWNER") ] && user_arg=--user=$OWNER
 
     if [ ! -z "$(uname -a | grep -i ubuntu)" ]; then
-        start-stop-daemon --user $OWNER --start --pidfile $PIDFILE --exec $DAEMON >$LOGFILE 2>&1 &
+        echo "Running: start-stop-daemon --user $OWNER --start --pidfile $PIDFILE --exec $DAEMON" > $LOGFILE
+        start-stop-daemon --user $OWNER --start --pidfile $PIDFILE --exec $DAEMON > $LOGFILE 2>&1 &
+        STATUS=$?
+        echo "Return status: $STATUS"
     else
         # invoke the init.d daemon to run the command
+        echo "Running: daemon $user_arg --pidfile=$PIDFILE \"bash -c \'echo \$\$ >$PIDFILE; exec $DAEMON\'\" " > $LOGFILE
         daemon $user_arg --pidfile=$PIDFILE  \
             "bash -c 'echo \$\$ >$PIDFILE; exec $DAEMON' >$LOGFILE 2>&1 &"
+        STATUS=$?
+        echo "Return status: $STATUS"
     fi
-
 }
 
 
@@ -144,10 +151,18 @@ restart() {
 ################################################################
 checkstatus(){
   if [ ! -z "$(uname -a | grep -i ubuntu)" ]; then
-      status $SERVICE
+      echo "Running: status $SERVICE" > $LOGFILE
+      RESULTS=$(status $SERVICE 2>&1)
+      STATUS=$?
+      echo "$RESULTS: $STATUS" > $LOGFILE
   else
-      status -p $PIDFILE $SERVICE
+      echo "Running: status -p $PIDFILE $SERVICE" > $LOGFILE
+      RESULTS=$(status -p $PIDFILE $SERVICE)
+      STATUS=$?
+      echo "$RESULTS: $STATUS" > $LOGFILE
   fi
+
+  return $STATUS
 }
 
 condrestart(){
@@ -181,6 +196,11 @@ do_action() {  # <action>
 ##
 ## MAIN
 ##
+
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 {start|stop|status|restart|try-restart|condrestart}"
+    exit 1
+fi
 
 #
 # source Ubuntu's init-functions file 
