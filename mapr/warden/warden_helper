@@ -120,14 +120,14 @@ mydaemon() {
         echo "Running: start-stop-daemon --user $OWNER --start --pidfile $PIDFILE --exec $DAEMON" >> $LOGFILE
         start-stop-daemon --user $OWNER --start --pidfile $PIDFILE --exec $DAEMON >> $LOGFILE 2>&1 &
         STATUS=$?
-        echo "Return status: $STATUS"
+        echo "Return status: $STATUS" >> $LOGFILE
     else
         # invoke the init.d daemon to run the command
         echo "Running: daemon $user_arg --pidfile=$PIDFILE \"bash -c \'echo \$\$ >$PIDFILE; exec $DAEMON\'\" " >> $LOGFILE
         daemon $user_arg --pidfile=$PIDFILE  \
             "bash -c 'echo \$\$ >$PIDFILE; exec $DAEMON' >> $LOGFILE 2>&1 &"
         STATUS=$?
-        echo "Return status: $STATUS"
+        echo "Return status: $STATUS" >> $LOGFILE
     fi
 }
 
