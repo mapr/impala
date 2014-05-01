@@ -117,27 +117,28 @@ mydaemon() {
     [ $(id -u) -ne $(id -u "$OWNER") ] && user_arg=--user=$OWNER
 
     if [ ! -z "$(uname -a | grep -i ubuntu)" ]; then
-        echo "Running: start-stop-daemon --user $OWNER --start --pidfile $PIDFILE --exec $DAEMON" >> $LOGFILE
-        start-stop-daemon --user $OWNER --start --pidfile $PIDFILE --exec $DAEMON >> $LOGFILE 2>&1 &
+        echo "Running: start-stop-daemon --user $OWNER --start ---make-pidfile -pidfile $PIDFILE --exec $DAEMON" >> $LOGFILE
+        start-stop-daemon --user $OWNER --start --make-pidfile --pidfile $PIDFILE --exec $DAEMON >> $LOGFILE 2>&1 &
         STATUS=$?
-        echo "Return status: $STATUS" >> $LOGFILE
     else
         # invoke the init.d daemon to run the command
         echo "Running: daemon $user_arg --pidfile=$PIDFILE \"bash -c \'echo \$\$ >$PIDFILE; exec $DAEMON\'\" " >> $LOGFILE
         daemon $user_arg --pidfile=$PIDFILE  \
             "bash -c 'echo \$\$ >$PIDFILE; exec $DAEMON' >> $LOGFILE 2>&1 &"
         STATUS=$?
-        echo "Return status: $STATUS" >> $LOGFILE
     fi
+
+    echo "Return status: $STATUS" >> $LOGFILE
 }
 
 
 
 # Stop the daemon
 stop() {
-  killproc -p $PIDFILE $SERVICE
-  for EXE in `pgrep $EXENAME`; do  kill -9 $EXE;  done
+    killproc -p $PIDFILE $SERVICE
+    for EXE in `pgrep $EXENAME`; do  kill -9 $EXE;  done
 }
+
 
 restart() {
   stop
@@ -150,19 +151,18 @@ restart() {
 # output the status of the daemon, and return 0 if it is running
 ################################################################
 checkstatus(){
-  if [ ! -z "$(uname -a | grep -i ubuntu)" ]; then
-      echo "Running: status $SERVICE" >> $LOGFILE
-      RESULTS=$(status $SERVICE 2>&1)
-      STATUS=$?
-      echo "$RESULTS: $STATUS" >> $LOGFILE
-  else
-      echo "Running: status -p $PIDFILE $SERVICE" >> $LOGFILE
-      RESULTS=$(status -p $PIDFILE $SERVICE)
-      STATUS=$?
-      echo "$RESULTS: $STATUS" >> $LOGFILE
-  fi
+    if [ ! -z "$(uname -a | grep -i ubuntu)" ]; then
+        echo "Running: pgrep $EXENAME" >> $LOGFILE
+        RESULTS=$(pgrep $EXENAME 2>&1)
+        STATUS=$?
+    else
+        echo "Running: status -p $PIDFILE $SERVICE" >> $LOGFILE
+        RESULTS=$(status -p $PIDFILE $SERVICE 2>&1)
+        STATUS=$?
+    fi
 
-  return $STATUS
+    echo "$RESULTS: $STATUS" >> $LOGFILE
+    return $STATUS
 }
 
 condrestart(){
