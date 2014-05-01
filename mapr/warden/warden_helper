@@ -161,7 +161,18 @@ checkstatus(){
         STATUS=$?
     fi
 
-    echo "$RESULTS: $STATUS" >> $LOGFILE
+    echo "results: '$RESULTS'; return status: $STATUS" >> $LOGFILE
+
+    if [ $STATUS == 0 ]; then
+        echo "$SERVICE is running as process $(cat $PIDFILE)" | tee -a $LOGFILE
+    else
+        if [ -f "$PIDFILE" ]; then
+            echo "$SERVICE is not running but the pid file exists" | tee -a $LOGFILE
+        else
+            echo "$SERVICE is not running" | tee -a $LOGFILE
+        fi
+    fi
+
     return $STATUS
 }
 
