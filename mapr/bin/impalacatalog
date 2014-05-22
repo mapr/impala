@@ -1,5 +1,6 @@
 #!/bin/bash
 
+MAPR_HOME=${MAPR_HOME:-/opt/mapr}
 IMPALA_HOME=${IMPALA_HOME:-/opt/mapr/impala/impala-1.2.3}
 
 
@@ -13,7 +14,7 @@ IMPALA_HOME=${IMPALA_HOME:-/opt/mapr/impala/impala-1.2.3}
 export LD_LIBRARY_PATH+=:$IMPALA_HOME/lib
 
 # Pick up the java libraries
-export LD_LIBRARY_PATH+=:$JAVA_HOME/jre/lib/amd64:$JAVA_HOME/jre/lib/amd64/server
+export LD_LIBRARY_PATH+=:$JAVA_HOME/jre/lib/amd64:$JAVA_HOME/jre/lib/amd64/server:$MAPR_HOME/lib
 
 # point to the HIVE and HADOOP directories
 HIVE_HOME=$(findHome hive)
