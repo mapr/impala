@@ -100,6 +100,8 @@ public class DescribeResultFactory {
     // sb.append(MetaDataFormatUtils.getAllColumnsInformation(
     //    msTable.getSd().getCols(), msTable.getPartitionKeys(), true));
     
+    sb.append(MetaDataFormatUtils.getAllColumnsInformation(msTable.getSd().getCols(),
+        msTable.getPartitionKeys(), true, false, true));
     // Add the extended table metadata information.
     sb.append(MetaDataFormatUtils.getTableInformation(hiveTable));
 
