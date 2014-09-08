@@ -1,4 +1,4 @@
-#!/bin/bash  
+#!/bin/bash 
 THIS=$_    # Before everything else, remember the name of this file
 
 ##########################################################3
@@ -21,6 +21,8 @@ THIS=$_    # Before everything else, remember the name of this file
 #    HOME/logs          - directory where .out and .pid files are created
 #
 ##############################################################
+
+export PATH=$PATH:/sbin
 
 
 main() {  # <service> <action>
@@ -95,6 +97,8 @@ get_group() { # <user name>
     id -g -n 2>/dev/null
 }
 
+ 
+
 ## Start the service
 start() {
 
@@ -112,18 +116,29 @@ mydaemon() {
     # if we are changing users, then set the --user argument
     [ $(id -u) -ne $(id -u "$OWNER") ] && user_arg=--user=$OWNER
 
-    # invoke the init.d daemon to run the command
-    daemon $user_arg --pidfile=$PIDFILE  \
-        "bash -c 'echo \$\$ >$PIDFILE; exec $DAEMON' >$LOGFILE 2>&1 &"
+    if [ ! -z "$(uname -a | grep -i ubuntu)" ]; then
+        echo "Running: start-stop-daemon --user $OWNER --start ---make-pidfile -pidfile $PIDFILE --exec $DAEMON" >> $LOGFILE
+        start-stop-daemon --user $OWNER --start --make-pidfile --pidfile $PIDFILE --exec $DAEMON >> $LOGFILE 2>&1 &
+        STATUS=$?
+    else
+        # invoke the init.d daemon to run the command
+        echo "Running: daemon $user_arg --pidfile=$PIDFILE \"bash -c \'echo \$\$ >$PIDFILE; exec $DAEMON\'\" " >> $LOGFILE
+        daemon $user_arg --pidfile=$PIDFILE  \
+            "bash -c 'echo \$\$ >$PIDFILE; exec $DAEMON' >> $LOGFILE 2>&1 &"
+        STATUS=$?
+    fi
+
+    echo "Return status: $STATUS" >> $LOGFILE
 }
 
 
 
 # Stop the daemon
 stop() {
-  killproc -p $PIDFILE $SERVICE
-  for EXE in `pgrep $EXENAME`; do  kill -9 $EXE;  done
+    killproc -p $PIDFILE $SERVICE
+    for EXE in `pgrep $EXENAME`; do  kill -9 $EXE;  done
 }
+
 
 restart() {
   stop
@@ -136,11 +151,29 @@ restart() {
 # output the status of the daemon, and return 0 if it is running
 ################################################################
 checkstatus(){
-  if [ ! -z "$(uname -a | grep -i ubuntu)" ]; then
-      status $SERVICE
-  else
-      status -p $PIDFILE $SERVICE
-  fi
+    if [ ! -z "$(uname -a | grep -i ubuntu)" ]; then
+        echo "Running: pgrep $EXENAME" >> $LOGFILE
+        RESULTS=$(pgrep $EXENAME 2>&1)
+        STATUS=$?
+    else
+        echo "Running: status -p $PIDFILE $SERVICE" >> $LOGFILE
+        RESULTS=$(status -p $PIDFILE $SERVICE 2>&1)
+        STATUS=$?
+    fi
+
+    echo "results: '$RESULTS'; return status: $STATUS" >> $LOGFILE
+
+    if [ $STATUS == 0 ]; then
+        echo "$SERVICE is running as process $(cat $PIDFILE)" | tee -a $LOGFILE
+    else
+        if [ -f "$PIDFILE" ]; then
+            echo "$SERVICE is not running but the pid file exists" | tee -a $LOGFILE
+        else
+            echo "$SERVICE is not running" | tee -a $LOGFILE
+        fi
+    fi
+
+    return $STATUS
 }
 
 condrestart(){
@@ -174,6 +207,11 @@ do_action() {  # <action>
 ##
 ## MAIN
 ##
+
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 {start|stop|status|restart|try-restart|condrestart}"
+    exit 1
+fi
 
 #
 # source Ubuntu's init-functions file 
