@@ -754,7 +754,7 @@ Status Coordinator::FinalizeQuery() {
   stringstream staging_dir;
   staging_dir << finalize_params_.staging_dir << "/" << PrintId(query_id_,"_") << "/";
   VLOG_QUERY << "Removing staging directory: " << staging_dir.str();
-  hdfsDelete(hdfs_connection, staging_dir.str().c_str()/*, 1*/);
+  hdfsDelete(hdfs_connection, staging_dir.str().c_str(), 1);
 
   return return_status;
 }
