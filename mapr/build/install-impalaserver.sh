@@ -14,7 +14,7 @@
 
 # Where the new IMPALA files were copied
 export MAPR_HOME=${1:-/opt/mapr}
-export IMPALA_HOME=${2:-$MAPR_HOME/impala/impala-1.2.3} 
+export IMPALA_HOME=${2:-$MAPR_HOME/impala/impala-1.4.0} 
 . $IMPALA_HOME/mapr/IMPALA_VERSION.sh
 
 

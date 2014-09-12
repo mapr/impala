@@ -46,31 +46,6 @@
       <version>${impala.extdatasrc.api.version}</version>
     </dependency>
 
-    <!-- Add the maprfs dependencies --> 
-    <dependency>
-      <groupId>com.mapr.hadoop</groupId>
-      <artifactId>maprfs</artifactId>
-      <version>4.0.1-mapr</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.mapr.hadoop</groupId>
-      <artifactId>maprfs-core</artifactId>
-      <version>4.0.1-mapr</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.mapr.hadoop</groupId>
-      <artifactId>maprfs-jni</artifactId>
-      <version>4.0.1-mapr</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.mapr.util</groupId>
-      <artifactId>central-logging</artifactId>
-      <version>4.0.1-mapr</version>
-    </dependency>
-
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-hdfs</artifactId>
@@ -316,6 +291,32 @@
       <version>4.8.2</version>
       <scope>test</scope>
     </dependency>
+
+    <!-- Add the maprfs dependencies -->
+    <dependency>
+      <groupId>com.mapr.hadoop</groupId>
+      <artifactId>maprfs</artifactId>
+      <version>4.0.1-mapr</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.hadoop</groupId>
+      <artifactId>maprfs-core</artifactId>
+      <version>4.0.1-mapr</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.hadoop</groupId>
+      <artifactId>maprfs-jni</artifactId>
+      <version>4.0.1-mapr</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.util</groupId>
+      <artifactId>central-logging</artifactId>
+      <version>4.0.1-mapr</version>
+    </dependency>
+
   </dependencies>
 
   <reporting>

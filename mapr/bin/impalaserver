@@ -3,13 +3,13 @@
 
 # When running scripts standalone. Normally, these will be set on installation.
 MAPR_HOME=${MAPR_HOME:-/opt/mapr/}
-IMPALA_HOME=${IMPALA_HOME:-/opt/mapr/impala/impala-1.2.3}
+IMPALA_HOME=${IMPALA_HOME:-/opt/mapr/impala/impala-1.4.0}
 
 # get the configuration information
-. /opt/mapr/impala/impala-1.2.3/conf/env.sh
+. /opt/mapr/impala/impala-1.4.0/conf/env.sh
 
 # set environment
-. /opt/mapr/impala/impala-1.2.3/conf/set_path_env.sh
+. /opt/mapr/impala/impala-1.4.0/conf/set_path_env.sh
 
 # Not sure why we need this ...
 export JAVA_TOOL_OPTIONS+=" -Dmapr.library.flatclass "

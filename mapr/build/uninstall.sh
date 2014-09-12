@@ -21,7 +21,7 @@
 
 # get the install locations from Warden
 MAPR_HOME=${1:-/opt/mapr}
-IMPALA_HOME=${2:-$MAPR_HOME/impala/impala-1.2.3} 
+IMPALA_HOME=${2:-$MAPR_HOME/impala/impala-1.4.0} 
 
 uninstall()
 {
@@ -44,7 +44,7 @@ uninstall()
     
     # remove the installed files
     #   (the funny stuff is to protect from IMPALA_HOME being "/")
-    rm -rf $IMPALA_HOME/../impala-1.2.3
+    rm -rf $IMPALA_HOME/../impala-1.4.0
 
     # remove the "service" links
     rm -f /etc/init.d/mapr-impala*

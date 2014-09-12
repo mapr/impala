@@ -174,7 +174,7 @@ install_yum_packages() {
     #sudo yum -y install mapr-core mapr-hive
     
     # update zlib since there is a bug in zlib's early packaging
-    sudo yum -y update-to zlib-1.2.3  # a bug in early zlib
+    sudo yum -y update-to zlib-1.4.0  # a bug in early zlib
 }
 
 
