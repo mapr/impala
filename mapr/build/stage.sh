@@ -81,28 +81,8 @@ copy_impala_files() {
 
     # copy the impala front end jar
     mkdir -p $STAGE/lib
-    cp $BUILT/fe/target/impala-frontend-*-mapr.jar $STAGE/lib/impala-front-end.jar
-    # copy the front end dependencies
-    local dependencies="
-               commons-cli commons-dbcp commons-lang
-               java-cup guava libfb303 libthrift log4j 
-               postgresql parquet
-               sentry-binding-hive sentry-core sentry-provider-file
-               shiro-core
-               slf4j-api slf4j-log4j12"
-
-    local d
-    for d in $dependencies; do
-        cp $BUILT/fe/target/dependency/${d}*.jar $STAGE/lib
-    done
-
-    # copy some "fall back" dependencies.
-    #   These are only used if other packages (eg. hbase) aren't installed
-    dependencies="hbase"
-    mkdir -p $STAGE/lib/fallback
-    for d in $dependencies; do
-        cp $BUILT/fe/target/dependency/${d}*.jar $STAGE/lib/fallback
-    done
+    cp $BUILT/fe/target/impala-frontend-0.1-SNAPSHOT.jar $STAGE/lib/.
+    cp $BUILT/fe/target/dependency/* $STAGE/lib/.
 
     # Stage a log directory
     mkdir -p $STAGE/logs
