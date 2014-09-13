@@ -6,21 +6,9 @@ setCLASSPATH() {
     # get the jars associated with impala
     CLASSPATH+=:$(getPath ${IMPALA_HOME}/lib/*.jar)
 
-    # get jars from the other modules
-    CLASSPATH+=:$(getPath $HIVE_HOME/lib/*.jar)
-    CLASSPATH+=:$(getPath $HADOOP_HOME/lib/*.jar)
-    CLASSPATH+=:$(getPath $HBASE_HOME/*.jar)
-
-    # add MAPR jars to classpath (for bug 13771)
-    CLASSPATH+=:$(getPath ${MAPR_HOME}/lib/*.jar)
-
     # set the class path to pick up configuration files
     CLASSPATH+=:/opt/mapr/impala/impala-1.4.0/conf:$HIVE_SITE_DIR:$HADOOP_HOME/conf:$HBASE_HOME/conf:
     export CLASSPATH
-
-    # as a last resort, pick up files which would be preferred to
-    # come from other modules earlier on the class path.
-    CLASSPATH+=:$(getPath ${IMPALA_HOME}/lib/fallback/*.jar)
 }
 
 
