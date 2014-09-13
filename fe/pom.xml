@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.cloudera.impala</groupId>
   <artifactId>impala-frontend</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1-SNAPSHOT-mapr</version>
   <packaging>jar</packaging>
 
   <name>Cloudera Impala Query Engine Frontend</name>
