@@ -81,7 +81,7 @@ copy_impala_files() {
 
     # copy the impala front end jar
     mkdir -p $STAGE/lib
-    cp $BUILT/fe/target/impala-frontend-0.1-SNAPSHOT.jar $STAGE/lib/.
+    cp $BUILT/fe/target/impala-frontend-0.1-SNAPSHOT-mapr.jar $STAGE/lib/.
     cp $BUILT/fe/target/dependency/* $STAGE/lib/.
 
     # Stage a log directory
