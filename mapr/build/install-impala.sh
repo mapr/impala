@@ -107,12 +107,15 @@ configure_warden()
     configure_file   $warden/warden_helper  $scripts/warden_helper
     configure_file  $warden/mapr-impalaserver $scripts/mapr-impalaserver
     configure_file  $warden/mapr-impalastore  $scripts/mapr-impalastore
+    configure_file  $warden/mapr-impalacatalog $scripts/mapr-impalacatalog
 
     # create /etc/init.d links so can be started with "service" command
     rm -f /etc/init.d/mapr-impalaserver
     ln -s $scripts/mapr-impalaserver /etc/init.d
     rm -f /etc/init.d/mapr-impalastore
     ln -s $scripts/mapr-impalastore  /etc/init.d
+    rm -f /etc/init.d/mapr-impalacatalog
+    ln -s $scripts/mapr-impalacatalog /etc/init.d
 
     # NOTE: warden config files are installed by install-server.sh and install-store.sh scripts
 
