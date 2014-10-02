@@ -3,6 +3,30 @@
 setCLASSPATH() {
     local h=$HADOOP_HOME/lib
 
+    # Add the hadoop jars to classpath
+    CLASSPATH+=:$(getPath ${HADOOP_HOME}/share/hadoop/yarn/hadoop-yarn-server-web-proxy*.jar)
+    CLASSPATH+=:$(getPath ${HADOOP_HOME}/share/hadoop/yarn/hadoop-yarn-common*.jar)
+    CLASSPATH+=:$(getPath ${HADOOP_HOME}/share/hadoop/yarn/hadoop-yarn-server-common*.jar)
+    CLASSPATH+=:$(getPath ${HADOOP_HOME}/share/hadoop/yarn/hadoop-yarn-api*.jar)
+    CLASSPATH+=:$(getPath ${HADOOP_HOME}/share/hadoop/yarn/hadoop-yarn-server-applicationhistoryservice*.jar)
+    CLASSPATH+=:$(getPath ${HADOOP_HOME}/share/hadoop/yarn/hadoop-yarn-server-resourcemanager*.jar)
+    CLASSPATH+=:$(getPath ${HADOOP_HOME}/share/hadoop/common/lib/hadoop-annotations*.jar)
+    CLASSPATH+=:$(getPath ${HADOOP_HOME}/share/hadoop/tools/lib/hadoop-auth*.jar)
+    CLASSPATH+=:$(getPath ${HADOOP_HOME}/share/hadoop/hdfs/hadoop-hdfs*.jar)
+    CLASSPATH+=:$(getPath ${HADOOP_HOME}/share/hadoop/mapreduce/hadoop-mapreduce-client-core*.jar)
+    CLASSPATH+=:$(getPath /opt/mapr/lib/hadoop-common*.jar)
+    CLASSPATH+=:$(getPath ${HADOOP_HOME}/share/hadoop/common/*.jar)
+    CLASSPATH+=:$(getPath ${HADOOP_HOME}/share/hadoop/common/lib/*.jar)
+    CLASSPATH+=:$(getPath ${HADOOP_HOME}/share/hadoop/tools/lib/*.jar)
+    CLASSPATH+=:$(getPath ${HADOOP_HOME}/share/hadoop/hdfs/*.jar)
+    CLASSPATH+=:$(getPath ${HADOOP_HOME}/share/hadoop/mapreduce/*.jar)
+    CLASSPATH+=:$(getPath /opt/mapr/lib/maprfs*.jar)
+    CLASSPATH+=:$(getPath /opt/mapr/lib/zookeeper*.jar)
+    CLASSPATH+=:$(getPath /opt/mapr/lib/baseutils*.jar)
+    CLASSPATH+=:$(getPath /opt/mapr/lib/libprotodefs*.jar)
+    CLASSPATH+=:$(getPath /opt/mapr/lib/central-logging*.jar)
+    CLASSPATH+=:$(getPath ${HIVE_HOME}/lib/hive*.jar)
+
     # get the jars associated with impala
     CLASSPATH+=:$(getPath ${IMPALA_HOME}/lib/*.jar)
 
@@ -105,4 +129,3 @@ findHome() { # package
 toupper() {
     echo $* | tr [:lower:]  [:upper:]
 }
-
