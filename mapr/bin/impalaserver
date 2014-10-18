@@ -42,7 +42,7 @@ main() {
     export LD_PRELOAD=$JAVA_HOME/jre/lib/amd64/libjsig.so
 
     # Pick up mapr libraries if needed
-    export LD_LIBRARY_PATH+=:$HADOOP_HOME/lib/native/Linux-amd64-64:/opt/mapr/lib
+    export LD_LIBRARY_PATH+=:/opt/mapr/lib
 
     # run in the "logs" directory, so any unplanned logs go there
     cd ${IMPALA_HOME}/logs
