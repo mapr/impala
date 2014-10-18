@@ -18,6 +18,7 @@ set(LIBRARY_OUTPUT_PATH "${BUILD_OUTPUT_ROOT_DIRECTORY}/statestore")
 
 # where to put generated binaries
 set(EXECUTABLE_OUTPUT_PATH "${BUILD_OUTPUT_ROOT_DIRECTORY}/statestore")
+set(CMAKE_SKIP_RPATH TRUE)
 
 add_library(Statestore STATIC
   failure-detector.cc
