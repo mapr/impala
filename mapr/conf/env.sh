@@ -11,6 +11,9 @@ IMPALA_STATE_STORE_HOST=localhost
 IMPALA_STATE_STORE_PORT=24000
 CATALOG_SERVICE_HOST=localhost
 
+#Set the Shared Memory to 128 MB
+MAPR_CLIENT_SHMEM=16384
+
 # By default, we use the Hive configuration.
 # Uncomment this If hive is not configured, or we wish to override it.
 #HIVE_METASTORE_URI=thrift://localhost:9083 
