@@ -25,6 +25,7 @@ IMPALA_SERVER_ARGS=" \
     -log_dir=${IMPALA_LOG_DIR} \
     -state_store_port=${IMPALA_STATE_STORE_PORT} \
     -use_statestore \
+    -authorized_proxy_user_config=mapr=* \
     -state_store_host=${IMPALA_STATE_STORE_HOST} \
     -catalog_service_host=${CATALOG_SERVICE_HOST} \
     -be_port=${IMPALA_BACKEND_PORT}"
