@@ -203,7 +203,7 @@ public class FileSystemUtil {
     return fs;
   }
 
-  public static DistributedFileSystem getDistributedFileSystem() throws IOException {
+  public static FileSystem getDistributedFileSystem() throws IOException {
     return getDistributedFileSystem(new Path(FileSystem.getDefaultUri(CONF)));
   }
 

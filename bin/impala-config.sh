@@ -68,10 +68,12 @@ export IMPALA_CYRUS_SASL_VERSION=2.1.23
 export IMPALA_OPENLDAP_VERSION=2.4.25
 export IMPALA_SQUEASEL_VERSION=3.3
 
-export IMPALA_HADOOP_VERSION=2.4.1-mapr-4.0.1-SNAPSHOT
-export IMPALA_HBASE_VERSION=0.94.9-mapr-1308
-export IMPALA_HIVE_VERSION=0.12-mapr-1311
-export IMPALA_SENTRY_VERSION=1.1.0
+export IMPALA_HADOOP_VERSION=2.4.1-mapr-1408-SNAPSHOT
+#export IMPALA_HADOOP_VERSION=2.3.0-cdh5.1.2
+export IMPALA_HBASE_VERSION=0.98.4-mapr-1408
+#export IMPALA_HIVE_VERSION=0.13.0-mapr-1405
+export IMPALA_HIVE_VERSION=0.13.1-cdh5.2.0
+export IMPALA_SENTRY_VERSION=1.3.0-cdh5.1.0
 export IMPALA_THRIFT_VERSION=0.9.0
 export IMPALA_LLAMA_VERSION=1.0.0-cdh5.1.2
 export IMPALA_AVRO_VERSION=1.7.4
@@ -88,13 +90,15 @@ export IMPALA_AUX_DATASET_DIR=$IMPALA_AUX_TEST_HOME/testdata/datasets
 export IMPALA_COMMON_DIR=$IMPALA_HOME/common
 export PATH=$IMPALA_HOME/bin:$PATH
 
-export HADOOP_HOME=/opt/mapr/hadoop/hadoop-0.20.2
-export HADOOP_CONF_DIR=/opt/mapr/hadoop/hadoop-0.20.2/conf
+export HADOOP_HOME=/opt/mapr/hadoop/hadoop-2.4.1/
+export HADOOP_CONF_DIR=/opt/mapr/hadoop/hadoop-2.4.1/etc/hadoop
+#export HADOOP_HOME=$IMPALA_HOME/thirdparty/hadoop-${IMPALA_HADOOP_VERSION}/
+#export HADOOP_CONF_DIR=$IMPALA_FE_DIR/src/test/resources
 export MINI_DFS_BASE_DATA_DIR=$IMPALA_HOME/hdfs-data
 export PATH=$HADOOP_HOME/bin:$PATH
 
 export LLAMA_HOME=$IMPALA_HOME/thirdparty/llama-${IMPALA_LLAMA_VERSION}/
-export HIVE_HOME=/opt/mapr/hive/hive-0.12
+export HIVE_HOME=/opt/mapr/hive/hive-0.13
 export PATH=$HIVE_HOME/bin:$PATH
 HIVE_CONF_DIR=$HIVE_HOME/conf
 
@@ -138,8 +142,8 @@ LIBHDFS_OPTS="${LIBHDFS_OPTS} -Djava.library.path=${HADOOP_HOME}/lib/native/"
 # READER BEWARE: This always points to the debug build.
 # TODO: Consider having cmake scripts change this value depending on
 # the build type.
-#export LIBHDFS_OPTS="${LIBHDFS_OPTS}:${IMPALA_HOME}/be/build/debug/service"
-export LIBHDFS_OPTS="${LIBHDFS_OPTS}:${IMPALA_HOME}/be/build/release/service"
+export LIBHDFS_OPTS="${LIBHDFS_OPTS}:${IMPALA_HOME}/be/build/debug/service"
+#export LIBHDFS_OPTS="${LIBHDFS_OPTS}:${IMPALA_HOME}/be/build/release/service"
 
 export ARTISTIC_STYLE_OPTIONS=$IMPALA_BE_DIR/.astylerc
 
@@ -154,10 +158,11 @@ LIB_HDFS=`find ${HADOOP_HOME}/ -name libhdfs.so | head -1`
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH-}"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:`dirname ${LIB_JAVA}`:`dirname ${LIB_JSIG}`"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:`dirname ${LIB_JVM}`:`dirname ${LIB_HDFS}`"
-LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IMPALA_HOME}/be/build/release/service"
+#LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IMPALA_HOME}/be/build/release/service"
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IMPALA_HOME}/be/build/debug/service"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IMPALA_HOME}/thirdparty/snappy-${IMPALA_SNAPPY_VERSION}/build/lib"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$IMPALA_LZO/build"
-LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$HADOOP_HOME/lib/native/Linux-amd64-64/"
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$HADOOP_HOME/lib/native"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/mapr/lib"
 export LD_LIBRARY_PATH
 LD_PRELOAD="${LD_PRELOAD-}"

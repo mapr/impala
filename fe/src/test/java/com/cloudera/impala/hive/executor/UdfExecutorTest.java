@@ -14,57 +14,9 @@
 
 package com.cloudera.impala.hive.executor;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-
-import org.apache.hadoop.hive.ql.udf.UDFAcos;
-import org.apache.hadoop.hive.ql.udf.UDFAscii;
-import org.apache.hadoop.hive.ql.udf.UDFAsin;
-import org.apache.hadoop.hive.ql.udf.UDFAtan;
-import org.apache.hadoop.hive.ql.udf.UDFBin;
-import org.apache.hadoop.hive.ql.udf.UDFConv;
-import org.apache.hadoop.hive.ql.udf.UDFCos;
-import org.apache.hadoop.hive.ql.udf.UDFDegrees;
-import org.apache.hadoop.hive.ql.udf.UDFE;
-import org.apache.hadoop.hive.ql.udf.UDFExp;
-import org.apache.hadoop.hive.ql.udf.UDFFindInSet;
-import org.apache.hadoop.hive.ql.udf.UDFHex;
-import org.apache.hadoop.hive.ql.udf.UDFLength;
-import org.apache.hadoop.hive.ql.udf.UDFLn;
-import org.apache.hadoop.hive.ql.udf.UDFLog;
-import org.apache.hadoop.hive.ql.udf.UDFLog10;
-import org.apache.hadoop.hive.ql.udf.UDFLog2;
-import org.apache.hadoop.hive.ql.udf.UDFPI;
-import org.apache.hadoop.hive.ql.udf.UDFRadians;
-import org.apache.hadoop.hive.ql.udf.UDFRand;
-import org.apache.hadoop.hive.ql.udf.UDFRepeat;
-import org.apache.hadoop.hive.ql.udf.UDFReverse;
-import org.apache.hadoop.hive.ql.udf.UDFSign;
-import org.apache.hadoop.hive.ql.udf.UDFSin;
-import org.apache.hadoop.hive.ql.udf.UDFSpace;
-import org.apache.hadoop.hive.ql.udf.UDFSqrt;
-import org.apache.hadoop.hive.ql.udf.UDFSubstr;
-import org.apache.hadoop.hive.ql.udf.UDFTan;
-import org.apache.hadoop.hive.ql.udf.UDFUnhex;
-import org.apache.hadoop.io.BytesWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
-import org.junit.Test;
-
-import com.cloudera.impala.catalog.PrimitiveType;
-import com.cloudera.impala.catalog.Type;
-import com.cloudera.impala.common.ImpalaRuntimeException;
-import com.cloudera.impala.util.UnsafeUtil;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
 @SuppressWarnings("restriction")
 public class UdfExecutorTest {
+/*
   private final String HIVE_BUILTIN_JAR = System.getenv("HIVE_HOME") + "/" +
       "lib/hive-exec-" + System.getenv("IMPALA_HIVE_VERSION") + ".jar";
 
@@ -337,11 +289,16 @@ public class UdfExecutorTest {
     TestHiveUdf(UDFAscii.class, createInt('1'), "123");
     TestHiveUdf(UDFFindInSet.class, createInt(2), "31", "12,31,23");
     TestHiveUdf(UDFLength.class, createInt(5), createText("Hello"));
+    TestHiveUdf(UDFLpad.class, createText("foobar"), "bar", createInt(6), "foo");
+    TestHiveUdf(UDFLTrim.class, createText("foobar  "), createText("  foobar  "));
     TestHiveUdf(UDFRepeat.class, createText("abcabc"), "abc", createInt(2));
     TestHiveUdf(UDFReverse.class, createText("cba"), "abc");
+    TestHiveUdf(UDFRpad.class, createText("foo"), "foo", createInt(3), "bar");
+    TestHiveUdf(UDFRTrim.class, createText("  foobar"), "  foobar  ");
     TestHiveUdf(UDFSpace.class, createText("    "), createInt(4));
     TestHiveUdf(UDFSubstr.class, createText("World"),
         "HelloWorld", createInt(6), createInt(5));
+    TestHiveUdf(UDFTrim.class, createText("foobar"), "  foobar  ");
     freeAllocations();
   }
 
@@ -362,4 +319,6 @@ public class UdfExecutorTest {
     TestUdf(null, TestUdf.class, "ABCXYZ", "ABC", "XYZ");
     freeAllocations();
   }
+*/
 }
+

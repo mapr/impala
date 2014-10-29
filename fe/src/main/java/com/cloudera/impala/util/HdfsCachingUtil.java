@@ -20,7 +20,7 @@ import java.util.Map;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.hdfs.protocol.CacheDirectiveEntry;
 import org.apache.hadoop.hdfs.protocol.CacheDirectiveInfo;
 import org.apache.hadoop.hdfs.protocol.CacheDirectiveInfo.Expiration;
@@ -44,7 +44,7 @@ public class HdfsCachingUtil {
   // become cached before assuming no more progress is being made.
   private final static int MAX_UNCHANGED_CACHING_REFRESH_INTERVALS = 5;
 
-  private final static DistributedFileSystem dfs;
+  private final static FileSystem dfs;
   static {
     try {
       dfs = FileSystemUtil.getDistributedFileSystem();
@@ -60,17 +60,10 @@ public class HdfsCachingUtil {
    * Returns the ID of the submitted cache directive and throws if there is an error
    * submitting the directive or if the table was already cached.
    */
-  public static long submitCacheTblDirective(
+  public static Long submitCacheTblDirective(
       org.apache.hadoop.hive.metastore.api.Table table,
-      String poolName) throws ImpalaRuntimeException {
-    if (table.getParameters().get(CACHE_DIR_ID_PROP_NAME) != null) {
-      throw new ImpalaRuntimeException(String.format(
-          "Table is already cached: %s.%s", table.getDbName(), table.getTableName()));
-    }
-    long id = HdfsCachingUtil.submitDirective(new Path(table.getSd().getLocation()),
-        poolName);
-    table.putToParameters(CACHE_DIR_ID_PROP_NAME, Long.toString(id));
-    return id;
+      String poolName) {
+    return null;
   }
 
   /**
@@ -79,18 +72,10 @@ public class HdfsCachingUtil {
    * Returns the ID of the submitted cache directive and throws if there is an error
    * submitting the directive.
    */
-  public static long submitCachePartitionDirective(
+  public static Long submitCachePartitionDirective(
       org.apache.hadoop.hive.metastore.api.Partition part,
-      String poolName) throws ImpalaRuntimeException {
-    if (part.getParameters().get(CACHE_DIR_ID_PROP_NAME) != null) {
-      throw new ImpalaRuntimeException(String.format(
-          "Partition is already cached: %s.%s/%s", part.getDbName(), part.getTableName(),
-          part.getValues()));
-    }
-    long id = HdfsCachingUtil.submitDirective(new Path(part.getSd().getLocation()),
-        poolName);
-    part.putToParameters(CACHE_DIR_ID_PROP_NAME, Long.toString(id));
-    return id;
+      String poolName) {
+    return null;
   }
 
   /**
@@ -212,7 +197,6 @@ public class HdfsCachingUtil {
    * Submits a new caching directive for the specified cache pool name and path.
    * Returns the directive ID if the submission was successful or an
    * ImpalaRuntimeException if the submission fails.
-   */
   private static long submitDirective(Path path, String poolName)
       throws ImpalaRuntimeException {
     Preconditions.checkNotNull(path);
@@ -223,12 +207,12 @@ public class HdfsCachingUtil {
         .setPath(path).build();
     LOG.debug("Submitting cache directive: " + info.toString());
     try {
-      return dfs.addCacheDirective(info);
+      //return dfs.addCacheDirective(info);
     } catch (IOException e) {
       throw new ImpalaRuntimeException(e.getMessage(), e);
     }
   }
-
+*/
   /**
    * Removes the given cache directive if it exists, uncaching the data. If the
    * cache request does not exist in HDFS no error is returned.
@@ -236,15 +220,7 @@ public class HdfsCachingUtil {
    * directive.
    */
   private static void removeDirective(long directiveId) throws ImpalaRuntimeException {
-    LOG.debug("Removing cache directive id: " + directiveId);
-    try {
-      dfs.removeCacheDirective(directiveId);
-    } catch (IOException e) {
-      // There is no special exception type for the case where a directive ID does not
-      // exist so we must inspect the error message.
-      if (e.getMessage().contains("No directive with ID")) return;
-      throw new ImpalaRuntimeException(e.getMessage(), e);
-    }
+    return;
   }
 
   /**
@@ -252,7 +228,7 @@ public class HdfsCachingUtil {
    * directives were found.
    */
   private static CacheDirectiveEntry getDirective(long directiveId)
-      throws ImpalaRuntimeException {
+      { /*
     LOG.trace("Getting cache directive id: " + directiveId);
     CacheDirectiveInfo filter = new CacheDirectiveInfo.Builder()
         .setId(directiveId)
@@ -265,7 +241,7 @@ public class HdfsCachingUtil {
       }
     } catch (IOException e) {
       throw new ImpalaRuntimeException(e.getMessage(), e);
-    }
+    } */
     return null;
   }
 }

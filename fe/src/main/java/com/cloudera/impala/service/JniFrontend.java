@@ -481,3 +481,4 @@ public class JniFrontend {
     }
     return output.toString();
   }
+}
