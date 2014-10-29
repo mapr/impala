@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IMPALA_HOME=${IMPALA_HOME:-/opt/mapr/impala/impala-1.4.0}
+IMPALA_HOME=${IMPALA_HOME:-/opt/mapr/impala/impala-1.4.1}
 
 
 # get the configuration information
