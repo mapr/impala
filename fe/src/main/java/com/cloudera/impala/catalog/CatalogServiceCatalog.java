@@ -289,7 +289,7 @@ public class CatalogServiceCatalog extends Catalog {
       } finally {
         catalogLock_.writeLock().unlock();
       }
-    }
+  */  }
   }
 
   /**

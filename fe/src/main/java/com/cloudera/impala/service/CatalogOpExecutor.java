@@ -14,6 +14,7 @@
 
 package com.cloudera.impala.service;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -544,13 +545,13 @@ public class CatalogOpExecutor {
       case TIMESTAMP: // Hive and Impala use LongColumnStatsData for timestamps.
         // TODO: Gather and set the min/max values stats as well. The planner
         // currently does not rely on them.
-        colStatsData.setLongStats(new LongColumnStatsData(numNulls, ndvs));
+        colStatsData.setLongStats(new LongColumnStatsData(-1, -1, numNulls, ndvs));
         break;
       case FLOAT:
       case DOUBLE:
         // TODO: Gather and set the min/max values stats as well. The planner
         // currently does not rely on them.
-        colStatsData.setDoubleStats(new DoubleColumnStatsData(numNulls, ndvs));
+        colStatsData.setDoubleStats(new DoubleColumnStatsData(-1, -1, numNulls, ndvs));
         break;
       case STRING:
         long maxStrLen = colStats.getMax_size();
@@ -561,8 +562,14 @@ public class CatalogOpExecutor {
       case DECIMAL:
         // TODO: Gather and set the min/max values stats as well. The planner
         // currently does not rely on them.
+        
+        org.apache.hadoop.hive.metastore.api.Decimal dummy =
+            new org.apache.hadoop.hive.metastore.api.Decimal();
+        dummy.setUnscaled(BigInteger.ZERO.toByteArray());
+        dummy.setScale((short)0);
+
         colStatsData.setDecimalStats(
-            new DecimalColumnStatsData(numNulls, ndvs));
+            new DecimalColumnStatsData(dummy, dummy, numNulls, ndvs));
         break;
       default:
         return null;
@@ -1452,12 +1459,8 @@ public class CatalogOpExecutor {
               partition.getMetaStorePartition();
           Preconditions.checkNotNull(msPart);
           if (!partition.isMarkedCached()) {
-            try {
               cacheDirIds.add(HdfsCachingUtil.submitCachePartitionDirective(
                   msPart, cacheOp.getCache_pool_name()));
-            } catch (ImpalaRuntimeException e) {
-              LOG.error("Unable to cache partition: " + partition.getPartitionName(), e);
-            }
 
             // Update the partition metadata.
             try {
