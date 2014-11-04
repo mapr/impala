@@ -90,9 +90,6 @@ copy_impala_files() {
     # copy the impala front end jar
     cp $BUILT/fe/target/impala-frontend-0.1-SNAPSHOT-mapr.jar $STAGE/lib/.
 
-    # HACK: add hbase jars, till we don't add hbase-client as a new dependency on impala rpm
-    cp $BUILT/fe/target/dependency/hbase*mapr*.jar $STAGE/lib
-
     # Stage a log directory
     mkdir -p $STAGE/logs
 
