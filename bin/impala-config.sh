@@ -107,7 +107,7 @@ HIVE_CONF_DIR=$HIVE_HOME/conf
 export HIVE_AUX_JARS_PATH=${IMPALA_FE_DIR}/target
 export AUX_CLASSPATH=$HADOOP_LZO/build/hadoop-lzo-0.4.15.jar
 
-export HBASE_HOME=/opt/mapr/hbase/hbase-0.94.13
+export HBASE_HOME=/opt/mapr/hbase/hbase-0.98.4
 export PATH=$HBASE_HOME/bin:$PATH
 
 # Add the jars so hive can create hbase tables.

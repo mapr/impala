@@ -26,6 +26,7 @@ setCLASSPATH() {
     CLASSPATH+=:$(getPath /opt/mapr/lib/libprotodefs*.jar)
     CLASSPATH+=:$(getPath /opt/mapr/lib/central-logging*.jar)
     CLASSPATH+=:$(getPath ${HIVE_HOME}/lib/hive*.jar)
+    CLASSPATH+=:$(getPath ${HBASE_HOME}/lib/hbase*.jar)
 
     # get the jars associated with impala
     CLASSPATH+=:$(getPath ${IMPALA_HOME}/lib/*.jar)
