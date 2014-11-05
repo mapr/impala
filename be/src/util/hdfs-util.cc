@@ -16,7 +16,10 @@
 
 #include <sstream>
 #include <string.h>
-
+#include <iostream>
+#include <fstream>
+#include <stdio.h>
+#include <stdlib.h>
 #include "util/error-util.h"
 
 using namespace boost;
@@ -52,9 +55,37 @@ bool IsHiddenFile(const string& filename) {
   return !filename.empty() && (filename[0] == '.' || filename[0] == '_');
 }
 
+void hdfsCopyImpl(const hdfsFS& src_conn, const string& src_path,
+                  const hdfsFS& dst_conn, const string& dst_path) {
+  tSize readStatus = 0;
+  tSize readLength = 8 * 1024;
+
+  //create a file 
+  FILE * pFile;
+  pFile = fopen(dst_path.c_str(), "wb");
+
+  hdfsFile srcFile = hdfsOpenFile(src_conn, src_path.c_str(), O_RDONLY, 0, 0, 0);
+
+  // allocated buffer of size 8k
+  void *buffer = malloc (readLength);
+
+  readStatus = hdfsRead(src_conn, srcFile, buffer, readLength);
+  while (readStatus != 0) {
+    fwrite(buffer, sizeof(char), readStatus, pFile);
+    readStatus = hdfsRead(src_conn, srcFile, buffer, readLength);
+  } 
+
+  fclose(pFile);
+
+  hdfsCloseFile(src_conn, srcFile);
+
+  free(buffer);
+}
+
 Status CopyHdfsFile(const hdfsFS& src_conn, const string& src_path,
                     const hdfsFS& dst_conn, const string& dst_path) {
-  int error = hdfsCopy(src_conn, src_path.c_str(), dst_conn, dst_path.c_str());
+  int error = 0;
+  hdfsCopyImpl(src_conn, src_path, dst_conn, dst_path);
   if (error != 0) {
     string error_msg = GetHdfsErrorMsg("");
     stringstream ss;
