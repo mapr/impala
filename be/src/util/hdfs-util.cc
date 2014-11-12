@@ -55,7 +55,7 @@ bool IsHiddenFile(const string& filename) {
   return !filename.empty() && (filename[0] == '.' || filename[0] == '_');
 }
 
-void hdfsCopyImpl(const hdfsFS& src_conn, const string& src_path,
+Status hdfsCopyImpl(const hdfsFS& src_conn, const string& src_path,
                   const hdfsFS& dst_conn, const string& dst_path) {
   tSize readStatus = 0;
   tSize readLength = 8 * 1024;
@@ -64,6 +64,11 @@ void hdfsCopyImpl(const hdfsFS& src_conn, const string& src_path,
   FILE * pFile;
   pFile = fopen(dst_path.c_str(), "wb");
 
+  if (pFile == NULL) {
+    stringstream ss;
+    ss << "Failed to create or open local file:" << dst_path;
+    return Status(ss.str());    
+  }
   hdfsFile srcFile = hdfsOpenFile(src_conn, src_path.c_str(), O_RDONLY, 0, 0, 0);
 
   // allocated buffer of size 8k
@@ -71,7 +76,19 @@ void hdfsCopyImpl(const hdfsFS& src_conn, const string& src_path,
 
   readStatus = hdfsRead(src_conn, srcFile, buffer, readLength);
   while (readStatus != 0) {
+    if (readStatus == -1) {
+      stringstream ss;
+      ss << "Failed to read from path:" << src_path;
+      return Status(ss.str());
+    }
     fwrite(buffer, sizeof(char), readStatus, pFile);
+ 
+    // Check if the write was successful
+    if (ferror(pFile)) {
+      stringstream ss;
+      ss << "Failed to write to path:" << dst_path;
+      return Status(ss.str());      
+    }
     readStatus = hdfsRead(src_conn, srcFile, buffer, readLength);
   } 
 
@@ -80,19 +97,13 @@ void hdfsCopyImpl(const hdfsFS& src_conn, const string& src_path,
   hdfsCloseFile(src_conn, srcFile);
 
   free(buffer);
+
+  return Status::OK;
 }
 
 Status CopyHdfsFile(const hdfsFS& src_conn, const string& src_path,
                     const hdfsFS& dst_conn, const string& dst_path) {
-  int error = 0;
-  hdfsCopyImpl(src_conn, src_path, dst_conn, dst_path);
-  if (error != 0) {
-    string error_msg = GetHdfsErrorMsg("");
-    stringstream ss;
-    ss << "Failed to copy " << src_path << " to " << dst_path << ": " << error_msg;
-    return Status(ss.str());
-  }
-  return Status::OK;
+  return hdfsCopyImpl(src_conn, src_path, dst_conn, dst_path);
 }
 
 bool IsDfsPath(const char* path) {
