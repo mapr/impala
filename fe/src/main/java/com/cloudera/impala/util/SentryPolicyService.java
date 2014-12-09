@@ -292,7 +292,6 @@ public class SentryPolicyService {
           sentryPriv.getAction().toUpperCase()));
     }
     privilege.setPrivilege_name(RolePrivilege.buildRolePrivilegeName(privilege));
-    privilege.setCreate_time_ms(sentryPriv.getCreateTime());
     return privilege;
   }
 }
