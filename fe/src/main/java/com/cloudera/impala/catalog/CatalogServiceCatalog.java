@@ -47,8 +47,6 @@ import com.cloudera.impala.thrift.TCatalogObject;
 import com.cloudera.impala.thrift.TCatalogObjectType;
 import com.cloudera.impala.thrift.TFunctionBinaryType;
 import com.cloudera.impala.thrift.TGetAllCatalogObjectsResponse;
-import com.cloudera.impala.thrift.TPartitionKeyValue;
-import com.cloudera.impala.thrift.TPrivilege;
 import com.cloudera.impala.thrift.TTable;
 import com.cloudera.impala.thrift.TTableName;
 import com.cloudera.impala.thrift.TUniqueId;
@@ -240,17 +238,17 @@ public class CatalogServiceCatalog extends Catalog {
           // Check all the privileges that are part of this role.
           for (TSentryPrivilege sentryPriv:
               sentryPolicyService_.listRolePrivileges(role.getName())) {
-            TPrivilege thriftPriv =
-                SentryPolicyService.sentryPrivilegeToTPrivilege(sentryPriv);
-            privilegesToRemove.remove(thriftPriv.getPrivilege_name().toLowerCase());
-            RolePrivilege existingPriv = role.getPrivilege(thriftPriv.getPrivilege_name());
+            privilegesToRemove.remove(sentryPriv.getPrivilegeName().toLowerCase());
+            RolePrivilege existingPriv =
+                role.getPrivilege(sentryPriv.getPrivilegeName());
 
             // We already know about this privilege (privileges cannot be modified).
             if (existingPriv != null &&
                 existingPriv.getCreateTimeMs() == sentryPriv.getCreateTime()) {
               continue;
             }
-            RolePrivilege priv = new RolePrivilege(role.getId(), thriftPriv,
+            RolePrivilege priv = new RolePrivilege(role.getId(),
+                sentryPriv.getPrivilegeName(), sentryPriv.getPrivilegeScope(),
                 sentryPriv.getCreateTime());
 
             // Increment the catalog version and add the privilege atomically.
