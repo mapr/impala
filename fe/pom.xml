@@ -577,6 +577,17 @@
 
   <repositories>
     <repository>
+      <id>mapr.repo</id>
+      <url>http://repository.mapr.com/maven/</url>
+      <name>MapR Repositories</name>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+    <repository>
       <id>cdh.rcs.releases.repo</id>
       <url>https://repository.cloudera.com/content/groups/cdh-releases-rcs</url>
       <name>CDH Releases Repository</name>
