@@ -84,8 +84,11 @@ copy_impala_files() {
 
     cp $BUILT/fe/target/dependency/*.jar $STAGE/lib
 
-    # remove mapr dependency jar, these will be added to the classpath
-    rm -rf $STAGE/lib/*mapr*.jar
+    #
+    # Remove all *mapr*jar dependency jars, except sentry*mapr*jar jars.
+    # All non-sentry MapR jars will be added to the classpath
+    #
+    find $STAGE/lib -type f -name "*mapr*jar" ! -name '*sentry*' -exec rm \{\} \;
 
     # copy the impala front end jar
     cp $BUILT/fe/target/impala-frontend-0.1-SNAPSHOT-mapr.jar $STAGE/lib/.
@@ -99,9 +102,6 @@ copy_impala_files() {
     cp $BUILT/be/src/udf/*.h     $STAGE/include/impala_udf
 
     cp $BUILT/be/build/$BUILD_TYPE/udf/libImpalaUdf.a $STAGE/lib
-
-    
-
 }
 
 
