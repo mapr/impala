@@ -23,8 +23,9 @@ export JAVA_TOOL_OPTIONS+=" -Dmapr.library.flatclass "
 ####################################################################3
 main() {
 
-    # point to the HIVE and HADOOP directories
+    # point to the HIVE, SENTRY and HADOOP directories
     HIVE_HOME=$(findHome hive)
+    SENTRY_HOME=$(findHome sentry)
     HADOOP_HOME=$(findHome hadoop)
     HBASE_HOME=$(findHome hbase)
 
@@ -74,7 +75,12 @@ validateSystem() {
     if [ -z "$IMPALA_STATE_STORE_HOST" ]; then
         echo IMPALA ERROR: must configure statestore host in env.sh
         exit 1;
-    fi 
+    fi
+
+    if [ -z "$SENTRY_HOME" ]; then
+        echo IMPALA ERROR: sentry must be installed.
+        exit 1
+    fi
 
     if [ -z "$HIVE_HOME" ]; then
         echo IMPALA ERROR: hive must be installed.
