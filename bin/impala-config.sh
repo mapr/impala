@@ -99,7 +99,6 @@ export PATH=$HADOOP_HOME/bin:$PATH
 
 export LLAMA_HOME=$IMPALA_HOME/thirdparty/llama-${IMPALA_LLAMA_VERSION}/
 export HIVE_HOME=/opt/mapr/hive/hive-0.13
-export SENTRY_HOME=/opt/mapr/sentry/sentry-1.4.0
 export PATH=$HIVE_HOME/bin:$PATH
 HIVE_CONF_DIR=$HIVE_HOME/conf
 
@@ -185,7 +184,6 @@ echo "HADOOP_HOME            = $HADOOP_HOME"
 echo "HADOOP_CONF_DIR        = $HADOOP_CONF_DIR"
 echo "MINI_DFS_BASE_DATA_DIR = $MINI_DFS_BASE_DATA_DIR"
 echo "HIVE_HOME              = $HIVE_HOME"
-echo "SENTRY_HOME            = $SENTRY_HOME"
 echo "HIVE_CONF_DIR          = $HIVE_CONF_DIR"
 echo "HBASE_HOME             = $HBASE_HOME"
 echo "HBASE_CONF_DIR         = $HBASE_CONF_DIR"

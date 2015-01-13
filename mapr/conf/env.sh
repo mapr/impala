@@ -44,7 +44,6 @@ ENABLE_CORE_DUMPS=false
 # Impala figures these out at runtime, but they can be overridden here.
 #    (Normally, they should be commented out.)
 # HIVE_HOME=${MAPR_HOME}/hive/hive-*
-# SENTRY_HOME=${MAPR_HOME}/sentry/sentry-*
 # HBASE_HOME=${MAPR_HOME}/hbase/hbase-*
 # HADOOP_HOME=${MAPR_HOME}/hadoop/hodoop-*
 
