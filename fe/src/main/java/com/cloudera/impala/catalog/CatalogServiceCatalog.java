@@ -32,9 +32,11 @@ import org.apache.hadoop.hdfs.protocol.CachePoolEntry;
 import org.apache.hadoop.hdfs.protocol.CachePoolInfo;
 import org.apache.hadoop.hive.metastore.api.UnknownDBException;
 import org.apache.log4j.Logger;
+import org.apache.sentry.provider.db.service.thrift.TSentryGroup;
+import org.apache.sentry.provider.db.service.thrift.TSentryPrivilege;
+import org.apache.sentry.provider.db.service.thrift.TSentryRole;
 import org.apache.thrift.TException;
 
-import com.cloudera.impala.analysis.TableName;
 import com.cloudera.impala.authorization.SentryConfig;
 import com.cloudera.impala.catalog.MetaStoreClientPool.MetaStoreClient;
 import com.cloudera.impala.common.FileSystemUtil;
@@ -45,13 +47,11 @@ import com.cloudera.impala.thrift.TCatalogObject;
 import com.cloudera.impala.thrift.TCatalogObjectType;
 import com.cloudera.impala.thrift.TFunctionBinaryType;
 import com.cloudera.impala.thrift.TGetAllCatalogObjectsResponse;
-import com.cloudera.impala.thrift.TPartitionKeyValue;
-import com.cloudera.impala.thrift.TPrivilege;
 import com.cloudera.impala.thrift.TTable;
 import com.cloudera.impala.thrift.TTableName;
 import com.cloudera.impala.thrift.TUniqueId;
 import com.cloudera.impala.util.PatternMatcher;
-import com.cloudera.impala.util.SentryPolicyUpdater;
+import com.cloudera.impala.util.SentryPolicyService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -113,9 +113,14 @@ public class CatalogServiceCatalog extends Catalog {
   private final ScheduledExecutorService cachePoolReader_ =
       Executors.newScheduledThreadPool(1);
 
-  // If the Sentry Service is configured, this object will periodically refresh the
+  // The interface to access the Sentry Policy Service to read policy metadata. Null
+  // if Sentry Service is disabled.
+  private final SentryPolicyService sentryPolicyService_;
+
+  // If the Sentry Service is configured, this thread will periodically refresh the
   // policy metadata.
-  private final SentryPolicyUpdater policyUpdater_;
+  private final ScheduledExecutorService policyReader_ =
+      Executors.newScheduledThreadPool(1);
 
   /**
    * Initialize the CatalogServiceCatalog. If loadInBackground is true, table metadata
@@ -130,9 +135,11 @@ public class CatalogServiceCatalog extends Catalog {
 
     cachePoolReader_.scheduleAtFixedRate(new CachePoolReader(), 0, 1, TimeUnit.MINUTES);
     if (sentryConfig != null) {
-      policyUpdater_ = new SentryPolicyUpdater(sentryConfig, this);
+      sentryPolicyService_ = new SentryPolicyService(sentryConfig, null);
+      policyReader_.scheduleAtFixedRate(new AuthorizationPolicyReader(), 0, 60,
+          TimeUnit.SECONDS);
     } else {
-      policyUpdater_ = null;
+      sentryPolicyService_ = null;
     }
   }
 
@@ -231,17 +238,17 @@ public class CatalogServiceCatalog extends Catalog {
           // Check all the privileges that are part of this role.
           for (TSentryPrivilege sentryPriv:
               sentryPolicyService_.listRolePrivileges(role.getName())) {
-            TPrivilege thriftPriv =
-                SentryPolicyService.sentryPrivilegeToTPrivilege(sentryPriv);
-            privilegesToRemove.remove(thriftPriv.getPrivilege_name().toLowerCase());
-            RolePrivilege existingPriv = role.getPrivilege(thriftPriv.getPrivilege_name());
+            privilegesToRemove.remove(sentryPriv.getPrivilegeName().toLowerCase());
+            RolePrivilege existingPriv =
+                role.getPrivilege(sentryPriv.getPrivilegeName());
 
             // We already know about this privilege (privileges cannot be modified).
             if (existingPriv != null &&
                 existingPriv.getCreateTimeMs() == sentryPriv.getCreateTime()) {
               continue;
             }
-            RolePrivilege priv = new RolePrivilege(role.getId(), thriftPriv,
+            RolePrivilege priv = new RolePrivilege(role.getId(),
+                sentryPriv.getPrivilegeName(), sentryPriv.getPrivilegeScope(),
                 sentryPriv.getCreateTime());
 
             // Increment the catalog version and add the privilege atomically.
@@ -444,11 +451,11 @@ public class CatalogServiceCatalog extends Catalog {
    */
   public void reset() throws CatalogException {
     // First update the policy metadata.
-    if (policyUpdater_ != null) {
+    if (sentryPolicyService_ != null) {
       // Sentry Service is enabled.
       try {
         // Update the authorization policy, waiting for the result to complete.
-        policyUpdater_.refresh();
+        policyReader_.submit(new AuthorizationPolicyReader()).get();
       } catch (Exception e) {
         throw new CatalogException("Error updating authorization policy: ", e);
       }
@@ -862,80 +869,6 @@ public class CatalogServiceCatalog extends Catalog {
   }
 
   /**
-   * Adds a new role with the given name and grant groups to the AuthorizationPolicy.
-   * If a role with the same name already exists it will be overwritten.
-   */
-  public Role addRole(String roleName, Set<String> grantGroups) {
-    catalogLock_.writeLock().lock();
-    try {
-      Role role = new Role(roleName, grantGroups);
-      role.setCatalogVersion(incrementAndGetCatalogVersion());
-      authPolicy_.addRole(role);
-      return role;
-    } finally {
-      catalogLock_.writeLock().unlock();
-    }
-  }
-
-  /**
-   * Removes the role with the given name from the AuthorizationPolicy. Returns the
-   * removed role with an incremented catalog version, or null if no role with this name
-   * exists.
-   */
-  public Role removeRole(String roleName) {
-    catalogLock_.writeLock().lock();
-    try {
-      Role role = authPolicy_.removeRole(roleName);
-      if (role == null) return null;
-      role.setCatalogVersion(incrementAndGetCatalogVersion());
-      return role;
-    } finally {
-      catalogLock_.writeLock().unlock();
-    }
-  }
-
-  /**
-   * Adds a privilege to the given role name. Returns the new RolePrivilege and
-   * increments the catalog version. If the parent role does not exist a CatalogException
-   * is thrown.
-   */
-  public RolePrivilege addRolePrivilege(String roleName, TPrivilege thriftPriv)
-      throws CatalogException {
-    catalogLock_.writeLock().lock();
-    try {
-      Role role = authPolicy_.getRole(roleName);
-      if (role == null) throw new CatalogException("Role does not exist: " + roleName);
-      RolePrivilege priv = RolePrivilege.fromThrift(thriftPriv);
-      priv.setCatalogVersion(incrementAndGetCatalogVersion());
-      authPolicy_.addPrivilege(priv);
-      return priv;
-    } finally {
-      catalogLock_.writeLock().unlock();
-    }
-  }
-
-  /**
-   * Removes a RolePrivilege from the given role name. Returns the removed
-   * RolePrivilege with an incremented catalog version or null if no matching privilege
-   * was found. Throws a CatalogException if no role exists with this name.
-   */
-  public RolePrivilege removeRolePrivilege(String roleName, TPrivilege thriftPriv)
-      throws CatalogException {
-    catalogLock_.writeLock().lock();
-    try {
-      Role role = authPolicy_.getRole(roleName);
-      if (role == null) throw new CatalogException("Role does not exist: " + roleName);
-      RolePrivilege rolePrivilege =
-          role.removePrivilege(thriftPriv.getPrivilege_name());
-      if (rolePrivilege == null) return null;
-      rolePrivilege.setCatalogVersion(incrementAndGetCatalogVersion());
-      return rolePrivilege;
-    } finally {
-      catalogLock_.writeLock().unlock();
-    }
-  }
-
-  /**
    * Increments the current Catalog version and returns the new value.
    */
   public long incrementAndGetCatalogVersion() {
@@ -963,5 +896,4 @@ public class CatalogServiceCatalog extends Catalog {
    * Gets the next table ID and increments the table ID counter.
    */
   public TableId getNextTableId() { return new TableId(nextTableId_.getAndIncrement()); }
-  public AuthorizationPolicy getAuthPolicy() { return authPolicy_; }
 }
