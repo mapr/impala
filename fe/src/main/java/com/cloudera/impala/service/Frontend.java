@@ -215,12 +215,7 @@ public class Frontend {
     TUpdateCatalogCacheResponse response = catalog.updateCatalog(req);
 
     if (!req.is_delta) {
-      // This was not a delta update. Now that the catalog has been updated,
-      // replace the references to impaladCatalog_/authzChecker_ ensure
-      // clients continue don't see the catalog disappear.
       impaladCatalog_ = catalog;
-      authzChecker_.set(new AuthorizationChecker(authzConfig_,
-          impaladCatalog_.getAuthPolicy()));
     }
     return response;
   }
