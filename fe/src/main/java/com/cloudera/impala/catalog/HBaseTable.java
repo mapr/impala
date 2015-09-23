@@ -532,7 +532,10 @@ public class HBaseTable extends Table {
       // Print the stack trace, but we'll ignore it
       // as this is just an estimate.
       // TODO: Put this into the per query log.
-      LOG.error("Error computing HBase row count estimate", ioe);
+      if (ioe instanceof java.io.FileNotFoundException) {
+      } else {
+        LOG.error("Error computing HBase row count estimate", ioe);
+      }
       return new Pair<Long, Long>(-1l, -1l);
     }
     return new Pair<Long, Long>(rowCount, rowSize);

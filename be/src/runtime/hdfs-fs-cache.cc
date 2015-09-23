@@ -56,12 +56,15 @@ Status HdfsFsCache::GetConnection(const string& path, hdfsFS* fs,
     lock_guard<mutex> l(lock_);
     HdfsFsMap::iterator i = fs_map_.find(namenode);
     if (i == fs_map_.end()) {
+      /*
       hdfsBuilder* hdfs_builder = hdfsNewBuilder();
       hdfsBuilderSetNameNode(hdfs_builder, namenode.c_str());
       *fs = hdfsBuilderConnect(hdfs_builder);
       if (*fs == NULL) {
         return Status(GetHdfsErrorMsg("Failed to connect to FS: ", namenode));
       }
+      */
+      hdfsFS conn = hdfsConnect(host.c_str(), port);
       fs_map_.insert(make_pair(namenode, *fs));
     } else {
       *fs = i->second;

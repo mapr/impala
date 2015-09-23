@@ -31,13 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hdfs.DFSConfigKeys;
-import org.apache.hadoop.hdfs.DFSUtil;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.hadoop.hdfs.HAUtil;
 import org.apache.log4j.Appender;
 import org.apache.log4j.FileAppender;
 import org.apache.thrift.TException;
@@ -99,32 +93,32 @@ import com.google.common.collect.Sets;
 public class JniFrontend {
   private final static Logger LOG = LoggerFactory.getLogger(JniFrontend.class);
   private final static TBinaryProtocol.Factory protocolFactory_ =
-      new TBinaryProtocol.Factory();
+          new TBinaryProtocol.Factory();
   private final Frontend frontend_;
 
   // Required minimum value (in milliseconds) for the HDFS config
   // 'dfs.client.file-block-storage-locations.timeout.millis'
   private static final long MIN_DFS_CLIENT_FILE_BLOCK_STORAGE_LOCATIONS_TIMEOUT_MS =
-      10 * 1000;
+          10 * 1000;
 
   /**
    * Create a new instance of the Jni Frontend.
    */
   public JniFrontend(boolean lazy, String serverName, String authorizationPolicyFile,
-      String sentryConfigFile, String authPolicyProviderClass, int impalaLogLevel,
-      int otherLogLevel) throws InternalException {
+                     String sentryConfigFile, String authPolicyProviderClass, int impalaLogLevel,
+                     int otherLogLevel) throws InternalException {
     GlogAppender.Install(TLogLevel.values()[impalaLogLevel],
-        TLogLevel.values()[otherLogLevel]);
+            TLogLevel.values()[otherLogLevel]);
 
     // Validate the authorization configuration before initializing the Frontend.
     // If there are any configuration problems Impala startup will fail.
     AuthorizationConfig authConfig = new AuthorizationConfig(serverName,
-        authorizationPolicyFile, sentryConfigFile, authPolicyProviderClass);
+            authorizationPolicyFile, sentryConfigFile, authPolicyProviderClass);
     authConfig.validateConfig();
     if (authConfig.isEnabled()) {
       LOG.info(String.format("Authorization is 'ENABLED' using %s",
-          authConfig.isFileBasedPolicy() ? " file based policy from: " +
-          authConfig.getPolicyFile() : " using Sentry Policy Service."));
+              authConfig.isFileBasedPolicy() ? " file based policy from: " +
+                      authConfig.getPolicyFile() : " using Sentry Policy Service."));
     } else {
       LOG.info("Authorization is 'DISABLED'.");
     }
@@ -138,7 +132,7 @@ public class JniFrontend {
    * TQueryContext; returns a serialized TQueryExecRequest.
    */
   public byte[] createExecRequest(byte[] thriftQueryContext)
-      throws ImpalaException {
+          throws ImpalaException {
     TQueryCtx queryCtx = new TQueryCtx();
     JniUtil.deserializeThrift(protocolFactory_, queryCtx, thriftQueryContext);
 
@@ -173,7 +167,7 @@ public class JniFrontend {
    * data files.
    */
   public byte[] loadTableData(byte[] thriftLoadTableDataParams)
-      throws ImpalaException, IOException {
+          throws ImpalaException, IOException {
     TLoadDataReq request = new TLoadDataReq();
     JniUtil.deserializeThrift(protocolFactory_, request, thriftLoadTableDataParams);
     TLoadDataResp response = frontend_.loadTableData(request);
@@ -202,6 +196,7 @@ public class JniFrontend {
    * Returns a list of table names matching an optional pattern.
    * The argument is a serialized TGetTablesParams object.
    * The return type is a serialised TGetTablesResult object.
+   *
    * @see Frontend#getTableNames
    */
   public byte[] getTableNames(byte[] thriftGetTablesParams) throws ImpalaException {
@@ -209,10 +204,10 @@ public class JniFrontend {
     JniUtil.deserializeThrift(protocolFactory_, params, thriftGetTablesParams);
     // If the session was not set it indicates this is an internal Impala call.
     User user = params.isSetSession() ?
-        new User(TSessionStateUtil.getEffectiveUser(params.getSession())) :
-        ImpalaInternalAdminUser.getInstance();
+            new User(TSessionStateUtil.getEffectiveUser(params.getSession())) :
+            ImpalaInternalAdminUser.getInstance();
 
-    Preconditions.checkState(!params.isSetSession() || user != null );
+    Preconditions.checkState(!params.isSetSession() || user != null);
     List<String> tables = frontend_.getTableNames(params.db, params.pattern, user);
 
     TGetTablesResult result = new TGetTablesResult();
@@ -230,6 +225,7 @@ public class JniFrontend {
    * Returns files info of a table or partition.
    * The argument is a serialized TShowFilesParams object.
    * The return type is a serialised TResultSet object.
+   *
    * @see Frontend#getTableFiles
    */
   public byte[] getTableFiles(byte[] thriftShowFilesParams) throws ImpalaException {
@@ -249,6 +245,7 @@ public class JniFrontend {
    * Returns a list of table names matching an optional pattern.
    * The argument is a serialized TGetTablesParams object.
    * The return type is a serialised TGetTablesResult object.
+   *
    * @see Frontend#getTableNames
    */
   public byte[] getDbNames(byte[] thriftGetTablesParams) throws ImpalaException {
@@ -256,8 +253,8 @@ public class JniFrontend {
     JniUtil.deserializeThrift(protocolFactory_, params, thriftGetTablesParams);
     // If the session was not set it indicates this is an internal Impala call.
     User user = params.isSetSession() ?
-        new User(TSessionStateUtil.getEffectiveUser(params.getSession())) :
-        ImpalaInternalAdminUser.getInstance();
+            new User(TSessionStateUtil.getEffectiveUser(params.getSession())) :
+            ImpalaInternalAdminUser.getInstance();
     List<String> dbs = frontend_.getDbNames(params.pattern, user);
 
     TGetDbsResult result = new TGetDbsResult();
@@ -275,6 +272,7 @@ public class JniFrontend {
    * Returns a list of data sources matching an optional pattern.
    * The argument is a serialized TGetDataSrcsResult object.
    * The return type is a serialised TGetDataSrcsResult object.
+   *
    * @see Frontend#getDataSrcs
    */
   public byte[] getDataSrcMetadata(byte[] thriftParams) throws ImpalaException {
@@ -287,7 +285,7 @@ public class JniFrontend {
     result.setLocations(Lists.<String>newArrayListWithCapacity(dataSources.size()));
     result.setClass_names(Lists.<String>newArrayListWithCapacity(dataSources.size()));
     result.setApi_versions(Lists.<String>newArrayListWithCapacity(dataSources.size()));
-    for (DataSource dataSource: dataSources) {
+    for (DataSource dataSource : dataSources) {
       result.addToData_src_names(dataSource.getName());
       result.addToLocations(dataSource.getLocation());
       result.addToClass_names(dataSource.getClassName());
@@ -308,10 +306,10 @@ public class JniFrontend {
     TResultSet result;
     if (params.isIs_show_col_stats()) {
       result = frontend_.getColumnStats(params.getTable_name().getDb_name(),
-          params.getTable_name().getTable_name());
+              params.getTable_name().getTable_name());
     } else {
       result = frontend_.getTableStats(params.getTable_name().getDb_name(),
-          params.getTable_name().getTable_name());
+              params.getTable_name().getTable_name());
     }
     TSerializer serializer = new TSerializer(protocolFactory_);
     try {
@@ -325,6 +323,7 @@ public class JniFrontend {
    * Returns a list of function names matching an optional pattern.
    * The argument is a serialized TGetFunctionsParams object.
    * The return type is a serialised TGetFunctionsResult object.
+   *
    * @see Frontend#getTableNames
    */
   public byte[] getFunctions(byte[] thriftGetFunctionsParams) throws ImpalaException {
@@ -335,7 +334,7 @@ public class JniFrontend {
     List<String> signatures = Lists.newArrayList();
     List<String> retTypes = Lists.newArrayList();
     List<Function> fns = frontend_.getFunctions(params.category, params.db, params.pattern);
-    for (Function fn: fns) {
+    for (Function fn : fns) {
       signatures.add(fn.signatureString());
       retTypes.add(fn.getReturnType().toString());
     }
@@ -353,18 +352,19 @@ public class JniFrontend {
    * Gets the thrift representation of a catalog object.
    */
   public byte[] getCatalogObject(byte[] thriftParams) throws ImpalaException,
-      TException {
+          TException {
     TCatalogObject objectDescription = new TCatalogObject();
     JniUtil.deserializeThrift(protocolFactory_, objectDescription, thriftParams);
     TSerializer serializer = new TSerializer(protocolFactory_);
     return serializer.serialize(
-        frontend_.getCatalog().getTCatalogObject(objectDescription));
+            frontend_.getCatalog().getTCatalogObject(objectDescription));
   }
 
   /**
    * Returns a list of the columns making up a table.
    * The argument is a serialized TDescribeTableParams object.
    * The return type is a serialised TDescribeTableResult object.
+   *
    * @see Frontend#describeTable
    */
   public byte[] describeTable(byte[] thriftDescribeTableParams) throws ImpalaException {
@@ -372,7 +372,7 @@ public class JniFrontend {
     JniUtil.deserializeThrift(protocolFactory_, params, thriftDescribeTableParams);
 
     TDescribeTableResult result = frontend_.describeTable(
-        params.getDb(), params.getTable_name(), params.getOutput_style());
+            params.getDb(), params.getTable_name(), params.getOutput_style());
 
     TSerializer serializer = new TSerializer(protocolFactory_);
     try {
@@ -386,11 +386,11 @@ public class JniFrontend {
    * Returns a SQL DDL string for creating the specified table.
    */
   public String showCreateTable(byte[] thriftTableName)
-      throws ImpalaException {
+          throws ImpalaException {
     TTableName params = new TTableName();
     JniUtil.deserializeThrift(protocolFactory_, params, thriftTableName);
     return ToSqlUtils.getCreateTableSql(frontend_.getCatalog().getTable(
-        params.getDb_name(), params.getTable_name()));
+            params.getDb_name(), params.getTable_name()));
   }
 
   /**
@@ -411,7 +411,7 @@ public class JniFrontend {
         Preconditions.checkState(params.isSetGrant_group());
         groupNames = Sets.newHashSet(params.getGrant_group());
       }
-      for (String groupName: groupNames) {
+      for (String groupName : groupNames) {
         roles.addAll(frontend_.getCatalog().getAuthPolicy().getGrantedRoles(groupName));
       }
     } else {
@@ -420,7 +420,7 @@ public class JniFrontend {
     }
 
     result.setRole_names(Lists.<String>newArrayListWithExpectedSize(roles.size()));
-    for (Role role: roles) {
+    for (Role role : roles) {
       result.getRole_names().add(role.getName());
     }
 
@@ -437,7 +437,7 @@ public class JniFrontend {
     TShowGrantRoleParams params = new TShowGrantRoleParams();
     JniUtil.deserializeThrift(protocolFactory_, params, showGrantRolesParams);
     TResultSet result = frontend_.getCatalog().getAuthPolicy().getRolePrivileges(
-        params.getRole_name(), params.getPrivilege());
+            params.getRole_name(), params.getPrivilege());
     TSerializer serializer = new TSerializer(protocolFactory_);
     try {
       return serializer.serialize(result);
@@ -450,7 +450,7 @@ public class JniFrontend {
    * Executes a HiveServer2 metadata operation and returns a TResultSet
    */
   public byte[] execHiveServer2MetadataOp(byte[] metadataOpsParams)
-      throws ImpalaException {
+          throws ImpalaException {
     TMetadataOpRequest params = new TMetadataOpRequest();
     JniUtil.deserializeThrift(protocolFactory_, params, metadataOpsParams);
     TResultSet result = frontend_.execHiveServer2MetadataOp(params);
@@ -476,7 +476,7 @@ public class JniFrontend {
    */
   public byte[] getAllHadoopConfigs() throws ImpalaException {
     Map<String, String> configs = Maps.newHashMap();
-    for (Map.Entry<String, String> e: CONF) {
+    for (Map.Entry<String, String> e : CONF) {
       configs.put(e.getKey(), e.getValue());
     }
     TGetAllHadoopConfigsResponse result = new TGetAllHadoopConfigsResponse();
@@ -541,13 +541,13 @@ public class JniFrontend {
    * can determine that it is running on CDH.
    */
   public String checkConfiguration() {
-    CdhVersion guessedCdhVersion = guessCdhVersionFromNnWebUi();
+    CdhVersion guessedCdhVersion = new CdhVersion("4.2");
     CdhVersion cdh41 = new CdhVersion("4.1");
     CdhVersion cdh42 = new CdhVersion("4.2");
     StringBuilder output = new StringBuilder();
 
-    output.append(checkLogFilePermission());
-    output.append(checkFileSystem(CONF));
+    // -- PSC -- output.append(checkLogFilePermission());
+    // -- PSC -- output.append(checkFileSystem(CONF));
 
     if (guessedCdhVersion == null) {
       // Do not run any additional checks because we cannot determine the CDH version
@@ -555,301 +555,8 @@ public class JniFrontend {
       return output.toString();
     }
 
-    if (guessedCdhVersion.compareTo(cdh41) == 0) {
-      output.append(checkShortCircuitReadCdh41(CONF));
-    } else if (guessedCdhVersion.compareTo(cdh42) >= 0) {
-      output.append(checkShortCircuitRead(CONF));
-    } else {
-      output.append(guessedCdhVersion)
-        .append(" is detected but Impala requires CDH 4.1 or above.");
-    }
-    output.append(checkBlockLocationTracking(CONF));
 
     return output.toString();
   }
 
-  /**
-   * Returns an empty string if Impala has permission to write to FE log files. If not,
-   * returns an error string describing the issues.
-   */
-  private String checkLogFilePermission() {
-    org.apache.log4j.Logger l4jRootLogger = org.apache.log4j.Logger.getRootLogger();
-    Enumeration appenders = l4jRootLogger.getAllAppenders();
-    while (appenders.hasMoreElements()) {
-      Appender appender = (Appender) appenders.nextElement();
-      if (appender instanceof FileAppender) {
-        if (((FileAppender) appender).getFile() == null) {
-          // If Impala does not have permission to write to the log file, the
-          // FileAppender will fail to initialize and logFile will be null.
-          // Unfortunately, we can't get the log file name here.
-          return "Impala does not have permission to write to the log file specified " +
-              "in log4j.properties.";
-        }
-      }
-    }
-    return "";
-  }
-
-  /**
-   * Guess the CDH version by looking at the version info string from the Namenode web UI
-   * Return the CDH version or null (if we can't determine the version)
-   */
-  private CdhVersion guessCdhVersionFromNnWebUi() {
-    try {
-      // On a large cluster, avoid hitting the name node at the same time
-      Random randomGenerator = new Random();
-      Thread.sleep(randomGenerator.nextInt(2000));
-    } catch (Exception e) {
-    }
-
-    try {
-      URI nnUri = getCurrentNameNodeAddress();
-      if (nnUri == null) return null;
-      URL nnWebUi = new URL(nnUri.toURL(), "/dfshealth.jsp");
-      URLConnection conn = nnWebUi.openConnection();
-      BufferedReader in = new BufferedReader(
-          new InputStreamReader(conn.getInputStream()));
-      String inputLine;
-      while ((inputLine = in.readLine()) != null) {
-        if (inputLine.contains("Version:")) {
-          // Parse the version string cdh<major>.<minor>
-          Pattern cdhVersionPattern = Pattern.compile("cdh\\d\\.\\d");
-          Matcher versionMatcher = cdhVersionPattern.matcher(inputLine);
-          if (versionMatcher.find()) {
-            // Strip out "cdh" before passing to CdhVersion
-            return new CdhVersion(versionMatcher.group().substring(3));
-          }
-          return null;
-        }
-      }
-    } catch (Exception e) {
-      LOG.info(e.toString());
-    }
-    return null;
-  }
-
-  /**
-   * Derive the namenode http address from the current filesystem,
-   * either default or as set by "-fs" in the generic options.
-   *
-   * @return Returns http address or null if failure.
-   */
-  private URI getCurrentNameNodeAddress() throws Exception {
-    // get the filesystem object to verify it is an HDFS system
-    FileSystem fs;
-    fs = FileSystem.get(CONF);
-    if (!(fs instanceof DistributedFileSystem)) {
-      LOG.error("FileSystem is " + fs.getUri());
-      return null;
-    }
-    return DFSUtil.getInfoServer(HAUtil.getAddressOfActive(fs), CONF, "http");
-  }
-
-  /**
-   * Return an empty string if short circuit read is properly enabled. If not, return an
-   * error string describing the issues.
-   */
-  private String checkShortCircuitRead(Configuration conf) {
-    StringBuilder output = new StringBuilder();
-    String errorMessage = "ERROR: short-circuit local reads is disabled because\n";
-    String prefix = "  - ";
-    StringBuilder errorCause = new StringBuilder();
-
-    // dfs.domain.socket.path must be set properly
-    String domainSocketPath = conf.getTrimmed(DFSConfigKeys.DFS_DOMAIN_SOCKET_PATH_KEY,
-        DFSConfigKeys.DFS_DOMAIN_SOCKET_PATH_DEFAULT);
-    if (domainSocketPath.isEmpty()) {
-      errorCause.append(prefix);
-      errorCause.append(DFSConfigKeys.DFS_DOMAIN_SOCKET_PATH_KEY);
-      errorCause.append(" is not configured.\n");
-    } else {
-      // The socket path parent directory must be readable and executable.
-      File socketFile = new File(domainSocketPath);
-      File socketDir = socketFile.getParentFile();
-      if (socketDir == null || !socketDir.canRead() || !socketDir.canExecute()) {
-        errorCause.append(prefix);
-        errorCause.append("Impala cannot read or execute the parent directory of ");
-        errorCause.append(DFSConfigKeys.DFS_DOMAIN_SOCKET_PATH_KEY);
-        errorCause.append("\n");
-      }
-    }
-
-    // dfs.client.read.shortcircuit must be set to true.
-    if (!conf.getBoolean(DFSConfigKeys.DFS_CLIENT_READ_SHORTCIRCUIT_KEY,
-        DFSConfigKeys.DFS_CLIENT_READ_SHORTCIRCUIT_DEFAULT)) {
-      errorCause.append(prefix);
-      errorCause.append(DFSConfigKeys.DFS_CLIENT_READ_SHORTCIRCUIT_KEY);
-      errorCause.append(" is not enabled.\n");
-    }
-
-    // dfs.client.use.legacy.blockreader.local must be set to false
-    if (conf.getBoolean(DFSConfigKeys.DFS_CLIENT_USE_LEGACY_BLOCKREADERLOCAL,
-        DFSConfigKeys.DFS_CLIENT_USE_LEGACY_BLOCKREADERLOCAL_DEFAULT)) {
-      errorCause.append(prefix);
-      errorCause.append(DFSConfigKeys.DFS_CLIENT_USE_LEGACY_BLOCKREADERLOCAL);
-      errorCause.append(" should not be enabled.\n");
-    }
-
-    if (errorCause.length() > 0) {
-      output.append(errorMessage);
-      output.append(errorCause);
-    }
-
-    return output.toString();
-  }
-
-  /**
-   * Check short circuit read for CDH 4.1.
-   * Return an empty string if short circuit read is properly enabled. If not, return an
-   * error string describing the issues.
-   */
-  private String checkShortCircuitReadCdh41(Configuration conf) {
-    StringBuilder output = new StringBuilder();
-    String errorMessage = "ERROR: short-circuit local reads is disabled because\n";
-    String prefix = "  - ";
-    StringBuilder errorCause = new StringBuilder();
-
-    // Client side checks
-    // dfs.client.read.shortcircuit must be set to true.
-    if (!conf.getBoolean(DFSConfigKeys.DFS_CLIENT_READ_SHORTCIRCUIT_KEY,
-        DFSConfigKeys.DFS_CLIENT_READ_SHORTCIRCUIT_DEFAULT)) {
-      errorCause.append(prefix);
-      errorCause.append(DFSConfigKeys.DFS_CLIENT_READ_SHORTCIRCUIT_KEY);
-      errorCause.append(" is not enabled.\n");
-    }
-
-    // dfs.client.use.legacy.blockreader.local must be set to true
-    if (!conf.getBoolean(DFSConfigKeys.DFS_CLIENT_USE_LEGACY_BLOCKREADERLOCAL,
-        DFSConfigKeys.DFS_CLIENT_USE_LEGACY_BLOCKREADERLOCAL_DEFAULT)) {
-      errorCause.append(prefix);
-      errorCause.append(DFSConfigKeys.DFS_CLIENT_USE_LEGACY_BLOCKREADERLOCAL);
-      errorCause.append(" is not enabled.\n");
-    }
-
-    // Server side checks
-    // Check data node server side configuration by reading the CONF from the data node
-    // web UI
-    // TODO: disabled for now
-    //cdh41ShortCircuitReadDatanodeCheck(errorCause, prefix);
-
-    if (errorCause.length() > 0) {
-      output.append(errorMessage);
-      output.append(errorCause);
-    }
-
-    return output.toString();
-  }
-
-  /**
-   *  Checks the data node's server side configuration by reading the CONF from the data
-   *  node.
-   *  This appends error messages to errorCause prefixed by prefix if data node
-   *  configuration is not properly set.
-   */
-  private void cdh41ShortCircuitReadDatanodeCheck(StringBuilder errorCause,
-      String prefix) {
-    String dnWebUiAddr = CONF.get(DFSConfigKeys.DFS_DATANODE_HTTP_ADDRESS_KEY,
-        DFSConfigKeys.DFS_DATANODE_HTTP_ADDRESS_DEFAULT);
-    URL dnWebUiUrl = null;
-    try {
-      dnWebUiUrl = new URL("http://" + dnWebUiAddr + "/conf");
-    } catch (Exception e) {
-      LOG.info(e.toString());
-    }
-    Configuration dnConf = new Configuration(false);
-    dnConf.addResource(dnWebUiUrl);
-
-    // dfs.datanode.data.dir.perm should be at least 750
-    int permissionInt = 0;
-    try {
-      String permission = dnConf.get(DFSConfigKeys.DFS_DATANODE_DATA_DIR_PERMISSION_KEY,
-          DFSConfigKeys.DFS_DATANODE_DATA_DIR_PERMISSION_DEFAULT);
-      permissionInt = Integer.parseInt(permission);
-    } catch (Exception e) {
-    }
-    if (permissionInt < 750) {
-      errorCause.append(prefix);
-      errorCause.append("Data node configuration ");
-      errorCause.append(DFSConfigKeys.DFS_DATANODE_DATA_DIR_PERMISSION_KEY);
-      errorCause.append(" is not properly set. It should be set to 750.\n");
-    }
-
-    // dfs.block.local-path-access.user should contain the user account impala is running
-    // under
-    String accessUser = dnConf.get(DFSConfigKeys.DFS_BLOCK_LOCAL_PATH_ACCESS_USER_KEY);
-    if (accessUser == null || !accessUser.contains(System.getProperty("user.name"))) {
-      errorCause.append(prefix);
-      errorCause.append("Data node configuration ");
-      errorCause.append(DFSConfigKeys.DFS_BLOCK_LOCAL_PATH_ACCESS_USER_KEY);
-      errorCause.append(" is not properly set. It should contain ");
-      errorCause.append(System.getProperty("user.name"));
-      errorCause.append("\n");
-    }
-  }
-
-  /**
-   * Return an empty string if block location tracking is properly enabled. If not,
-   * return an error string describing the issues.
-   */
-  private String checkBlockLocationTracking(Configuration conf) {
-    StringBuilder output = new StringBuilder();
-    String errorMessage = "ERROR: block location tracking is not properly enabled " +
-        "because\n";
-    String prefix = "  - ";
-    StringBuilder errorCause = new StringBuilder();
-    if (!conf.getBoolean(DFSConfigKeys.DFS_HDFS_BLOCKS_METADATA_ENABLED,
-        DFSConfigKeys.DFS_HDFS_BLOCKS_METADATA_ENABLED_DEFAULT)) {
-      errorCause.append(prefix);
-      errorCause.append(DFSConfigKeys.DFS_HDFS_BLOCKS_METADATA_ENABLED);
-      errorCause.append(" is not enabled.\n");
-    }
-
-    // dfs.client.file-block-storage-locations.timeout.millis should be >= 10 seconds
-    int dfsClientFileBlockStorageLocationsTimeoutMs = conf.getInt(
-        DFSConfigKeys.DFS_CLIENT_FILE_BLOCK_STORAGE_LOCATIONS_TIMEOUT_MS,
-        DFSConfigKeys.DFS_CLIENT_FILE_BLOCK_STORAGE_LOCATIONS_TIMEOUT_MS_DEFAULT);
-    if (dfsClientFileBlockStorageLocationsTimeoutMs <
-        MIN_DFS_CLIENT_FILE_BLOCK_STORAGE_LOCATIONS_TIMEOUT_MS) {
-      errorCause.append(prefix);
-      errorCause.append(DFSConfigKeys.DFS_CLIENT_FILE_BLOCK_STORAGE_LOCATIONS_TIMEOUT_MS);
-      errorCause.append(" is too low. It should be at least 10 seconds.\n");
-    }
-
-    if (errorCause.length() > 0) {
-      output.append(errorMessage);
-      output.append(errorCause);
-    }
-
-    return output.toString();
-  }
-
-  /**
-   * Return an empty string if the default FileSystem configured in CONF refers to a
-   * DistributedFileSystem and Impala can list the root directory "/". Otherwise,
-   * return an error string describing the issues.
-   */
-  private String checkFileSystem(Configuration conf) {
-    try {
-      FileSystem fs = FileSystem.get(CONF);
-      if (!(fs instanceof DistributedFileSystem)) {
-        return "Unsupported default filesystem. The default filesystem must be " +
-            "a DistributedFileSystem but the configured default filesystem is " +
-            fs.getClass().getSimpleName() + ". " +
-            CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY +
-            " (" + CONF.get(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY) + ")" +
-            " might be set incorrectly.";
-      }
-    } catch (IOException e) {
-      return "couldn't retrieve FileSystem:\n" + e.getMessage();
-    }
-
-    try {
-      FileSystemUtil.getTotalNumVisibleFiles(new Path("/"));
-    } catch (IOException e) {
-      return "Could not read the HDFS root directory at " +
-          CONF.get(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY) +
-          ". Error was: \n" + e.getMessage();
-    }
-    return "";
-  }
 }

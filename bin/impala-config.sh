@@ -113,10 +113,10 @@ export IMPALA_SQUEASEL_VERSION=3.3
 # packaging jobs, the path contains ~ so we'll just install somewhere else.
 export IMPALA_CYRUS_SASL_INSTALL_DIR=/tmp/impala-build/cyrus-sasl-${IMPALA_CYRUS_SASL_VERSION}/build
 
-export IMPALA_HADOOP_VERSION=2.6.0-cdh5.4.2
-export IMPALA_HBASE_VERSION=1.0.0-cdh5.4.2
-export IMPALA_HIVE_VERSION=1.1.0-cdh5.4.2
-export IMPALA_SENTRY_VERSION=1.4.0-cdh5.4.2
+export IMPALA_HADOOP_VERSION=2.7.0-mapr-1506
+export IMPALA_HBASE_VERSION=0.98.9-mapr-1503
+export IMPALA_HIVE_VERSION=1.2.0-mapr-1508
+export IMPALA_SENTRY_VERSION=1.4.0-mapr-1410
 export IMPALA_LLAMA_VERSION=1.0.0-cdh5.4.2
 export IMPALA_AVRO_VERSION=1.7.4
 export IMPALA_PARQUET_VERSION=1.5.0-cdh5.4.2
@@ -133,10 +133,10 @@ export IMPALA_AUX_DATASET_DIR=$IMPALA_AUX_TEST_HOME/testdata/datasets
 export IMPALA_COMMON_DIR=$IMPALA_HOME/common
 export PATH=$IMPALA_HOME/bin:$PATH
 
-export HADOOP_HOME=$IMPALA_HOME/thirdparty/hadoop-${IMPALA_HADOOP_VERSION}/
-export HADOOP_CONF_DIR=$IMPALA_FE_DIR/src/test/resources
+export HADOOP_HOME=/opt/mapr/hadoop/hadoop-0.20.2
+export HADOOP_CONF_DIR=/opt/mapr/hadoop/hadoop-0.20.2/conf
 export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$HADOOP_HOME/share/hadoop/tools/lib/*
-export MINI_DFS_BASE_DATA_DIR=$IMPALA_HOME/cdh-${CDH_MAJOR_VERSION}-hdfs-data
+export MINI_DFS_BASE_DATA_DIR=$IMPALA_HOME/hdfs-data
 export PATH=$HADOOP_HOME/bin:$PATH
 
 export LLAMA_HOME=$IMPALA_HOME/thirdparty/llama-${IMPALA_LLAMA_VERSION}/
@@ -144,9 +144,9 @@ export MINIKDC_HOME=$IMPALA_HOME/thirdparty/llama-minikdc-${IMPALA_MINIKDC_VERSI
 export SENTRY_HOME=$IMPALA_HOME/thirdparty/sentry-${IMPALA_SENTRY_VERSION}
 export SENTRY_CONF_DIR=$IMPALA_HOME/fe/src/test/resources
 
-export HIVE_HOME=$IMPALA_HOME/thirdparty/hive-${IMPALA_HIVE_VERSION}/
+export HIVE_HOME=/opt/mapr/hive/hive-1.2
 export PATH=$HIVE_HOME/bin:$PATH
-export HIVE_CONF_DIR=$IMPALA_FE_DIR/src/test/resources
+export HIVE_CONF_DIR=$HIVE_HOME/conf
 
 ### Hive looks for jar files in a single directory from HIVE_AUX_JARS_PATH plus
 ### any jars in AUX_CLASSPATH. (Or a list of jars in HIVE_AUX_JARS_PATH.)
@@ -155,7 +155,7 @@ export AUX_CLASSPATH=$HADOOP_LZO/build/hadoop-lzo-0.4.15.jar
 ### Tell hive not to use jline
 export HADOOP_USER_CLASSPATH_FIRST=true
 
-export HBASE_HOME=$IMPALA_HOME/thirdparty/hbase-${IMPALA_HBASE_VERSION}/
+export HBASE_HOME=/opt/mapr/hbase/hbase-0.98.9
 export PATH=$HBASE_HOME/bin:$PATH
 
 # Add the jars so hive can create hbase tables.
@@ -167,7 +167,7 @@ export AUX_CLASSPATH=$AUX_CLASSPATH:$HBASE_HOME/lib/hbase-hadoop-compat-${IMPALA
 
 GPERFTOOLS_HOME=${IMPALA_HOME}/thirdparty/gperftools-${IMPALA_GPERFTOOLS_VERSION}/
 export PPROF_PATH="${PPROF_PATH:-${GPERFTOOLS_HOME}/src/pprof}"
-export HBASE_CONF_DIR=$HIVE_CONF_DIR
+export HBASE_CONF_DIR=$HBASE_HOME/conf
 
 export THRIFT_SRC_DIR=${IMPALA_HOME}/thirdparty/thrift-${IMPALA_THRIFT_VERSION}/
 export THRIFT_HOME=${THRIFT_SRC_DIR}build/
@@ -210,9 +210,11 @@ LIB_HDFS=`find ${HADOOP_HOME}/ -name libhdfs.so | head -1`
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH-}"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:`dirname ${LIB_JAVA}`:`dirname ${LIB_JSIG}`"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:`dirname ${LIB_JVM}`:`dirname ${LIB_HDFS}`"
-LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IMPALA_HOME}/be/build/debug/service"
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IMPALA_HOME}/be/build/release/service"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IMPALA_HOME}/thirdparty/snappy-${IMPALA_SNAPPY_VERSION}/build/lib"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$IMPALA_LZO/build"
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$HADOOP_HOME/lib/native/Linux-amd64-64/"
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/mapr/lib"
 export LD_LIBRARY_PATH
 LD_PRELOAD="${LD_PRELOAD-}"
 export LD_PRELOAD="${LD_PRELOAD}:${LIB_JSIG}"

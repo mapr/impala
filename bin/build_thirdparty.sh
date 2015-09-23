@@ -22,7 +22,7 @@ set -e
 set -u
 
 # By default, git clean every library we build
-CLEAN_ACTION=1
+CLEAN_ACTION=0
 
 # By default, build every library
 BUILD_ALL=1

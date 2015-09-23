@@ -25,6 +25,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/thread/thread.hpp>
+#include <boost/thread/locks.hpp>
 
 #include <thrift/transport/TBufferTransports.h>
 #include "transport/TSaslTransport.h"
