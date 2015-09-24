@@ -54,7 +54,7 @@ void HdfsOp::Execute() const {
   hdfsFS* hdfs_connection = op_set_->hdfs_connection();
   switch (op_) {
     case DELETE:
-      err = hdfsDelete(*hdfs_connection, src_.c_str()/*, 1*/);
+      err = hdfsDelete(*hdfs_connection, src_.c_str(), 1);
       VLOG_FILE << "hdfsDelete() file=" << src_.c_str();
       break;
     case CREATE_DIR:
@@ -67,7 +67,7 @@ void HdfsOp::Execute() const {
                 << " dst_file=" << dst_.c_str();
       break;
     case DELETE_THEN_CREATE:
-      err = hdfsDelete(*hdfs_connection, src_.c_str()/*, 1*/);
+      err = hdfsDelete(*hdfs_connection, src_.c_str(), 1);
       VLOG_FILE << "hdfsDelete() file=" << src_.c_str();
       if (err != -1) {
         err = hdfsCreateDirectory(*hdfs_connection, src_.c_str());

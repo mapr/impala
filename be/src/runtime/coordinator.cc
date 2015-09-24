@@ -780,7 +780,7 @@ Status Coordinator::FinalizeQuery() {
   hdfsFS hdfs_conn;
   RETURN_IF_ERROR(HdfsFsCache::instance()->GetConnection(staging_dir.str(), &hdfs_conn));
   VLOG_QUERY << "Removing staging directory: " << staging_dir.str();
-  hdfsDelete(hdfs_conn, staging_dir.str().c_str()/*, 1*/);
+  hdfsDelete(hdfs_conn, staging_dir.str().c_str(), 1);
 
   return return_status;
 }
