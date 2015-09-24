@@ -48,31 +48,6 @@
       <version>${impala.extdatasrc.api.version}</version>
     </dependency>
 
-    <!-- Add the maprfs dependencies -->
-    <dependency>
-      <groupId>com.mapr.hadoop</groupId>
-      <artifactId>maprfs</artifactId>
-      <version>5.0.0-mapr</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.mapr.hadoop</groupId>
-      <artifactId>maprfs-core</artifactId>
-      <version>5.0.0-mapr</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.mapr.hadoop</groupId>
-      <artifactId>maprfs-jni</artifactId>
-      <version>5.0.0-mapr</version>
-    </dependency>
-
-    <dependency>
-      <groupId>com.mapr.util</groupId>
-      <artifactId>central-logging</artifactId>
-      <version>5.0.0-mapr</version>
-    </dependency>
-
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-hdfs</artifactId>
@@ -357,6 +332,31 @@
       <groupId>org.glassfish</groupId>
       <artifactId>javax.json</artifactId>
       <version>1.0.2</version>
+    </dependency>
+
+    <!-- Add the maprfs dependencies -->
+    <dependency>
+      <groupId>com.mapr.hadoop</groupId>
+      <artifactId>maprfs</artifactId>
+      <version>5.0.0-mapr</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.hadoop</groupId>
+      <artifactId>maprfs-core</artifactId>
+      <version>5.0.0-mapr</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.hadoop</groupId>
+      <artifactId>maprfs-jni</artifactId>
+      <version>5.0.0-mapr</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.util</groupId>
+      <artifactId>central-logging</artifactId>
+      <version>5.0.0-mapr</version>
     </dependency>
   </dependencies>
 
