@@ -20,7 +20,7 @@
 set -e
 set -u
 
-BUILD_TYPE=release
+BUILD_TYPE=debug
 export JAVA_TOOL_OPTIONS="-Dmapr.library.flatclass -verbose:class"
 [ -f /etc/default/impala ] && . /etc/default/impala
 IMPALAD_ARGS="" # "-state_store_host $IMPALA_STATE_STORE_HOST"
