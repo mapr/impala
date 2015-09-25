@@ -77,52 +77,6 @@ DECLARE_string(hostname);
 DEFINE_bool(insert_inherit_permissions, false, "If true, new directories created by "
     "INSERTs will inherit the permissions of their parent directories");
 
-////////////////////////////////////////////////////////////////////
-//
-// Create dummy versions of some hdfs routines to work around
-// a bug where the URI is prepended to the file path.
-// Our quick+dirty solution is to strip off the uri portion
-//
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////
-// Strip the leading URI from the path string.
-////////////////////////////////////////////////////////////////////
-static
-const char* PATHONLY(const char* uri) {
-
-    // Scan to the ':', and return the rest of the string
-    for (const char* p=uri; *p!='\0'; p++)
-        if (*p == ':') return p+1;
-
-    // if none found, return the original string
-    return uri;
-}
-
-static
-const char* REMOVETRAILINGSLASH(string path) {
-
-    if (path[path.length() - 1] == '/') {
-      const char* newPath = path.substr(0, path.length() - 1).c_str();
-      return newPath;
-    }
-    // if none found, return the original string
-    return path.c_str();
-}
-
-static int FIX_hdfsRename(hdfsFS fs, const char* p1, const char* p2) {
-    return hdfsRename(fs, PATHONLY(p1), PATHONLY(p2));
-}
-
-// For the rest of the file, refer to the fixed versions
-#define hdfsRename FIX_hdfsRename
-
-//////////////////////////////////////
-//
-// END OF DUMMY ROUTINES
-//
-///////////////////////////////////////
-
 namespace impala {
 
 // container for debug options in TPlanFragmentExecParams (debug_node, debug_action,
