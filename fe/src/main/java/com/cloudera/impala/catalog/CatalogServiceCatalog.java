@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.hadoop.fs.RemoteIterator;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.hdfs.protocol.CachePoolEntry;
 import org.apache.hadoop.hdfs.protocol.CachePoolInfo;
 import org.apache.hadoop.hive.metastore.api.UnknownDBException;
@@ -140,13 +140,13 @@ public class CatalogServiceCatalog extends Catalog {
    * Called periodically by the cachePoolReader_.
    */
   private class CachePoolReader implements Runnable {
-    public void run() {
+    public void run() { /*
       LOG.trace("Reloading cache pool names from HDFS");
       // Map of cache pool name to CachePoolInfo. Stored in a map to allow Set operations
       // to be performed on the keys.
       Map<String, CachePoolInfo> currentCachePools = Maps.newHashMap();
       try {
-        DistributedFileSystem dfs = FileSystemUtil.getDistributedFileSystem();
+        FileSystem dfs = FileSystemUtil.getDistributedFileSystem();
         RemoteIterator<CachePoolEntry> itr = dfs.listCachePools();
         while (itr.hasNext()) {
           CachePoolInfo cachePoolInfo = itr.next().getInfo();
@@ -180,7 +180,7 @@ public class CatalogServiceCatalog extends Catalog {
       } finally {
         catalogLock_.writeLock().unlock();
       }
-    }
+    */}
   }
 
   /**

@@ -133,8 +133,8 @@ export IMPALA_AUX_DATASET_DIR=$IMPALA_AUX_TEST_HOME/testdata/datasets
 export IMPALA_COMMON_DIR=$IMPALA_HOME/common
 export PATH=$IMPALA_HOME/bin:$PATH
 
-export HADOOP_HOME=/opt/mapr/hadoop/hadoop-0.20.2
-export HADOOP_CONF_DIR=/opt/mapr/hadoop/hadoop-0.20.2/conf
+export HADOOP_HOME=/opt/mapr/hadoop/hadoop-2.7.0/
+export HADOOP_CONF_DIR=/opt/mapr/hadoop/hadoop-2.7.0/etc/hadoop
 export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$HADOOP_HOME/share/hadoop/tools/lib/*
 export MINI_DFS_BASE_DATA_DIR=$IMPALA_HOME/hdfs-data
 export PATH=$HADOOP_HOME/bin:$PATH

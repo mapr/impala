@@ -20,7 +20,7 @@ import java.util.Map;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.hdfs.protocol.CacheDirectiveEntry;
 import org.apache.hadoop.hdfs.protocol.CacheDirectiveInfo;
 import org.apache.hadoop.hdfs.protocol.CacheDirectiveInfo.Expiration;
@@ -52,7 +52,7 @@ public class HdfsCachingUtil {
   // become cached before assuming no more progress is being made.
   private final static int MAX_UNCHANGED_CACHING_REFRESH_INTERVALS = 5;
 
-  private final static DistributedFileSystem dfs;
+  private final static FileSystem dfs;
   static {
     try {
       dfs = FileSystemUtil.getDistributedFileSystem();
@@ -71,14 +71,10 @@ public class HdfsCachingUtil {
    * Returns the ID of the submitted cache directive and throws if there is an error
    * submitting.
    */
-  public static long submitCacheTblDirective(
+  public static Long submitCacheTblDirective(
       org.apache.hadoop.hive.metastore.api.Table table,
       String poolName, short replication) throws ImpalaRuntimeException {
-    long id = HdfsCachingUtil.submitDirective(new Path(table.getSd().getLocation()),
-        poolName, replication);
-    table.putToParameters(CACHE_DIR_ID_PROP_NAME, Long.toString(id));
-    table.putToParameters(CACHE_DIR_REPLICATION_PROP_NAME, Long.toString(replication));
-    return id;
+    return null;
   }
 
   /**
