@@ -64,7 +64,7 @@ Status HdfsFsCache::GetConnection(const string& path, hdfsFS* fs,
         return Status(GetHdfsErrorMsg("Failed to connect to FS: ", namenode));
       }
       */
-      hdfsFS conn = hdfsConnect(host.c_str(), port);
+      *fs = hdfsConnect(namenode.c_str(), 0);
       fs_map_.insert(make_pair(namenode, *fs));
     } else {
       *fs = i->second;

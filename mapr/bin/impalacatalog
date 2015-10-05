@@ -1,14 +1,14 @@
 #!/bin/bash
 
 MAPR_HOME=${MAPR_HOME:-/opt/mapr}
-IMPALA_HOME=${IMPALA_HOME:-/opt/mapr/impala/impala-1.4.1}
+IMPALA_HOME=${IMPALA_HOME:-/opt/mapr/impala/impala-2.2.0}
 
 
 # get the configuration information
 . $IMPALA_HOME/conf/env.sh
 
 # set environment
-. /opt/mapr/impala/impala-1.4.1/conf/set_path_env.sh
+. /opt/mapr/impala/impala-2.2.0/conf/set_path_env.sh
 
 # Pick up the packaged boost libraries
 export LD_LIBRARY_PATH+=:$IMPALA_HOME/lib

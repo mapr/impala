@@ -32,7 +32,7 @@ setCLASSPATH() {
     CLASSPATH+=:$(getPath ${IMPALA_HOME}/lib/*.jar)
 
     # set the class path to pick up configuration files
-    CLASSPATH+=:/opt/mapr/impala/impala-1.4.1/conf:$HIVE_SITE_DIR:$HADOOP_HOME/conf:$HBASE_HOME/conf:
+    CLASSPATH+=:/opt/mapr/impala/impala-2.2.0/conf:$HIVE_SITE_DIR:$HADOOP_HOME/conf:$HBASE_HOME/conf:
     export CLASSPATH
 }
 

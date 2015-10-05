@@ -338,25 +338,25 @@
     <dependency>
       <groupId>com.mapr.hadoop</groupId>
       <artifactId>maprfs</artifactId>
-      <version>5.0.0-mapr</version>
+      <version>4.1.0-mapr</version>
     </dependency>
 
     <dependency>
       <groupId>com.mapr.hadoop</groupId>
       <artifactId>maprfs-core</artifactId>
-      <version>5.0.0-mapr</version>
+      <version>4.1.0-mapr</version>
     </dependency>
 
     <dependency>
       <groupId>com.mapr.hadoop</groupId>
       <artifactId>maprfs-jni</artifactId>
-      <version>5.0.0-mapr</version>
+      <version>4.1.0-mapr</version>
     </dependency>
 
     <dependency>
       <groupId>com.mapr.util</groupId>
       <artifactId>central-logging</artifactId>
-      <version>5.0.0-mapr</version>
+      <version>4.1.0-mapr</version>
     </dependency>
   </dependencies>
 

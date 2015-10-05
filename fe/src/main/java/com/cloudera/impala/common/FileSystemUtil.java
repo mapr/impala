@@ -149,11 +149,11 @@ public class FileSystemUtil {
     // TODO: Handle moving between file systems
     Preconditions.checkArgument(isPathOnFileSystem(sourceFile, fs));
 
-    Path destFile = fs.isDir(dest) ? new Path(dest, sourceFile.getName()) : dest;
+    Path destFile = fs.isDirectory(dest) ? new Path(dest, sourceFile.getName()) : dest;
     // If a file with the same name does not already exist in the destination location
     // then use the same file name. Otherwise, generate a unique file name.
     if (renameIfAlreadyExists && fs.exists(destFile)) {
-      Path destDir = fs.isDir(dest) ? dest : dest.getParent();
+      Path destDir = fs.isDirectory(dest) ? dest : dest.getParent();
       destFile = new Path(destDir,
           appendToBaseFileName(destFile.getName(), UUID.randomUUID().toString()));
     }
@@ -264,7 +264,7 @@ public class FileSystemUtil {
    * Return true iff path is on a DFS filesystem.
    */
   public static boolean isDistributedFileSystem(Path path) throws IOException {
-    return true);
+    return true;
   }
 
   public static FileSystem getDistributedFileSystem() throws IOException {

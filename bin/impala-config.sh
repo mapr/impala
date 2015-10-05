@@ -113,10 +113,10 @@ export IMPALA_SQUEASEL_VERSION=3.3
 # packaging jobs, the path contains ~ so we'll just install somewhere else.
 export IMPALA_CYRUS_SASL_INSTALL_DIR=/tmp/impala-build/cyrus-sasl-${IMPALA_CYRUS_SASL_VERSION}/build
 
-export IMPALA_HADOOP_VERSION=2.7.0-mapr-1506
+export IMPALA_HADOOP_VERSION=2.7.0-mapr-1509
 export IMPALA_HBASE_VERSION=0.98.9-mapr-1503
-export IMPALA_HIVE_VERSION=1.2.0-mapr-1508
-export IMPALA_SENTRY_VERSION=1.4.0-mapr-1410
+export IMPALA_HIVE_VERSION=0.13.0-mapr
+export IMPALA_SENTRY_VERSION=1.4.0-cdh5.4.2
 export IMPALA_LLAMA_VERSION=1.0.0-cdh5.4.2
 export IMPALA_AVRO_VERSION=1.7.4
 export IMPALA_PARQUET_VERSION=1.5.0-cdh5.4.2
@@ -133,8 +133,8 @@ export IMPALA_AUX_DATASET_DIR=$IMPALA_AUX_TEST_HOME/testdata/datasets
 export IMPALA_COMMON_DIR=$IMPALA_HOME/common
 export PATH=$IMPALA_HOME/bin:$PATH
 
-export HADOOP_HOME=/opt/mapr/hadoop/hadoop-2.7.0/
-export HADOOP_CONF_DIR=/opt/mapr/hadoop/hadoop-2.7.0/etc/hadoop
+export HADOOP_HOME=/opt/mapr/hadoop/hadoop-2.5.1/
+export HADOOP_CONF_DIR=/opt/mapr/hadoop/hadoop-2.5.1/etc/hadoop
 export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:$HADOOP_HOME/share/hadoop/tools/lib/*
 export MINI_DFS_BASE_DATA_DIR=$IMPALA_HOME/hdfs-data
 export PATH=$HADOOP_HOME/bin:$PATH

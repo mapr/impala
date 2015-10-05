@@ -129,11 +129,11 @@ copy_boost_files() {
         fi
     else
         local l=/usr/lib
-        copy_lib $l/libboost_thread.so $STAGE/lib
-        copy_lib $l/libboost_system.so $STAGE/lib
-        copy_lib $l/libboost_filesystem.so $STAGE/lib
-        copy_lib $l/libboost_date_time.so $STAGE/lib
-        copy_lib $l/libboost_regex.so $STAGE/lib
+        copy_lib $l/libboost_thread-mt.so* $STAGE/lib
+        copy_lib $l/libboost_system-mt.so* $STAGE/lib
+        copy_lib $l/libboost_filesystem-mt.so* $STAGE/lib
+        copy_lib $l/libboost_date_time-mt.so* $STAGE/lib
+        copy_lib $l/libboost_regex-mt.so* $STAGE/lib
 
         # specific fix for libboost_threat-mt.so, which is actually a linker script that pulls in two other files
         BOOST_THREAD_FIND_RESULTS=`find $STAGE/lib -name "libboost_thread.so.*"`
@@ -142,7 +142,7 @@ copy_boost_files() {
         if [[ -z "$BOOST_THREAD_FIND_RESULTS" ]]; then
             echo "libboost_thread.so was not found the first time"
             echo "trying to copy it now..."
-            cp -vf $l/libboost_thread.so.1.* $STAGE/lib/.
+            cp -vf $l/libboost_thread-mt.so.1.* $STAGE/lib/.
         fi
     fi
 }
