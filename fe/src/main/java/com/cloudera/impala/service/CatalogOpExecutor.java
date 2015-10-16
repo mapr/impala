@@ -626,13 +626,13 @@ public class CatalogOpExecutor {
       case TIMESTAMP: // Hive and Impala use LongColumnStatsData for timestamps.
         // TODO: Gather and set the min/max values stats as well. The planner
         // currently does not rely on them.
-        colStatsData.setLongStats(new LongColumnStatsData(-1, -1, numNulls, ndvs));
+        colStatsData.setLongStats(new LongColumnStatsData(numNulls, ndvs));
         break;
       case FLOAT:
       case DOUBLE:
         // TODO: Gather and set the min/max values stats as well. The planner
         // currently does not rely on them.
-        colStatsData.setDoubleStats(new DoubleColumnStatsData(-1, -1, numNulls, ndvs));
+        colStatsData.setDoubleStats(new DoubleColumnStatsData(numNulls, ndvs));
         break;
       case CHAR:
       case VARCHAR:
@@ -645,14 +645,9 @@ public class CatalogOpExecutor {
       case DECIMAL:
         // TODO: Gather and set the min/max values stats as well. The planner
         // currently does not rely on them.
-        
-        org.apache.hadoop.hive.metastore.api.Decimal dummy =
-            new org.apache.hadoop.hive.metastore.api.Decimal();
-        dummy.setUnscaled(BigInteger.ZERO.toByteArray());
-        dummy.setScale((short)0);
 
         colStatsData.setDecimalStats(
-            new DecimalColumnStatsData(dummy, dummy, numNulls, ndvs));
+            new DecimalColumnStatsData(numNulls, ndvs));
         break;
       default:
         return null;
