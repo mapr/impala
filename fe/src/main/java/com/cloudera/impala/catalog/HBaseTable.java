@@ -435,8 +435,11 @@ public class HBaseTable extends Table {
                 c.getFamilyLength(), c.getQualifierLength(), c.getValueLength(),
                 c.getTagsLength());
           } else {
+            if (c.getClass().getName().equals("com.mapr.fs.hbase.RowColKeyValue")){
+              currentRowSize += 0;
+            } else {
             throw new IllegalStateException("Celltype " + c.getClass().getName() +
-                " not supported.");
+                " not supported.");}
           }
         }
       }
