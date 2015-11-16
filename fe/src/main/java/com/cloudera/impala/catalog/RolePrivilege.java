@@ -41,8 +41,16 @@ public class RolePrivilege implements CatalogObject {
   private final TPrivilege privilege_;
   private long catalogVersion_ = Catalog.INITIAL_CATALOG_VERSION;
 
+    private long createTimeMs_;
+
   private RolePrivilege(TPrivilege privilege) {
     privilege_ = privilege;
+  }
+
+  public RolePrivilege(int idParentRole, TPrivilege privilege, long createTimeMs) {
+            privilege_ = privilege;
+            privilege_.setRole_id(idParentRole);
+            createTimeMs_ = createTimeMs;
   }
 
   public TPrivilege toThrift() { return privilege_; }

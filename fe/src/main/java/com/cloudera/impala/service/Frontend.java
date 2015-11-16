@@ -215,7 +215,8 @@ public class Frontend {
     TUpdateCatalogCacheResponse response = catalog.updateCatalog(req);
 
     if (!req.is_delta) {
-      impaladCatalog_ = catalog;
+        impaladCatalog_ = catalog;
+        authzChecker_.set(new AuthorizationChecker(authzConfig_, impaladCatalog_.getAuthPolicy()));
     }
     return response;
   }

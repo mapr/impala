@@ -21,6 +21,7 @@ import org.apache.sentry.SentryUserException;
 import org.apache.sentry.provider.db.SentryAccessDeniedException;
 import org.apache.sentry.provider.db.SentryAlreadyExistsException;
 import org.apache.sentry.provider.db.service.thrift.SentryPolicyServiceClient;
+import org.apache.sentry.provider.db.service.thrift.SentryPolicyServiceClientDefaultImpl;
 import org.apache.sentry.provider.db.service.thrift.TSentryGrantOption;
 import org.apache.sentry.provider.db.service.thrift.TSentryPrivilege;
 import org.apache.sentry.provider.db.service.thrift.TSentryRole;
@@ -82,7 +83,7 @@ public class SentryPolicyService {
     private SentryPolicyServiceClient createClient() throws InternalException {
       SentryPolicyServiceClient client;
       try {
-        client = new SentryPolicyServiceClient(config_.getConfig());
+        client = new SentryPolicyServiceClientDefaultImpl(config_.getConfig());
       } catch (IOException e) {
         throw new InternalException("Error creating Sentry Service client: ", e);
       }
@@ -350,8 +351,7 @@ public class SentryPolicyService {
       throws ImpalaException {
     SentryServiceClient client = new SentryServiceClient();
     try {
-      return Lists.newArrayList(client.get().listAllPrivilegesByRoleName(
-          requestingUser.getShortName(), roleName));
+      return Lists.newArrayList(client.get().listAllPrivilegesByRoleName( requestingUser.getShortName(), roleName));
     } catch (SentryAccessDeniedException e) {
       throw new AuthorizationException(String.format(ACCESS_DENIED_ERROR_MSG,
           requestingUser.getName(), "LIST_ROLE_PRIVILEGES"));
@@ -381,7 +381,6 @@ public class SentryPolicyService {
           sentryPriv.getAction().toUpperCase()));
     }
     privilege.setPrivilege_name(RolePrivilege.buildRolePrivilegeName(privilege));
-    privilege.setCreate_time_ms(sentryPriv.getCreateTime());
     if (sentryPriv.isSetGrantOption() &&
         sentryPriv.getGrantOption() == TSentryGrantOption.TRUE) {
       privilege.setHas_grant_opt(true);
@@ -390,4 +389,25 @@ public class SentryPolicyService {
     }
     return privilege;
   }
+
+    /**
+     * Checks whether this user is an admin on the Sentry Service. Throws an
+     * AuthorizationException if the user does not have admin privileges or if there are
+     * any issues communicating with the Sentry Service..
+     * @param requestingUser - The requesting user.
+     */
+    public void checkUserSentryAdmin(User requestingUser)
+            throws AuthorizationException {
+        // Check if the user has access by issuing a read-only RPC.
+        // TODO: This is not an elegant way to verify whether the user has privileges to
+        // access Sentry. This should be modified in the future when Sentry has
+        // a more robust mechanism to perform these checks.
+        try {
+            listAllRoles(requestingUser);
+        } catch (ImpalaException e) {
+            throw new AuthorizationException(String.format("User '%s' does not have " +
+                    "privileges to access the requested policy metadata or Sentry Service is " +
+                    "unavailable.", requestingUser.getName()));
+        }
+    }
 }
