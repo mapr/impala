@@ -39,7 +39,7 @@ main() {
 
     # Pick up the java libraries
     export LD_LIBRARY_PATH+=:$JAVA_HOME/jre/lib/amd64:$JAVA_HOME/jre/lib/amd64/server
-    export LD_PRELOAD=$JAVA_HOME/jre/lib/amd64/libjsig.so:$JAVA_HOME/jre/lib/amd64/server/libjvm.so
+    export LD_PRELOAD=`find $JAVA_HOME -name libjsig.so | head -n 1`:`find $JAVA_HOME -name libjvm.so | head -n 1`
 
     # Pick up mapr libraries if needed
     export LD_LIBRARY_PATH+=:/opt/mapr/lib
