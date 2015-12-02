@@ -14,10 +14,6 @@ CATALOG_SERVICE_HOST=localhost
 #Set the Shared Memory to 128 MB
 export MAPR_CLIENT_SHMEM=16384
 
-# By default, we use the Hive configuration.
-# Uncomment this If hive is not configured, or we wish to override it.
-#HIVE_METASTORE_URI=thrift://localhost:9083 
-
 # These impact the impala server and can be optionally changed
 IMPALA_BACKEND_PORT=22000
 IMPALA_LOG_DIR=${IMPALA_HOME}/logs
@@ -28,10 +24,16 @@ IMPALA_SERVER_ARGS=" \
     -authorized_proxy_user_config=mapr=* \
     -state_store_host=${IMPALA_STATE_STORE_HOST} \
     -catalog_service_host=${CATALOG_SERVICE_HOST} \
-    -be_port=${IMPALA_BACKEND_PORT}"
+    -be_port=${IMPALA_BACKEND_PORT} \
+    "
 
 # These impact the state store daemon and can be optionally changed
-IMPALA_STATE_STORE_ARGS=" -log_dir=${IMPALA_LOG_DIR} -state_store_port=${IMPALA_STATE_STORE_PORT} -catalog_service_host=${CATALOG_SERVICE_HOST} "
+IMPALA_STATE_STORE_ARGS=" \
+    -log_dir=${IMPALA_LOG_DIR} \
+    -state_store_port=${IMPALA_STATE_STORE_PORT} \
+    -catalog_service_host=${CATALOG_SERVICE_HOST} \
+    "
+
 IMPALA_CATALOG_ARGS=" -log_dir=${IMPALA_LOG_DIR} \
     -state_store_port=${IMPALA_STATE_STORE_PORT} \
     -use_statestore \
