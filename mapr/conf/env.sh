@@ -44,6 +44,8 @@ ENABLE_CORE_DUMPS=false
 if [[ $JAVA_HOME =~ \s*jre$ ]];
 then
         export JAVA_HOME=${JAVA_HOME:0:${#JAVA_HOME}-3}
+else
+        export JAVA_HOME+=/
 fi
 
 # Impala figures these out at runtime, but they can be overridden here.
