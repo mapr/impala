@@ -12,6 +12,8 @@ org.eclipse.jdt.ui.prefs
 *benchmark_results.csv*
 load-*-generated.sql
 bin/version.info
+.idea
+
 
 pprof.out
 
