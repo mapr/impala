@@ -2,6 +2,7 @@
 export IMPALA_HOME=$IMPALA_HOME
 export MAPR_HOME=$MAPR_HOME
 export IMPALA_VERSION=$IMPALA_VERSION
+export LIBHDFS_OPTS="-Dhadoop.login=hybrid -Dhadoop.login=hybrid_keytab -Djavax.security.auth.useSubjectCredsOnly=false"
 
 # Get the generic mapr environment variables
 [ -f ${MAPR_HOME}/conf/env.sh ] && . ${MAPR_HOME}/conf/env.sh
