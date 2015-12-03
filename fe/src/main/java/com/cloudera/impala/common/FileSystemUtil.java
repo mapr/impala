@@ -84,12 +84,7 @@ public class FileSystemUtil {
    */
   private static boolean arePathsInSameEncryptionZone(FileSystem fs, Path p1,
       Path p2) throws IOException {
-    HdfsAdmin hdfsAdmin = new HdfsAdmin(fs.getUri(), CONF);
-    EncryptionZone z1 = hdfsAdmin.getEncryptionZoneForPath(p1);
-    EncryptionZone z2 = hdfsAdmin.getEncryptionZoneForPath(p2);
-    if (z1 == null && z2 == null) return true;
-    if (z1 == null || z2 == null) return false;
-    return z1.equals(z2);
+    return false;
   }
 
   /**
@@ -105,7 +100,7 @@ public class FileSystemUtil {
       throws IOException {
     FileSystem fs = destDir.getFileSystem(CONF);
     Preconditions.checkState(!fs.isFile(destDir));
-    Preconditions.checkState(fs.isFile(sourceDir));
+    Preconditions.checkState(!fs.isFile(sourceDir));
 
     // Use the same UUID to resolve all file name conflicts. This helps mitigate problems
     // that might happen if there is a conflict moving a set of files that have
