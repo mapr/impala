@@ -59,10 +59,10 @@ public class HiveStorageDescriptorFactory {
 
   private static StorageDescriptor createParquetFileSd() {
     StorageDescriptor sd = createGenericSd();
-    sd.setInputFormat("parquet.hive.DeprecatedParquetInputFormat");
-    sd.setOutputFormat("parquet.hive.DeprecatedParquetOutputFormat");
+    sd.setInputFormat("org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat");
+    sd.setOutputFormat("org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat");
     // TODO: Should we use "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"?
-    sd.getSerdeInfo().setSerializationLib("parquet.hive.serde.ParquetHiveSerDe");
+    sd.getSerdeInfo().setSerializationLib("org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe");
     return sd;
   }
 
