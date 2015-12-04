@@ -44,6 +44,13 @@ IMPALA_CATALOG_ARGS=" -log_dir=${IMPALA_LOG_DIR} \
 # for troubleshooting
 ENABLE_CORE_DUMPS=false
 
+if [[ $JAVA_HOME =~ \s*jre$ ]];
+then
+        export JAVA_HOME=${JAVA_HOME:0:${#JAVA_HOME}-3}
+else
+        export JAVA_HOME+=/
+fi
+
 # Impala figures these out at runtime, but they can be overridden here.
 #    (Normally, they should be commented out.)
 # HIVE_HOME=${MAPR_HOME}/hive/hive-*

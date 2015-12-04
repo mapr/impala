@@ -14,10 +14,10 @@ IMPALA_HOME=${IMPALA_HOME:-/opt/mapr/impala/impala-2.2.0}
 export LD_LIBRARY_PATH+=:$IMPALA_HOME/lib
 
 # Pick up the java libraries
-export LD_LIBRARY_PATH+=:$JAVA_HOME/jre/lib/amd64:$JAVA_HOME/jre/lib/amd64/server:$MAPR_HOME/lib
+export LD_LIBRARY_PATH+=:`find $JAVA_HOME -name amd64 | head -n 1`:`find $JAVA_HOME -name server | head -n 1`
 
 # set LD_PRELOAD
-export LD_PRELOAD=$JAVA_HOME/jre/lib/amd64/libjsig.so:$JAVA_HOME/jre/lib/amd64/server/libjvm.so
+export LD_PRELOAD=`find $JAVA_HOME -name libjsig.so | head -n 1`:`find $JAVA_HOME -name libjvm.so | head -n 1`
 
 # point to the HIVE and HADOOP directories
 HIVE_HOME=$(findHome hive)
