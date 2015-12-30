@@ -37,5 +37,5 @@ add_library(TestUdas SHARED test-udas.cc)
 add_executable(mini-impala-cluster
   mini-impala-cluster.cc
 )
-
+SET_TARGET_PROPERTIES(mini-impala-cluster PROPERTIES COMPILE_FLAGS "-fPIC")
 target_link_libraries(mini-impala-cluster ${IMPALA_LINK_LIBS})

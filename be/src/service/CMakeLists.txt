@@ -12,6 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set (LINK_LIBS
+  -Wl,-whole-archive
+  Catalog
+  CodeGen
+  Common
+  Exec
+  Exprs
+  GlobalFlags
+  ImpalaThrift
+  ResourceBroker
+  Rpc
+  Runtime
+  Scheduling
+  Statestore
+  TestUtil
+  ThriftSaslTransport
+  Udf
+  Util
+  Webserver
+  -Wl,-no-whole-archive
+  Service
+)
+
 # where to put generated libraries.
 set(LIBRARY_OUTPUT_PATH "${BUILD_OUTPUT_ROOT_DIRECTORY}/service")
 
@@ -38,14 +61,16 @@ add_library(fesupport SHARED
   fe-support.cc
 )
 
-target_link_libraries(fesupport ${IMPALA_LINK_LIBS_NO_TCMALLOC})
+SET_TARGET_PROPERTIES(fesupport PROPERTIES COMPILE_FLAGS "-fPIC")
+
+target_link_libraries(fesupport ${LINK_LIBS})
 
 add_executable(impalad
   impalad-main.cc
 )
 
 # This permits libraries loaded by dlopen to link to the symbols in the program.
-set_target_properties(impalad PROPERTIES LINK_FLAGS -rdynamic)
+set_target_properties(impalad PROPERTIES LINK_FLAGS -rdynamic COMPILE_FLAGS "-fPIC")
 
 target_link_libraries(impalad
   ${JAVA_JSIG_LIBRARY}

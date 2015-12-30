@@ -44,6 +44,32 @@ set(LIBS ${LIBS} ${Boost_LIBRARIES})
 message(STATUS "Boost include dir: " ${Boost_INCLUDE_DIRS})
 message(STATUS "Boost libraries: " ${Boost_LIBRARIES})
 
+find_package(Bzip2 REQUIRED)
+include_directories(${BZIP2_INCLUDE_DIR})
+
+find_package(Zlib REQUIRED)
+include_directories(${ZLIB_INCLUDE_DIR})
+
+if(NOT BUILD_SHARED_LIBS)
+  # It might be the case that bzip2 and zlib are not available as static libs in the non
+  # toolchain case
+  # TODO remove this when moving to toolchain only
+  if (NOT BZIP2_STATIC_FOUND)
+    set(LIBBZ2 ${BZIP2_LIBRARIES})
+  else()
+    set(LIBBZ2 BZIP2_STATIC)
+  endif()
+
+  if (NOT ZLIB_STATIC_FOUND)
+    set(LIBZ ${ZLIB_LIBRARIES})
+  else()
+    set(LIBZ ZLIB_STATIC)
+  endif()
+else()
+  set(LIBBZ2 ${BZIP2_LIBRARIES})
+  set(LIBZ ${ZLIB_LIBRARIES})
+endif ()
+
 # find jni headers and libs
 find_package(JNI REQUIRED)
 include_directories(${JNI_INCLUDE_DIRS})

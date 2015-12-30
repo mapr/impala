@@ -17,6 +17,8 @@
 # this script will set it to the current working directory.
 
 export JAVA_HOME=${JAVA_HOME:-/usr/java/default}
+export PIC_LIB_PATH=/usr/lib64
+
 if [ ! -d $JAVA_HOME ] ; then
     echo "JAVA_HOME must be set to the location of your JDK!"
     return 1
