@@ -23,6 +23,7 @@ add_library(Catalog
 )
 
 add_executable(catalogd catalogd-main.cc)
+set_target_properties(catalogd PROPERTIES COMPILE_FLAGS "-fPIC")
 target_link_libraries(catalogd
   ${JAVA_JSIG_LIBRARY}
   ${IMPALA_LINK_LIBS}

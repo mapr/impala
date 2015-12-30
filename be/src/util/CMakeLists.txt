@@ -14,6 +14,30 @@
 
 # Without this option Squeasel looks up the SSL library at run-time
 # and may not guess the correct name on some distributions
+
+set (LINK_LIBS
+  -Wl,-whole-archive
+  Catalog
+  CodeGen
+  Common
+  Exec
+  Exprs
+  GlobalFlags
+  ImpalaThrift
+  ResourceBroker
+  Rpc
+  Runtime
+  Scheduling
+  Service
+  Statestore
+  TestUtil
+  ThriftSaslTransport
+  Udf
+  Webserver
+  -Wl,-no-whole-archive
+  Util
+)
+
 SET_SOURCE_FILES_PROPERTIES(${SQUEASEL_SRC_DIR}/squeasel.c PROPERTIES
   COMPILE_FLAGS -DNO_SSL_DL)
 
@@ -86,6 +110,8 @@ add_library(loggingsupport SHARED
   logging-support.cc
 )
 
+SET_TARGET_PROPERTIES(loggingsupport PROPERTIES COMPILE_FLAGS "-fPIC")
+
 target_link_libraries(Webserver pthread dl Util ssl crypto)
 
 add_executable(network-perf-benchmark network-perf-benchmark.cc)
@@ -93,7 +119,7 @@ add_executable(parquet-reader parquet-reader.cc)
 
 target_link_libraries(network-perf-benchmark ${IMPALA_LINK_LIBS})
 target_link_libraries(parquet-reader ${IMPALA_LINK_LIBS})
-target_link_libraries(loggingsupport ${IMPALA_LINK_LIBS_NO_TCMALLOC})
+target_link_libraries(loggingsupport ${LINK_LIBS})
 
 ADD_BE_TEST(runtime-profile-test)
 ADD_BE_TEST(benchmark-test)
