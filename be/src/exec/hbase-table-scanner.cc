@@ -170,9 +170,21 @@ Status HBaseTableScanner::Init() {
   scan_set_max_versions_id_ = env->GetMethodID(scan_cl_, "setMaxVersions",
       "(I)Lorg/apache/hadoop/hbase/client/Scan;");
   RETURN_ERROR_IF_EXC(env);
+  // Support Hbase 0.98 API
   scan_set_caching_id_ = env->GetMethodID(scan_cl_, "setCaching", "(I)V");
+  // Support Hbase 1.1 API
+  if (env->ExceptionOccurred()) {
+    env->ExceptionClear();
+    scan_set_caching_id_ = env->GetMethodID(scan_cl_, "setCaching", "(I)Lorg/apache/hadoop/hbase/client/Scan;");
+  }
   RETURN_ERROR_IF_EXC(env);
+  // Support Hbase 0.98 API
   scan_set_cache_blocks_id_ = env->GetMethodID(scan_cl_, "setCacheBlocks", "(Z)V");
+  // Support Hbase 1.1 API
+  if (env->ExceptionOccurred()) {
+    env->ExceptionClear();
+    scan_set_cache_blocks_id_ = env->GetMethodID(scan_cl_, "setCacheBlocks", "(Z)Lorg/apache/hadoop/hbase/client/Scan;");
+  }
   RETURN_ERROR_IF_EXC(env);
   scan_add_column_id_ = env->GetMethodID(scan_cl_, "addColumn",
       "([B[B)Lorg/apache/hadoop/hbase/client/Scan;");
