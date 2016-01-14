@@ -24,24 +24,25 @@ import com.google.common.base.Preconditions;
 public class HiveStorageDescriptorFactory {
   /**
    * Creates and returns a Hive StoreDescriptor for the given FileFormat and RowFormat.
-   * Currently supports creating StorageDescriptors for Parquet, Text, Sequence, and
+   * Currently supports creating StorageDescriptors for Parquet, Text, Sequence, Avro and
    * RC file.
    * TODO: Add support for HBase
    */
-  public static StorageDescriptor createSd(THdfsFileFormat fileFormat, RowFormat rowFormat) {
+  public static StorageDescriptor createSd(THdfsFileFormat fileFormat,
+      RowFormat rowFormat) {
     Preconditions.checkNotNull(fileFormat);
     Preconditions.checkNotNull(rowFormat);
 
-    StorageDescriptor sd = null;
-    switch(fileFormat) {
-      case PARQUET: sd = createParquetFileSd(); break;
-      case RC_FILE: sd = createRcFileSd(); break;
-      case SEQUENCE_FILE: sd = createSequenceFileSd(); break;
-      case TEXT: sd = createTextSd(); break;
-      case AVRO: sd = createAvroSd(); break;
-      default: throw new UnsupportedOperationException(
-          "Unsupported file format: " + fileFormat);
-    }
+    StorageDescriptor sd = new StorageDescriptor();
+    sd.setSerdeInfo(new org.apache.hadoop.hive.metastore.api.SerDeInfo());
+    sd.getSerdeInfo().setParameters(new HashMap<String, String>());
+    // The compressed flag is not used to determine whether the table is compressed or
+    // not. Instead, we use the input format or the filename.
+    sd.setCompressed(false);
+    HdfsFileFormat hdfsFileFormat = HdfsFileFormat.fromThrift(fileFormat);
+    sd.setInputFormat(hdfsFileFormat.inputFormat());
+    sd.setOutputFormat(hdfsFileFormat.outputFormat());
+    sd.getSerdeInfo().setSerializationLib(hdfsFileFormat.serializationLib());
 
     if (rowFormat.getFieldDelimiter() != null) {
       sd.getSerdeInfo().putToParameters(
