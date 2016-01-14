@@ -93,6 +93,12 @@ add_library(Util
   time.cc
   url-parser.cc
   url-coding.cc
+
+  exception.c
+  htable.c
+  jni_helper.c
+  mutexes.c
+  thread_local_storage.c
 )
 
 add_library(Webserver STATIC
