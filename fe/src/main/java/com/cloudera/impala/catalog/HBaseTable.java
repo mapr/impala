@@ -57,6 +57,8 @@ import com.cloudera.impala.thrift.TTableDescriptor;
 import com.cloudera.impala.thrift.TTableType;
 import com.cloudera.impala.util.StatsHelper;
 import com.cloudera.impala.util.TResultRowBuilder;
+import com.cloudera.impala.util.HBaseClientScanProxy;
+import com.cloudera.impala.util.HBaseCellProxy;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -402,14 +404,14 @@ public class HBaseTable extends Table {
 
     Scan s = new Scan(info.getStartKey());
     // Get a small sample of rows
-    s.setBatch(ROW_COUNT_ESTIMATE_BATCH_SIZE);
+    HBaseClientScanProxy.setBatch(s, ROW_COUNT_ESTIMATE_BATCH_SIZE);
     // Try and get every version so the row's size can be used to estimate.
-    s.setMaxVersions(Short.MAX_VALUE);
+    HBaseClientScanProxy.setMaxVersions(s, Short.MAX_VALUE);
     // Don't cache the blocks as we don't think these are
     // necessarily important blocks.
-    s.setCacheBlocks(false);
+    HBaseClientScanProxy.setCacheBlocks(s, false);
     // Try and get deletes too so their size can be counted.
-    s.setRaw(false);
+    HBaseClientScanProxy.setRaw(s, false);
     ResultScanner rs = hTable_.getScanner(s);
 
     long currentRowSize = 0;
@@ -433,13 +435,10 @@ public class HBaseTable extends Table {
           if (c instanceof KeyValue) {
             currentRowSize += KeyValue.getKeyValueDataStructureSize(c.getRowLength(),
                 c.getFamilyLength(), c.getQualifierLength(), c.getValueLength(),
-                c.getTagsLength());
-          } else {
-            if (c.getClass().getName().equals("com.mapr.fs.hbase.RowColKeyValue")){
-              currentRowSize += 0;
-            } else {
+                HBaseCellProxy.getTagsLength(c));
+          } else if (!c.getClass().getName().equals("com.mapr.fs.hbase.RowColKeyValue")) {
             throw new IllegalStateException("Celltype " + c.getClass().getName() +
-                " not supported.");}
+                    " not supported.");
           }
         }
       }
