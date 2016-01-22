@@ -45,12 +45,24 @@ HdfsOp::HdfsOp(HdfsOpType op, const string& src, short permissions,
   DCHECK(!src_.empty());
 }
 
-static
 const char* PATHONLY(const char* uri) {
 
     // Scan to the ':', and return the rest of the string
     for (const char* p=uri; *p!='\0'; p++)
         if (*p == ':') return p+1;
+
+    // if none found, return the original string
+    return uri;
+}
+
+const char* REMOVELEADINGSLASHES(const char* uri) {
+
+    // if string not start from '/' return original string
+    if (*uri != '/') return uri;
+
+    // Scan to the first non '/' symbol, and return the string with single leading '/'
+    for (const char* p=uri; *p!='\0'; p++)
+        if (*p != '/') return p-1;
 
     // if none found, return the original string
     return uri;
