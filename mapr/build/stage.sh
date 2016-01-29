@@ -79,6 +79,10 @@ copy_impala_files() {
     cp $BUILT/be/build/$BUILD_TYPE/statestore/statestored $STAGE/sbin
     cp $BUILT/be/build/$BUILD_TYPE/catalog/catalogd $STAGE/sbin
 
+    if [[ $BUILD_TYPE == release ]]; then
+        strip $STAGE/sbin/*
+    fi
+
     # copy the impala front end jar
     mkdir -p $STAGE/lib
 
