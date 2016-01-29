@@ -51,7 +51,7 @@ SET(CXX_COVERAGE_FLAGS "-fprofile-arcs -ftest-coverage")
 #   -g: Enable symbols for profiler tools
 #   -DNDEBUG: Turn off dchecks/asserts/debug only code.
 SET(CXX_FLAGS_DEBUG "-g -ggdb")
-SET(CXX_FLAGS_RELEASE "-O3 -g -DNDEBUG")
+SET(CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 SET(CXX_FLAGS_ADDRESS_SANITIZER
     "-O1 -g -fsanitize=address -fno-omit-frame-pointer -DADDRESS_SANITIZER")
 
@@ -329,7 +329,6 @@ add_subdirectory(src/experiments)
 # Thrift generated files have unused variables.  Ignore those compiler
 # warnings by adding this flag.  Note: impala subdirectories should be
 # added *before* this so we can fix our issues.
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-variable")
 add_subdirectory(generated-sources/gen-cpp)
 
 link_directories(
