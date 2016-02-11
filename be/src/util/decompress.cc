@@ -28,6 +28,9 @@
 #include "common/names.h"
 
 using namespace impala;
+using namespace strings;
+
+const string DECOMPRESSOR_MEM_LIMIT_EXCEEDED = "$0Decompressor failed to allocate $1 bytes.";
 
 // Output buffer size for streaming compressed file.
 const int64_t STREAM_OUT_BUF_SIZE = 8 * 1024 * 1024;
@@ -74,8 +77,12 @@ Status GzipDecompressor::ProcessBlockStreaming(int64_t input_length, const uint8
     bool* stream_end) {
   if (!reuse_buffer_ || out_buffer_ == NULL) {
     buffer_length_ = STREAM_OUT_BUF_SIZE;
-    // TODO: Make this TryAllocate().
-    out_buffer_ = memory_pool_->Allocate(buffer_length_);
+    out_buffer_ = memory_pool_->TryAllocate(buffer_length_);
+    if (UNLIKELY(out_buffer_ == NULL)) {
+      string details = Substitute(DECOMPRESSOR_MEM_LIMIT_EXCEEDED, "Gzip",
+          buffer_length_);
+      return memory_pool_->mem_tracker()->MemLimitExceeded(NULL, details, buffer_length_);
+    }
   }
   *output = out_buffer_;
 
@@ -128,7 +135,7 @@ Status GzipDecompressor::ProcessBlockStreaming(int64_t input_length, const uint8
 
 Status GzipDecompressor::ProcessBlock(bool output_preallocated, int64_t input_length,
     const uint8_t* input, int64_t* output_length, uint8_t** output) {
-  if (output_preallocated && *output_length == 0) {
+  if (UNLIKELY(output_preallocated && *output_length == 0)) {
     // The zlib library does not allow *output to be NULL, even when output_length is 0
     // (inflate() will return Z_STREAM_ERROR). We don't consider this an error, so bail
     // early if no output is expected. Note that we don't signal an error if the input
@@ -144,7 +151,13 @@ Status GzipDecompressor::ProcessBlock(bool output_preallocated, int64_t input_le
       if (buffer_length_ > MAX_BLOCK_SIZE) {
         return Status("Decompressor: block size is too big");
       }
-      out_buffer_ = temp_memory_pool_->Allocate(buffer_length_);
+      out_buffer_ = temp_memory_pool_->TryAllocate(buffer_length_);
+      if (UNLIKELY(out_buffer_ == NULL)) {
+        string details = Substitute(DECOMPRESSOR_MEM_LIMIT_EXCEEDED, "Gzip",
+            buffer_length_);
+        return temp_memory_pool_->mem_tracker()->MemLimitExceeded(NULL,
+            details, buffer_length_);
+      }
     }
     use_temp = true;
     *output = out_buffer_;
@@ -196,8 +209,13 @@ Status GzipDecompressor::ProcessBlock(bool output_preallocated, int64_t input_le
       ss << "GzipDecompressor: block size is too big: " << buffer_length_;
       return Status(ss.str());
     }
-
-    out_buffer_ = temp_memory_pool_->Allocate(buffer_length_);
+    out_buffer_ = temp_memory_pool_->TryAllocate(buffer_length_);
+    if (UNLIKELY(out_buffer_ == NULL)) {
+      string details = Substitute(DECOMPRESSOR_MEM_LIMIT_EXCEEDED, "Gzip",
+          buffer_length_);
+      return temp_memory_pool_->mem_tracker()->MemLimitExceeded(NULL,
+          details, buffer_length_);
+    }
     *output = out_buffer_;
     *output_length = buffer_length_;
     ret = inflateReset(&stream_);
@@ -243,8 +261,8 @@ int64_t BzipDecompressor::MaxOutputLen(int64_t input_len, const uint8_t* input) 
 
 Status BzipDecompressor::ProcessBlock(bool output_preallocated, int64_t input_length,
     const uint8_t* input, int64_t* output_length, uint8_t** output) {
-  if (output_preallocated && *output_length == 0) {
-    // Same problem as zlib library, see comment in GzipDecompressor::ProcessBlock()
+  if (UNLIKELY(output_preallocated && *output_length == 0)) {
+    // Same problem as zlib library, see comment in GzipDecompressor::ProcessBlock().
     return Status::OK();
   }
 
@@ -258,7 +276,13 @@ Status BzipDecompressor::ProcessBlock(bool output_preallocated, int64_t input_le
     if (buffer_length_ > MAX_BLOCK_SIZE) {
       return Status("Decompressor: block size is too big");
     }
-    out_buffer_ = temp_memory_pool_->Allocate(buffer_length_);
+    out_buffer_ = temp_memory_pool_->TryAllocate(buffer_length_);
+    if (UNLIKELY(out_buffer_ == NULL)) {
+      string details = Substitute(DECOMPRESSOR_MEM_LIMIT_EXCEEDED, "Bzip",
+          buffer_length_);
+      return temp_memory_pool_->mem_tracker()->MemLimitExceeded(NULL,
+          details, buffer_length_);
+    }
     use_temp = true;
   }
 
@@ -274,7 +298,13 @@ Status BzipDecompressor::ProcessBlock(bool output_preallocated, int64_t input_le
       if (buffer_length_ > MAX_BLOCK_SIZE) {
         return Status("Decompressor: block size is too big");
       }
-      out_buffer_ = temp_memory_pool_->Allocate(buffer_length_);
+      out_buffer_ = temp_memory_pool_->TryAllocate(buffer_length_);
+      if (UNLIKELY(out_buffer_ == NULL)) {
+        string details = Substitute(DECOMPRESSOR_MEM_LIMIT_EXCEEDED, "Bzip",
+            buffer_length_);
+        return temp_memory_pool_->mem_tracker()->MemLimitExceeded(NULL,
+            details, buffer_length_);
+      }
     }
     outlen = static_cast<unsigned int>(buffer_length_);
     if ((ret = BZ2_bzBuffToBuffDecompress(reinterpret_cast<char*>(out_buffer_), &outlen,
@@ -327,8 +357,13 @@ Status BzipDecompressor::ProcessBlockStreaming(int64_t input_length, const uint8
     bool* stream_end) {
   if (!reuse_buffer_ || out_buffer_ == NULL) {
     buffer_length_ = STREAM_OUT_BUF_SIZE;
-    // TODO: Make this TryAllocate()
-    out_buffer_ = memory_pool_->Allocate(buffer_length_);
+    out_buffer_ = memory_pool_->TryAllocate(buffer_length_);
+    if (UNLIKELY(out_buffer_ == NULL)) {
+      string details = Substitute(DECOMPRESSOR_MEM_LIMIT_EXCEEDED, "Bzip",
+          buffer_length_);
+      return memory_pool_->mem_tracker()->MemLimitExceeded(NULL,
+          details, buffer_length_);
+    }
   }
   *output = out_buffer_;
 
@@ -476,11 +511,16 @@ Status SnappyBlockDecompressor::ProcessBlock(bool output_preallocated, int64_t i
   if (!output_preallocated) {
     // If we don't know the size beforehand, compute it.
     RETURN_IF_ERROR(SnappyBlockDecompress(input_len, input, true, output_len, NULL));
-
     if (!reuse_buffer_ || out_buffer_ == NULL || buffer_length_ < *output_len) {
       // Need to allocate a new buffer
       buffer_length_ = *output_len;
-      out_buffer_ = memory_pool_->Allocate(buffer_length_);
+      out_buffer_ = memory_pool_->TryAllocate(buffer_length_);
+      if (UNLIKELY(out_buffer_ == NULL)) {
+        string details = Substitute(DECOMPRESSOR_MEM_LIMIT_EXCEEDED, "SnappyBlock",
+            buffer_length_);
+        return memory_pool_->mem_tracker()->MemLimitExceeded(NULL,
+            details, buffer_length_);
+      }
     }
     *output = out_buffer_;
   }
@@ -522,7 +562,13 @@ Status SnappyDecompressor::ProcessBlock(bool output_preallocated, int64_t input_
       if (buffer_length_ > MAX_BLOCK_SIZE) {
         return Status("Decompressor: block size is too big");
       }
-      out_buffer_ = memory_pool_->Allocate(buffer_length_);
+      out_buffer_ = memory_pool_->TryAllocate(buffer_length_);
+      if (UNLIKELY(out_buffer_ == NULL)) {
+        string details = Substitute(DECOMPRESSOR_MEM_LIMIT_EXCEEDED, "Snappy",
+            buffer_length_);
+        return memory_pool_->mem_tracker()->MemLimitExceeded(NULL,
+            details, buffer_length_);
+      }
     }
     *output = out_buffer_;
     *output_length = uncompressed_length;
