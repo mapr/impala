@@ -133,10 +133,6 @@ public class LoadDataStmt extends StatementBase {
     try {
       Path source = sourceDataPath_.getPath();
       FileSystem fs = source.getFileSystem(FileSystemUtil.getConfiguration());
-      if (!(fs instanceof DistributedFileSystem)) {
-        throw new AnalysisException(String.format("INPATH location '%s' " +
-            "must point to an HDFS filesystem.", sourceDataPath_));
-      }
       if (!fs.exists(source)) {
         throw new AnalysisException(String.format(
             "INPATH location '%s' does not exist.", sourceDataPath_));

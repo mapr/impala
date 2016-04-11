@@ -17,6 +17,7 @@ set(LIBRARY_OUTPUT_PATH "${BUILD_OUTPUT_ROOT_DIRECTORY}/service")
 
 # where to put generated binaries.
 set(EXECUTABLE_OUTPUT_PATH "${BUILD_OUTPUT_ROOT_DIRECTORY}/service")
+set(CMAKE_SKIP_RPATH TRUE)
 
 add_library(Service
   frontend.cc

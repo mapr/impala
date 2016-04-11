@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.cloudera.impala</groupId>
   <artifactId>impala-frontend</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1-SNAPSHOT-mapr</version>
   <packaging>jar</packaging>
 
   <name>Cloudera Impala Query Engine Frontend</name>
@@ -38,7 +38,7 @@
     <parquet.version>${env.IMPALA_PARQUET_VERSION}</parquet.version>
     <impala.extdatasrc.api.version>1.0-SNAPSHOT</impala.extdatasrc.api.version>
     <!-- Impala does not currently support the Hive .13 JDBC driver -->
-    <hive-jdbc.version>0.13.1-cdh5.2.0-SNAPSHOT</hive-jdbc.version>
+    <hive-jdbc.version>0.13.0-mapr</hive-jdbc.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -48,6 +48,7 @@
       <artifactId>impala-data-source-api</artifactId>
       <version>${impala.extdatasrc.api.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-hdfs</artifactId>
@@ -136,19 +137,6 @@
       <groupId>org.apache.sentry</groupId>
       <artifactId>sentry-binding-hive</artifactId>
       <version>${sentry.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.sentry</groupId>
-          <artifactId>sentry-provider-db</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.sentry</groupId>
-      <artifactId>sentry-provider-db</artifactId>
-      <version>${sentry.version}</version>
-      <classifier>sh</classifier>
     </dependency>
 
     <dependency>
@@ -345,6 +333,31 @@
       <groupId>org.glassfish</groupId>
       <artifactId>javax.json</artifactId>
       <version>1.0.2</version>
+    </dependency>
+
+    <!-- Add the maprfs dependencies -->
+    <dependency>
+      <groupId>com.mapr.hadoop</groupId>
+      <artifactId>maprfs</artifactId>
+      <version>5.0.0-mapr</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.hadoop</groupId>
+      <artifactId>maprfs-core</artifactId>
+      <version>5.0.0-mapr</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.hadoop</groupId>
+      <artifactId>maprfs-jni</artifactId>
+      <version>5.0.0-mapr</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.util</groupId>
+      <artifactId>central-logging</artifactId>
+      <version>5.0.0-mapr</version>
     </dependency>
   </dependencies>
 

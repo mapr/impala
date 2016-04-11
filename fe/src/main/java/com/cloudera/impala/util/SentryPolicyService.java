@@ -20,6 +20,7 @@ import org.apache.sentry.SentryUserException;
 import org.apache.sentry.provider.db.SentryAccessDeniedException;
 import org.apache.sentry.provider.db.SentryAlreadyExistsException;
 import org.apache.sentry.provider.db.service.thrift.SentryPolicyServiceClient;
+import org.apache.sentry.provider.db.service.thrift.SentryPolicyServiceClientDefaultImpl;
 import org.apache.sentry.provider.db.service.thrift.TSentryGrantOption;
 import org.apache.sentry.provider.db.service.thrift.TSentryPrivilege;
 import org.apache.sentry.provider.db.service.thrift.TSentryRole;
@@ -85,7 +86,7 @@ public class SentryPolicyService {
     private SentryPolicyServiceClient createClient() throws InternalException {
       SentryPolicyServiceClient client;
       try {
-        client = SentryServiceClientFactory.create(config_.getConfig());
+        client = new SentryPolicyServiceClientDefaultImpl(config_.getConfig());
       } catch (Exception e) {
         throw new InternalException("Error creating Sentry Service client: ", e);
       }
@@ -210,9 +211,9 @@ public class SentryPolicyService {
   /**
    * Grants a privilege to an existing role.
    */
-  public void grantRolePrivilege(User requestingUser, String roleName,
-      TPrivilege privilege) throws ImpalaException {
-    grantRolePrivileges(requestingUser, roleName, Lists.newArrayList(privilege));
+  public List<RolePrivilege> grantRolePrivilege(User requestingUser, String roleName,
+                                 TPrivilege privilege) throws ImpalaException {
+    return grantRolePrivileges(requestingUser, roleName, Lists.newArrayList(privilege));
   }
 
   /**
@@ -223,8 +224,9 @@ public class SentryPolicyService {
    * @param privilege - The privilege to grant.
    * @throws ImpalaException - On any error
    */
-  public void grantRolePrivileges(User requestingUser, String roleName,
+  public List<RolePrivilege> grantRolePrivileges(User requestingUser, String roleName,
       List<TPrivilege> privileges) throws ImpalaException {
+    List<RolePrivilege> rolePrivileges = Lists.newArrayList();
     Preconditions.checkState(!privileges.isEmpty());
     TPrivilege privilege = privileges.get(0);
     TPrivilegeScope scope = privilege.getScope();
@@ -233,8 +235,11 @@ public class SentryPolicyService {
         requestingUser.getName()));
     // Verify that all privileges have the same scope.
     for (int i = 1; i < privileges.size(); ++i) {
-      Preconditions.checkState(privileges.get(i).getScope() == scope, "All the " +
+      TPrivilege thriftPriv = privileges.get(i);
+      Preconditions.checkState(thriftPriv.getScope() == scope, "All the " +
           "privileges must have the same scope.");
+      RolePrivilege priv = RolePrivilege.fromThrift(thriftPriv);
+      rolePrivileges.add(priv);
     }
     Preconditions.checkState(scope == TPrivilegeScope.COLUMN || privileges.size() == 1,
         "Cannot grant multiple " + scope + " privileges with a singe RPC to the " +
@@ -270,6 +275,7 @@ public class SentryPolicyService {
               privilege.isHas_grant_opt());
           break;
       }
+      return rolePrivileges;
     } catch (SentryAccessDeniedException e) {
       throw new AuthorizationException(String.format(ACCESS_DENIED_ERROR_MSG,
           requestingUser.getName(), "GRANT_PRIVILEGE"));
@@ -284,9 +290,9 @@ public class SentryPolicyService {
   /**
    * Revokes a privilege from an existing role.
    */
-  public void revokeRolePrivilege(User requestingUser, String roleName,
-      TPrivilege privilege) throws ImpalaException {
-    revokeRolePrivileges(requestingUser, roleName, Lists.newArrayList(privilege));
+  public List<RolePrivilege> revokeRolePrivilege(User requestingUser, String roleName,
+                                  TPrivilege privilege) throws ImpalaException {
+    return revokeRolePrivileges(requestingUser, roleName, Lists.newArrayList(privilege));
   }
 
   /**
@@ -297,8 +303,9 @@ public class SentryPolicyService {
    * @param privilege - The privilege to revoke.
    * @throws ImpalaException - On any error
    */
-  public void revokeRolePrivileges(User requestingUser, String roleName,
-      List<TPrivilege> privileges) throws ImpalaException {
+  public List<RolePrivilege> revokeRolePrivileges(User requestingUser, String roleName,
+                                   List<TPrivilege> privileges) throws ImpalaException {
+    List<RolePrivilege> rolePrivileges = Lists.newArrayList();
     Preconditions.checkState(!privileges.isEmpty());
     TPrivilege privilege = privileges.get(0);
     TPrivilegeScope scope = privilege.getScope();
@@ -307,8 +314,11 @@ public class SentryPolicyService {
         scope.toString(), requestingUser.getName()));
     // Verify that all privileges have the same scope.
     for (int i = 1; i < privileges.size(); ++i) {
-      Preconditions.checkState(privileges.get(i).getScope() == scope, "All the " +
-          "privileges must have the same scope.");
+        TPrivilege thriftPriv = privileges.get(i);
+        Preconditions.checkState(thriftPriv.getScope() == scope, "All the " +
+                "privileges must have the same scope.");
+        RolePrivilege priv = RolePrivilege.fromThrift(thriftPriv);
+        rolePrivileges.add(priv);
     }
     Preconditions.checkState(scope == TPrivilegeScope.COLUMN || privileges.size() == 1,
         "Cannot revoke multiple " + scope + " privileges with a singe RPC to the " +
@@ -343,6 +353,7 @@ public class SentryPolicyService {
               null);
           break;
       }
+      return rolePrivileges;
     } catch (SentryAccessDeniedException e) {
       throw new AuthorizationException(String.format(ACCESS_DENIED_ERROR_MSG,
           requestingUser.getName(), "REVOKE_PRIVILEGE"));
@@ -416,8 +427,7 @@ public class SentryPolicyService {
       throws ImpalaException {
     SentryServiceClient client = new SentryServiceClient();
     try {
-      return Lists.newArrayList(client.get().listAllPrivilegesByRoleName(
-          requestingUser.getShortName(), roleName));
+        return Lists.newArrayList(client.get().listAllPrivilegesByRoleName( requestingUser.getShortName(), roleName));
     } catch (SentryAccessDeniedException e) {
       throw new AuthorizationException(String.format(ACCESS_DENIED_ERROR_MSG,
           requestingUser.getName(), "LIST_ROLE_PRIVILEGES"));
@@ -442,7 +452,7 @@ public class SentryPolicyService {
     }
     if (sentryPriv.isSetURI()) privilege.setUri(sentryPriv.getURI());
     privilege.setScope(Enum.valueOf(TPrivilegeScope.class,
-        sentryPriv.getPrivilegeScope().toUpperCase()));
+            sentryPriv.getPrivilegeScope().toUpperCase()));
     if (sentryPriv.getAction().equals("*")) {
       privilege.setPrivilege_level(TPrivilegeLevel.ALL);
     } else {
@@ -450,7 +460,7 @@ public class SentryPolicyService {
           sentryPriv.getAction().toUpperCase()));
     }
     privilege.setPrivilege_name(RolePrivilege.buildRolePrivilegeName(privilege));
-    privilege.setCreate_time_ms(sentryPriv.getCreateTime());
+
     if (sentryPriv.isSetGrantOption() &&
         sentryPriv.getGrantOption() == TSentryGrantOption.TRUE) {
       privilege.setHas_grant_opt(true);
@@ -459,4 +469,24 @@ public class SentryPolicyService {
     }
     return privilege;
   }
+    /**
+     * Checks whether this user is an admin on the Sentry Service. Throws an
+     * AuthorizationException if the user does not have admin privileges or if there are
+     * any issues communicating with the Sentry Service..
+     * @param requestingUser - The requesting user.
+     */
+    public void checkUserSentryAdmin(User requestingUser)
+            throws AuthorizationException {
+        // Check if the user has access by issuing a read-only RPC.
+        // TODO: This is not an elegant way to verify whether the user has privileges to
+        // access Sentry. This should be modified in the future when Sentry has
+        // a more robust mechanism to perform these checks.
+        try {
+            listAllRoles(requestingUser);
+        } catch (ImpalaException e) {
+            throw new AuthorizationException(String.format("User '%s' does not have " +
+                    "privileges to access the requested policy metadata or Sentry Service is " +
+                    "unavailable.", requestingUser.getName()));
+        }
+    }
 }

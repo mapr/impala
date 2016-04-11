@@ -23,6 +23,9 @@
 #include "common/status.h"
 #include "util/thread-pool.h"
 
+const char* PATHONLY(const char* uri);
+const char* REMOVELEADINGSLASHES(const char* uri);
+
 namespace impala {
 
 enum HdfsOpType {

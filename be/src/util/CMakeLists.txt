@@ -76,6 +76,12 @@ add_library(Util
   tuple-row-compare.cc
   url-parser.cc
   url-coding.cc
+
+  exception.c
+  htable.c
+  jni_helper.c
+  mutexes.c
+  thread_local_storage.c
 )
 add_dependencies(Util thrift-deps gen_ir_descriptions)
 

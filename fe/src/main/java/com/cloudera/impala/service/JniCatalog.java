@@ -230,7 +230,7 @@ public class JniCatalog {
       TException  {
     TSentryAdminCheckRequest request = new TSentryAdminCheckRequest();
     JniUtil.deserializeThrift(protocolFactory_, request, thriftReq);
-    catalog_.getSentryProxy().checkUserSentryAdmin(
+    catalog_.getSentryPolicyService().checkUserSentryAdmin(
         new User(request.getHeader().getRequesting_user()));
   }
 

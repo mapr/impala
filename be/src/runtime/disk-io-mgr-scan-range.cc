@@ -297,7 +297,7 @@ void DiskIoMgr::ScanRange::Close() {
   unique_lock<mutex> hdfs_lock(hdfs_lock_);
   if (fs_ != NULL) {
     if (hdfs_file_ == NULL) return;
-
+    /*
     struct hdfsReadStatistics* stats;
     if (IsDfsPath(file())) {
       int success = hdfsFileGetReadStatistics(hdfs_file_->file(), &stats);
@@ -318,6 +318,7 @@ void DiskIoMgr::ScanRange::Close() {
         hdfsFileFreeReadStatistics(stats);
       }
     }
+    */
     if (cached_buffer_ != NULL) {
       hadoopRzBufferFree(hdfs_file_->file(), cached_buffer_);
       cached_buffer_ = NULL;

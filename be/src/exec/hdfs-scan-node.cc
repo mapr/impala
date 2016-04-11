@@ -556,11 +556,6 @@ Status HdfsScanNode::Prepare(RuntimeState* state) {
     bool expected_local = (*scan_range_params_)[i].__isset.is_remote &&
         !(*scan_range_params_)[i].is_remote;
     if (expected_local && (*scan_range_params_)[i].volume_id == -1) {
-      if (!FLAGS_suppress_unknown_disk_id_warnings && !unknown_disk_id_warned_) {
-        AddRuntimeExecOption("Missing Volume Id");
-        runtime_state()->LogError(ErrorMsg(TErrorCode::HDFS_SCAN_NODE_UNKNOWN_DISK));
-        unknown_disk_id_warned_ = true;
-      }
       ++num_ranges_missing_volume_id;
     }
 
