@@ -398,9 +398,9 @@
       </plugin>
 
       <plugin>
-        <groupId>net.sourceforge.czt</groupId>
-        <artifactId>maven-cup-plugin</artifactId>
-        <version>1.6.4</version>
+        <groupId>net.sourceforge.czt.dev</groupId>
+        <artifactId>cup-maven-plugin</artifactId>
+        <version>1.6-SNAPSHOT</version>
         <executions>
           <execution>
             <id>cup</id>
