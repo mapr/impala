@@ -599,7 +599,7 @@ void CodegenAnyVal::WriteToSlot(const SlotDescriptor& slot_desc, Value* tuple,
 
   // Non-null block: write slot
   builder_->SetInsertPoint(non_null_block);
-  Value* slot = builder_->CreateStructGEP(NULL, tuple, slot_desc.llvm_field_idx(),
+  Value* slot = builder_->CreateStructGEP(tuple, slot_desc.field_idx(),
       "slot");
   ToNativePtr(slot, pool);
   builder_->CreateBr(insert_before);

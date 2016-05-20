@@ -17,6 +17,7 @@
 #include "runtime/collection-value.h"
 #include "runtime/descriptors.h"
 #include "runtime/tuple-row.h"
+#include "runtime/string-value.inline.h"
 
 using namespace impala;
 
