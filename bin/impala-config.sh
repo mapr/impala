@@ -220,8 +220,8 @@ export IMPALA_COMMON_DIR=$IMPALA_HOME/common
 export PATH=$IMPALA_HOME/bin:$PATH
 
 # Hadoop dependencies are snapshots in the Impala tree
-export HADOOP_HOME=/opt/mapr/hadoop/hadoop-2.7.0/
-export HADOOP_CONF_DIR=/opt/mapr/hadoop/hadoop-2.7.0/etc/hadoop
+export HADOOP_HOME=${HADOOP_HOME:-/opt/mapr/hadoop/hadoop-2.7.0}
+export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
 
 : ${HADOOP_CLASSPATH=}
 export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:"${HADOOP_HOME}/share/hadoop/tools/lib/*"
