@@ -149,6 +149,7 @@ import com.cloudera.impala.thrift.TTruncateParams;
 import com.cloudera.impala.thrift.TUpdateCatalogRequest;
 import com.cloudera.impala.thrift.TUpdateCatalogResponse;
 import com.cloudera.impala.util.HdfsCachingUtil;
+import com.cloudera.impala.util.MetaStoreUtilsProxy;
 import com.cloudera.impala.util.SentryPolicyService;
 
 import com.google.common.base.Joiner;
@@ -2855,7 +2856,7 @@ public class CatalogOpExecutor {
               partition.getSd().setSerdeInfo(msTbl.getSd().getSerdeInfo().deepCopy());
               partition.getSd().setLocation(msTbl.getSd().getLocation() + "/" +
                   partName.substring(0, partName.length() - 1));
-              MetaStoreUtils.updatePartitionStatsFast(partition, warehouse);
+              MetaStoreUtilsProxy.updatePartitionStatsFast(partition, warehouse);
             }
 
             // First add_partitions and then alter_partitions the successful ones with

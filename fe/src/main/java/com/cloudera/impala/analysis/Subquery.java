@@ -23,6 +23,7 @@ import org.apache.hadoop.hive.metastore.MetaStoreUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.cloudera.impala.util.MetaStoreUtilsProxy;
 import com.cloudera.impala.catalog.ArrayType;
 import com.cloudera.impala.catalog.StructField;
 import com.cloudera.impala.catalog.StructType;
@@ -132,7 +133,7 @@ public class Subquery extends Expr {
       Expr expr = stmtResultExprs.get(i);
       String fieldName = null;
       // Check if the label meets the Metastore's requirements.
-      if (MetaStoreUtils.validateName(labels.get(i))) {
+      if (MetaStoreUtilsProxy.validateName(labels.get(i))) {
         fieldName = labels.get(i);
         // Make sure the field names are unique.
         if (!hasUniqueLabels) {

@@ -20,6 +20,7 @@ package com.cloudera.impala.analysis;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.hive.metastore.MetaStoreUtils;
 
+import com.cloudera.impala.util.MetaStoreUtilsProxy;
 import com.cloudera.impala.authorization.Privilege;
 import com.cloudera.impala.catalog.Db;
 import com.cloudera.impala.common.AnalysisException;
@@ -82,7 +83,7 @@ public class CreateDbStmt extends StatementBase {
   @Override
   public void analyze(Analyzer analyzer) throws AnalysisException {
     // Check whether the db name meets the Metastore's requirements.
-    if (!MetaStoreUtils.validateName(dbName_)) {
+    if (!MetaStoreUtilsProxy.validateName(dbName_)) {
       throw new AnalysisException("Invalid database name: " + dbName_);
     }
 

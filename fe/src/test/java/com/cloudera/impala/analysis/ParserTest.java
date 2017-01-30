@@ -30,6 +30,7 @@ import java.util.List;
 import org.apache.hadoop.hive.metastore.MetaStoreUtils;
 import org.junit.Test;
 
+import com.cloudera.impala.util.MetaStoreUtilsProxy;
 import com.cloudera.impala.analysis.TimestampArithmeticExpr.TimeUnit;
 import com.cloudera.impala.common.AnalysisException;
 import com.cloudera.impala.testutil.TestUtils;
@@ -2729,7 +2730,7 @@ public class ParserTest {
     // may have unquoted identifiers corresponding to keywords.
     for (String keyword: SqlScanner.keywordMap.keySet()) {
       // Skip keywords that are not valid field/column names in the Metastore.
-      if (!MetaStoreUtils.validateName(keyword)) continue;
+      if (!MetaStoreUtilsProxy.validateName(keyword)) continue;
       String structType = "STRUCT<" + keyword + ":INT>";
       TypeDefsParseOk(structType);
     }

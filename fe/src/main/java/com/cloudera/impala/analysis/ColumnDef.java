@@ -26,6 +26,7 @@ import com.cloudera.impala.catalog.Type;
 import com.cloudera.impala.common.AnalysisException;
 import com.cloudera.impala.thrift.TColumn;
 import com.cloudera.impala.util.MetaStoreUtil;
+import com.cloudera.impala.util.MetaStoreUtilsProxy;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -79,7 +80,7 @@ public class ColumnDef {
 
   public void analyze() throws AnalysisException {
     // Check whether the column name meets the Metastore's requirements.
-    if (!MetaStoreUtils.validateName(colName_)) {
+    if (!MetaStoreUtilsProxy.validateName(colName_)) {
       throw new AnalysisException("Invalid column/field name: " + colName_);
     }
     if (typeDef_ != null) {

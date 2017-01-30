@@ -19,6 +19,7 @@ package com.cloudera.impala.analysis;
 
 import org.apache.hadoop.hive.metastore.MetaStoreUtils;
 
+import com.cloudera.impala.util.MetaStoreUtilsProxy;
 import com.cloudera.impala.common.AnalysisException;
 import com.cloudera.impala.thrift.TDropDataSourceParams;
 import com.google.common.base.Preconditions;
@@ -39,7 +40,7 @@ public class DropDataSrcStmt extends StatementBase {
 
   @Override
   public void analyze(Analyzer analyzer) throws AnalysisException {
-    if (!MetaStoreUtils.validateName(dataSrcName_) ||
+    if (!MetaStoreUtilsProxy.validateName(dataSrcName_) ||
         (!ifExists_ && analyzer.getCatalog().getDataSource(dataSrcName_) == null)) {
       throw new AnalysisException(Analyzer.DATA_SRC_DOES_NOT_EXIST_ERROR_MSG +
           dataSrcName_);

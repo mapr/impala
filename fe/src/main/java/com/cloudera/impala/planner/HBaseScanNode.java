@@ -60,6 +60,7 @@ import com.cloudera.impala.thrift.TQueryOptions;
 import com.cloudera.impala.thrift.TScanRange;
 import com.cloudera.impala.thrift.TScanRangeLocation;
 import com.cloudera.impala.thrift.TScanRangeLocations;
+import com.cloudera.impala.util.HBaseUtil;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -104,7 +105,7 @@ public class HBaseScanNode extends ScanNode {
   private int suggestedCaching_ = DEFAULT_SUGGESTED_CACHING;
 
   // HBase config; Common across all object instance.
-  private static Configuration hbaseConf_ = HBaseConfiguration.create();
+  private static Configuration hbaseConf_ = HBaseUtil.getHBaseConf();
 
   public HBaseScanNode(PlanNodeId id, TupleDescriptor desc) {
     super(id, desc, "SCAN HBASE");

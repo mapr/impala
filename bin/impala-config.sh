@@ -111,9 +111,9 @@ if [[ -z $KUDU_BUILD_DIR && -n $KUDU_CLIENT_DIR ]]; then
 fi
 
 : ${USE_KUDU_DEBUG_BUILD=false}   # Only applies when using Kudu from the toolchain
+USE_KUDU_DEBUG_BUILD=false
 export USE_KUDU_DEBUG_BUILD
 
-KUDU_IS_SUPPORTED=false
 # Kudu doesn't compile on some old Linux distros. KUDU_IS_SUPPORTED enables building Kudu
 # into the backend. The frontend build is OS independent since it is Java.
 if [[ -z "${KUDU_IS_SUPPORTED-}" ]]; then
@@ -140,6 +140,7 @@ if [[ -z "${KUDU_IS_SUPPORTED-}" ]]; then
     fi
   fi
 fi
+KUDU_IS_SUPPORTED=false
 export KUDU_IS_SUPPORTED
 
 export CDH_MAJOR_VERSION=5
