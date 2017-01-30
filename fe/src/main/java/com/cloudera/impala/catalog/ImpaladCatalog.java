@@ -147,7 +147,11 @@ public class ImpaladCatalog extends Catalog {
     }
     lastSyncedCatalogVersion_ = newCatalogVersion;
     // Cleanup old entries in the log.
-    catalogDeltaLog_.garbageCollect(lastSyncedCatalogVersion_);
+    try {
+      catalogDeltaLog_.garbageCollect(lastSyncedCatalogVersion_);
+    } catch(IllegalArgumentException e) {
+      // Do nothing
+    }
     isReady_.set(true);
 
     // Notify all the threads waiting on a catalog update.
@@ -231,9 +235,14 @@ public class ImpaladCatalog extends Catalog {
   private void addCatalogObject(TCatalogObject catalogObject)
       throws TableLoadingException, DatabaseNotFoundException {
     // This item is out of date and should not be applied to the catalog.
-    if (catalogDeltaLog_.wasObjectRemovedAfter(catalogObject)) {
-      LOG.debug(String.format("Skipping update because a matching object was removed " +
-          "in a later catalog version: %s", catalogObject));
+    try {
+      if (catalogDeltaLog_.wasObjectRemovedAfter(catalogObject)) {
+        LOG.debug(String.format("Skipping update because a matching object was removed " +
+                "in a later catalog version: %s", catalogObject));
+        return;
+      }
+    } catch (IllegalArgumentException e){
+      // Do nothing
       return;
     }
 

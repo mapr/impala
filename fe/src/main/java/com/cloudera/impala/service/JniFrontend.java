@@ -27,11 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hdfs.DFSConfigKeys;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.log4j.Appender;
 import org.apache.hadoop.fs.s3a.S3AFileSystem;
 import org.apache.log4j.FileAppender;
@@ -471,9 +467,9 @@ public class JniFrontend {
     TGetFunctionsParams params = new TGetFunctionsParams();
     JniUtil.deserializeThrift(protocolFactory_, params, thriftShowCreateFunctionParams);
     Preconditions.checkArgument(params.category == TFunctionCategory.SCALAR ||
-        params.category == TFunctionCategory.AGGREGATE);
+            params.category == TFunctionCategory.AGGREGATE);
     return ToSqlUtils.getCreateFunctionSql(frontend_.getFunctions(
-        params.category, params.db, params.pattern, true));
+            params.category, params.db, params.pattern, true));
   }
 
   /**
@@ -520,7 +516,7 @@ public class JniFrontend {
     TShowGrantRoleParams params = new TShowGrantRoleParams();
     JniUtil.deserializeThrift(protocolFactory_, params, showGrantRolesParams);
     TResultSet result = frontend_.getCatalog().getAuthPolicy().getRolePrivileges(
-        params.getRole_name(), params.getPrivilege());
+            params.getRole_name(), params.getPrivilege());
     TSerializer serializer = new TSerializer(protocolFactory_);
     try {
       return serializer.serialize(result);
@@ -595,149 +591,13 @@ public class JniFrontend {
    * found, returns an empty string.
    */
   public String checkConfiguration() {
+    /*
     StringBuilder output = new StringBuilder();
     output.append(checkLogFilePermission());
     output.append(checkFileSystem(CONF));
     output.append(checkShortCircuitRead(CONF));
     output.append(checkBlockLocationTracking(CONF));
-    return output.toString();
-  }
-
-  /**
-   * Returns an empty string if Impala has permission to write to FE log files. If not,
-   * returns an error string describing the issues.
-   */
-  private String checkLogFilePermission() {
-    org.apache.log4j.Logger l4jRootLogger = org.apache.log4j.Logger.getRootLogger();
-    Enumeration appenders = l4jRootLogger.getAllAppenders();
-    while (appenders.hasMoreElements()) {
-      Appender appender = (Appender) appenders.nextElement();
-      if (appender instanceof FileAppender) {
-        if (((FileAppender) appender).getFile() == null) {
-          // If Impala does not have permission to write to the log file, the
-          // FileAppender will fail to initialize and logFile will be null.
-          // Unfortunately, we can't get the log file name here.
-          return "Impala does not have permission to write to the log file specified " +
-              "in log4j.properties.";
-        }
-      }
-    }
-    return "";
-  }
-
-  /**
-   * Returns an error message if short circuit reads are enabled but misconfigured.
-   * Otherwise, returns an empty string,
-   */
-  private String checkShortCircuitRead(Configuration conf) {
-    if (!conf.getBoolean(DFSConfigKeys.DFS_CLIENT_READ_SHORTCIRCUIT_KEY,
-        DFSConfigKeys.DFS_CLIENT_READ_SHORTCIRCUIT_DEFAULT)) {
-      LOG.info("Short-circuit reads are not enabled.");
-      return "";
-    }
-
-    StringBuilder output = new StringBuilder();
-    String errorMessage = "Invalid short-circuit reads configuration:\n";
-    String prefix = "  - ";
-    StringBuilder errorCause = new StringBuilder();
-
-    // dfs.domain.socket.path must be set properly
-    String domainSocketPath = conf.getTrimmed(DFSConfigKeys.DFS_DOMAIN_SOCKET_PATH_KEY,
-        DFSConfigKeys.DFS_DOMAIN_SOCKET_PATH_DEFAULT);
-    if (domainSocketPath.isEmpty()) {
-      errorCause.append(prefix);
-      errorCause.append(DFSConfigKeys.DFS_DOMAIN_SOCKET_PATH_KEY);
-      errorCause.append(" is not configured.\n");
-    } else {
-      // The socket path parent directory must be readable and executable.
-      File socketFile = new File(domainSocketPath);
-      File socketDir = socketFile.getParentFile();
-      if (socketDir == null || !socketDir.canRead() || !socketDir.canExecute()) {
-        errorCause.append(prefix);
-        errorCause.append("Impala cannot read or execute the parent directory of ");
-        errorCause.append(DFSConfigKeys.DFS_DOMAIN_SOCKET_PATH_KEY);
-        errorCause.append("\n");
-      }
-    }
-
-    // dfs.client.use.legacy.blockreader.local must be set to false
-    if (conf.getBoolean(DFSConfigKeys.DFS_CLIENT_USE_LEGACY_BLOCKREADERLOCAL,
-        DFSConfigKeys.DFS_CLIENT_USE_LEGACY_BLOCKREADERLOCAL_DEFAULT)) {
-      errorCause.append(prefix);
-      errorCause.append(DFSConfigKeys.DFS_CLIENT_USE_LEGACY_BLOCKREADERLOCAL);
-      errorCause.append(" should not be enabled.\n");
-    }
-
-    if (errorCause.length() > 0) {
-      output.append(errorMessage);
-      output.append(errorCause);
-    }
-
-    return output.toString();
-  }
-
-  /**
-   * Return an empty string if block location tracking is properly enabled. If not,
-   * return an error string describing the issues.
-   */
-  private String checkBlockLocationTracking(Configuration conf) {
-    StringBuilder output = new StringBuilder();
-    String errorMessage = "ERROR: block location tracking is not properly enabled " +
-        "because\n";
-    String prefix = "  - ";
-    StringBuilder errorCause = new StringBuilder();
-    if (!conf.getBoolean(DFSConfigKeys.DFS_HDFS_BLOCKS_METADATA_ENABLED,
-        DFSConfigKeys.DFS_HDFS_BLOCKS_METADATA_ENABLED_DEFAULT)) {
-      errorCause.append(prefix);
-      errorCause.append(DFSConfigKeys.DFS_HDFS_BLOCKS_METADATA_ENABLED);
-      errorCause.append(" is not enabled.\n");
-    }
-
-    // dfs.client.file-block-storage-locations.timeout.millis should be >= 10 seconds
-    int dfsClientFileBlockStorageLocationsTimeoutMs = conf.getInt(
-        DFSConfigKeys.DFS_CLIENT_FILE_BLOCK_STORAGE_LOCATIONS_TIMEOUT_MS,
-        DFSConfigKeys.DFS_CLIENT_FILE_BLOCK_STORAGE_LOCATIONS_TIMEOUT_MS_DEFAULT);
-    if (dfsClientFileBlockStorageLocationsTimeoutMs <
-        MIN_DFS_CLIENT_FILE_BLOCK_STORAGE_LOCATIONS_TIMEOUT_MS) {
-      errorCause.append(prefix);
-      errorCause.append(DFSConfigKeys.DFS_CLIENT_FILE_BLOCK_STORAGE_LOCATIONS_TIMEOUT_MS);
-      errorCause.append(" is too low. It should be at least 10 seconds.\n");
-    }
-
-    if (errorCause.length() > 0) {
-      output.append(errorMessage);
-      output.append(errorCause);
-    }
-
-    return output.toString();
-  }
-
-  /**
-   * Return an empty string if the default FileSystem configured in CONF refers to a
-   * DistributedFileSystem and Impala can list the root directory "/". Otherwise,
-   * return an error string describing the issues.
-   */
-  private String checkFileSystem(Configuration conf) {
-    try {
-      FileSystem fs = FileSystem.get(CONF);
-      if (!(fs instanceof DistributedFileSystem || fs instanceof S3AFileSystem)) {
-        return "Currently configured default filesystem: " +
-            fs.getClass().getSimpleName() + ". " +
-            CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY +
-            " (" + CONF.get(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY) + ")" +
-            " is not supported.";
-      }
-    } catch (IOException e) {
-      return "couldn't retrieve FileSystem:\n" + e.getMessage();
-    }
-
-    try {
-      FileSystemUtil.getTotalNumVisibleFiles(new Path("/"));
-    } catch (IOException e) {
-      return "Could not read the root directory at " +
-          CONF.get(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY) +
-          ". Error was: \n" + e.getMessage();
-    }
+    */
     return "";
   }
 }

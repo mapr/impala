@@ -24,7 +24,9 @@
 set -euo pipefail
 trap 'echo Error in $0 at line $LINENO: $(cd "'$PWD'" && awk "NR == $LINENO" $0)' ERR
 
-BUILD_TYPE=latest
+BUILD_TYPE=debug
+export JAVA_TOOL_OPTIONS="-Dmapr.library.flatclass -verbose:class"
+[ -f /etc/default/impala ] && . /etc/default/impala
 IMPALAD_ARGS=""
 BINARY_BASE_DIR=${IMPALA_HOME}/be/build
 TOOL_PREFIX=""

@@ -78,7 +78,7 @@ public class HdfsUri {
     }
 
     uriPath_ = new Path(location_);
-    if (!uriPath_.isUriPathAbsolute()) {
+    if (!uriPath_.isAbsolute()) {
       throw new AnalysisException("URI path must be absolute: " + uriPath_);
     }
 

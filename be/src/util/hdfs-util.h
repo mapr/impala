@@ -22,6 +22,7 @@
 #include <string>
 #include <hdfs.h>
 #include "common/status.h"
+#include "util/hdfs-bulk-ops.h"
 
 namespace impala {
 
