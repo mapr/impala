@@ -140,7 +140,6 @@ if [[ -z "${KUDU_IS_SUPPORTED-}" ]]; then
     fi
   fi
 fi
-KUDU_IS_SUPPORTED=false
 export KUDU_IS_SUPPORTED
 
 export CDH_MAJOR_VERSION=5

@@ -17,6 +17,9 @@
 
 package com.cloudera.impala.service;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,6 +32,7 @@ import java.util.Set;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.common.StatsSetupConst;
 import org.apache.hadoop.hive.conf.HiveConf;
+import org.apache.hadoop.hive.metastore.HiveMetaStoreClient;
 import org.apache.hadoop.hive.metastore.MetaStoreUtils;
 import org.apache.hadoop.hive.metastore.PartitionDropOptions;
 import org.apache.hadoop.hive.metastore.TableType;
@@ -41,6 +45,7 @@ import org.apache.hadoop.hive.metastore.api.ColumnStatisticsDesc;
 import org.apache.hadoop.hive.metastore.api.ColumnStatisticsObj;
 import org.apache.hadoop.hive.metastore.api.DecimalColumnStatsData;
 import org.apache.hadoop.hive.metastore.api.DoubleColumnStatsData;
+import org.apache.hadoop.hive.metastore.api.EnvironmentContext;
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
 import org.apache.hadoop.hive.metastore.api.LongColumnStatsData;
 import org.apache.hadoop.hive.metastore.api.MetaException;
@@ -1689,8 +1694,18 @@ public class CatalogOpExecutor {
             cachePoolName, replication);
         cacheIds = Lists.<Long>newArrayList(id);
         // Update the partition metadata to include the cache directive id.
-        msClient.getHiveClient().alter_partition(partition.getDbName(),
-            partition.getTableName(), partition);
+        try {
+          msClient.getHiveClient().alter_partition(
+              partition.getDbName(), partition.getTableName(), partition);
+        } catch (NoSuchMethodError e) {
+          try {
+            Class c = msClient.getHiveClient().getClass();
+            Method alter_partition_Method_ = c.getMethod("alter_partition", String.class, String.class, Partition.class, EnvironmentContext.class);
+            alter_partition_Method_.invoke(msClient.getHiveClient(), partition.getDbName(), partition.getTableName(), partition, null);
+          } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            throw new RuntimeException(ex);
+          }
+        }
       }
       updateLastDdlTime(msTbl, msClient);
     } catch (AlreadyExistsException e) {
@@ -2357,8 +2372,18 @@ public class CatalogOpExecutor {
       throws ImpalaException {
     try (MetaStoreClient msClient = catalog_.getMetaStoreClient()) {
       TableName tableName = tbl.getTableName();
-      msClient.getHiveClient().alter_partition(
-          tableName.getDb(), tableName.getTbl(), partition.toHmsPartition());
+      try {
+        msClient.getHiveClient().alter_partition(
+            tableName.getDb(), tableName.getTbl(), partition.toHmsPartition());
+      } catch (NoSuchMethodError e) {
+        try {
+          Class c = msClient.getHiveClient().getClass();
+          Method alter_partition_Method_ = c.getMethod("alter_partition", String.class, String.class, Partition.class, EnvironmentContext.class);
+          alter_partition_Method_.invoke(msClient.getHiveClient(), tableName.getDb(), tableName.getTbl(), partition.toHmsPartition(), null);
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+          throw new RuntimeException(ex);
+        }
+      }
       org.apache.hadoop.hive.metastore.api.Table msTbl =
           tbl.getMetaStoreTable().deepCopy();
       updateLastDdlTime(msTbl, msClient);
