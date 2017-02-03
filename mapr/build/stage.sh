@@ -113,6 +113,9 @@ copy_impala_files() {
 
     # copy libstdc++
     cp $BUILT/toolchain/gcc-4.9.2/lib64/libstdc++.so.6.0.20 $STAGE/lib/libstdc++.so.6
+
+    # copy libkudu_client
+    cp $BUILT/toolchain/kudu-0.10.0-RC1/$BUILD_TYPE/lib64/libkudu_client* $STAGE/lib/
 }
 
 

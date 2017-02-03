@@ -70,7 +70,7 @@ DECLARE_string(krb5_debug_file);
 
 DEFINE_int32(kerberos_reinit_interval, 60,
     "Interval, in minutes, between kerberos ticket renewals.");
-DEFINE_string(sasl_path, "/usr/lib/sasl2:/usr/lib64/sasl2:/usr/local/lib/sasl2:"
+DEFINE_string(sasl_path, "/usr/lib/sasl2:/usr/lib64/sasl2:/usr/local/lib/sasl2:/usr/lib64:"
     "/usr/lib/x86_64-linux-gnu/sasl2", "Colon separated list of paths to look for SASL "
     "security library plugins.");
 DEFINE_bool(enable_ldap_auth, false,

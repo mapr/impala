@@ -122,6 +122,7 @@ mydaemon() {
         STATUS=$?
     else
         # invoke the init.d daemon to run the command
+        source /etc/init.d/functions
         echo "Running: daemon $user_arg --pidfile=$PIDFILE \"bash -c \'echo \$\$ >$PIDFILE; exec $DAEMON\'\" " >> $LOGFILE
         daemon $user_arg --pidfile=$PIDFILE  \
             "bash -c 'echo \$\$ >$PIDFILE; exec $DAEMON' >> $LOGFILE 2>&1 &"
@@ -156,6 +157,7 @@ checkstatus(){
         RESULTS=$(pgrep $EXENAME 2>&1)
         STATUS=$?
     else
+        source /etc/init.d/functions
         echo "Running: status -p $PIDFILE $SERVICE" >> $LOGFILE
         RESULTS=$(status -p $PIDFILE $SERVICE 2>&1)
         STATUS=$?
