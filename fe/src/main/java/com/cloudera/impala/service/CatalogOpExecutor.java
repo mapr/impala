@@ -1695,16 +1695,11 @@ public class CatalogOpExecutor {
         cacheIds = Lists.<Long>newArrayList(id);
         // Update the partition metadata to include the cache directive id.
         try {
-          msClient.getHiveClient().alter_partition(
-              partition.getDbName(), partition.getTableName(), partition);
-        } catch (NoSuchMethodError e) {
-          try {
-            Class c = msClient.getHiveClient().getClass();
-            Method alter_partition_Method_ = c.getMethod("alter_partition", String.class, String.class, Partition.class, EnvironmentContext.class);
-            alter_partition_Method_.invoke(msClient.getHiveClient(), partition.getDbName(), partition.getTableName(), partition, null);
-          } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-            throw new RuntimeException(ex);
-          }
+          Class c = msClient.getHiveClient().getClass();
+          Method alter_partition_Method_ = c.getMethod("alter_partition", String.class, String.class, Partition.class, EnvironmentContext.class);
+          alter_partition_Method_.invoke(msClient.getHiveClient(), partition.getDbName(), partition.getTableName(), partition, null);
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+          throw new RuntimeException(ex);
         }
       }
       updateLastDdlTime(msTbl, msClient);
@@ -2230,16 +2225,11 @@ public class CatalogOpExecutor {
         }
         // Update the partition metadata to include the cache directive id.
         try {
-          msClient.getHiveClient().alter_partitions(tableName.getDb(),
-              tableName.getTbl(), hmsPartitions);
-        } catch (NoSuchMethodError e) {
-          try {
-            Class c = msClient.getHiveClient().getClass();
-            Method alter_partition_Method_ = c.getMethod("alter_partitions", String.class, String.class, List.class, EnvironmentContext.class);
-            alter_partition_Method_.invoke(msClient.getHiveClient(), tableName.getDb(), tableName.getTbl(), hmsPartitions, null);
-          } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-            throw new RuntimeException(ex);
-          }
+          Class c = msClient.getHiveClient().getClass();
+          Method alter_partition_Method_ = c.getMethod("alter_partitions", String.class, String.class, List.class, EnvironmentContext.class);
+          alter_partition_Method_.invoke(msClient.getHiveClient(), tableName.getDb(), tableName.getTbl(), hmsPartitions, null);
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+          throw new RuntimeException(ex);
         }
       }
       updateLastDdlTime(msTbl, msClient);
@@ -2383,16 +2373,11 @@ public class CatalogOpExecutor {
     try (MetaStoreClient msClient = catalog_.getMetaStoreClient()) {
       TableName tableName = tbl.getTableName();
       try {
-        msClient.getHiveClient().alter_partition(
-            tableName.getDb(), tableName.getTbl(), partition.toHmsPartition());
-      } catch (NoSuchMethodError e) {
-        try {
-          Class c = msClient.getHiveClient().getClass();
-          Method alter_partition_Method_ = c.getMethod("alter_partition", String.class, String.class, Partition.class, EnvironmentContext.class);
-          alter_partition_Method_.invoke(msClient.getHiveClient(), tableName.getDb(), tableName.getTbl(), partition.toHmsPartition(), null);
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-          throw new RuntimeException(ex);
-        }
+        Class c = msClient.getHiveClient().getClass();
+        Method alter_partition_Method_ = c.getMethod("alter_partition", String.class, String.class, Partition.class, EnvironmentContext.class);
+        alter_partition_Method_.invoke(msClient.getHiveClient(), tableName.getDb(), tableName.getTbl(), partition.toHmsPartition(), null);
+      } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+        throw new RuntimeException(ex);
       }
       org.apache.hadoop.hive.metastore.api.Table msTbl =
           tbl.getMetaStoreTable().deepCopy();
@@ -2552,16 +2537,11 @@ public class CatalogOpExecutor {
         try {
           // Alter partitions in bulk.
           try {
-            msClient.getHiveClient().alter_partitions(dbName, tableName,
-                hmsPartitions.subList(i, numPartitionsToUpdate));
-          } catch (NoSuchMethodError e) {
-            try {
-              Class c = msClient.getHiveClient().getClass();
-              Method alter_partition_Method_ = c.getMethod("alter_partitions", String.class, String.class, List.class, EnvironmentContext.class);
-              alter_partition_Method_.invoke(msClient.getHiveClient(), dbName, tableName, hmsPartitions.subList(i, numPartitionsToUpdate), null);
-            } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-              throw new RuntimeException(ex);
-            }
+            Class c = msClient.getHiveClient().getClass();
+            Method alter_partition_Method_ = c.getMethod("alter_partitions", String.class, String.class, List.class, EnvironmentContext.class);
+            alter_partition_Method_.invoke(msClient.getHiveClient(), dbName, tableName, hmsPartitions.subList(i, numPartitionsToUpdate), null);
+          } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            throw new TException(ex);
           }
           // Mark the corresponding HdfsPartition objects as dirty
           for (org.apache.hadoop.hive.metastore.api.Partition msPartition:
@@ -2901,7 +2881,12 @@ public class CatalogOpExecutor {
               partition.getSd().setSerdeInfo(msTbl.getSd().getSerdeInfo().deepCopy());
               partition.getSd().setLocation(msTbl.getSd().getLocation() + "/" +
                   partName.substring(0, partName.length() - 1));
-              MetaStoreUtilsProxy.updatePartitionStatsFast(partition, warehouse);
+              try {
+                Method updatePartitionStatsFast_Method_ = MetaStoreUtils.class.getMethod("updatePartitionStatsFast", Partition.class, Warehouse.class, EnvironmentContext.class);
+                updatePartitionStatsFast_Method_.invoke(MetaStoreUtils.class, partition, warehouse, null);
+              } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                throw new RuntimeException(ex);
+              }
             }
 
             // First add_partitions and then alter_partitions the successful ones with
@@ -2932,16 +2917,11 @@ public class CatalogOpExecutor {
                 }
                 try {
                   try {
-                    msClient.getHiveClient().alter_partitions(tblName.getDb(),
-                        tblName.getTbl(), cachedHmsParts);
-                  } catch (NoSuchMethodError e) {
-                    try {
-                      Class c = msClient.getHiveClient().getClass();
-                      Method alter_partition_Method_ = c.getMethod("alter_partitions", String.class, String.class, List.class, EnvironmentContext.class);
-                      alter_partition_Method_.invoke(msClient.getHiveClient(), tblName.getDb(), tblName.getTbl(), cachedHmsParts, null);
-                    } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                      throw new RuntimeException(ex);
-                    }
+                    Class c = msClient.getHiveClient().getClass();
+                    Method alter_partition_Method_ = c.getMethod("alter_partitions", String.class, String.class, List.class, EnvironmentContext.class);
+                    alter_partition_Method_.invoke(msClient.getHiveClient(), tblName.getDb(), tblName.getTbl(), cachedHmsParts, null);
+                  } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                    throw new RuntimeException(ex);
                   }
                 } catch (Exception e) {
                   LOG.error("Failed in alter_partitions: ", e);

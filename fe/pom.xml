@@ -183,7 +183,7 @@ under the License.
     <dependency>
       <groupId>net.sourceforge.czt.dev</groupId>
       <artifactId>java-cup</artifactId>
-      <version>0.11-a-czt02-cdh</version>
+      <version>0.11-a-czt02-SNAPSHOT</version>
     </dependency>
 
     <!-- Moved above Hive, because Hive bundles its own Thrift version
@@ -404,7 +404,7 @@ under the License.
       <plugin>
         <groupId>net.sourceforge.czt.dev</groupId>
         <artifactId>cup-maven-plugin</artifactId>
-        <version>1.6-cdh</version>
+        <version>1.6-SNAPSHOT</version>
         <executions>
           <execution>
             <id>cup</id>
