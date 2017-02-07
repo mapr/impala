@@ -23,7 +23,7 @@ under the License.
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.cloudera.impala</groupId>
   <artifactId>impala-frontend</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1-SNAPSHOT-mapr</version>
   <packaging>jar</packaging>
 
   <name>Cloudera Impala Query Engine Frontend</name>
@@ -59,6 +59,7 @@ under the License.
       <artifactId>impala-data-source-api</artifactId>
       <version>${impala.extdatasrc.api.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-hdfs</artifactId>
@@ -147,19 +148,6 @@ under the License.
       <groupId>org.apache.sentry</groupId>
       <artifactId>sentry-binding-hive</artifactId>
       <version>${sentry.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.sentry</groupId>
-          <artifactId>sentry-provider-db</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.sentry</groupId>
-      <artifactId>sentry-provider-db</artifactId>
-      <version>${sentry.version}</version>
-      <classifier>sh</classifier>
     </dependency>
 
     <dependency>
@@ -195,7 +183,7 @@ under the License.
     <dependency>
       <groupId>net.sourceforge.czt.dev</groupId>
       <artifactId>java-cup</artifactId>
-      <version>0.11-a-czt02-cdh</version>
+      <version>0.11-a-czt02-SNAPSHOT</version>
     </dependency>
 
     <!-- Moved above Hive, because Hive bundles its own Thrift version
@@ -351,6 +339,30 @@ under the License.
       <version>1.0.2</version>
     </dependency>
 
+    <!-- Add the maprfs dependencies -->
+    <dependency>
+      <groupId>com.mapr.hadoop</groupId>
+      <artifactId>maprfs</artifactId>
+      <version>5.0.0-mapr</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.hadoop</groupId>
+      <artifactId>maprfs-core</artifactId>
+      <version>5.0.0-mapr</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.hadoop</groupId>
+      <artifactId>maprfs-jni</artifactId>
+      <version>5.0.0-mapr</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.util</groupId>
+      <artifactId>central-logging</artifactId>
+      <version>5.0.0-mapr</version>
+    </dependency>
   </dependencies>
 
   <reporting>
@@ -392,7 +404,7 @@ under the License.
       <plugin>
         <groupId>net.sourceforge.czt.dev</groupId>
         <artifactId>cup-maven-plugin</artifactId>
-        <version>1.6-cdh</version>
+        <version>1.6-SNAPSHOT</version>
         <executions>
           <execution>
             <id>cup</id>

@@ -111,6 +111,7 @@ if [[ -z $KUDU_BUILD_DIR && -n $KUDU_CLIENT_DIR ]]; then
 fi
 
 : ${USE_KUDU_DEBUG_BUILD=false}   # Only applies when using Kudu from the toolchain
+USE_KUDU_DEBUG_BUILD=false
 export USE_KUDU_DEBUG_BUILD
 
 # Kudu doesn't compile on some old Linux distros. KUDU_IS_SUPPORTED enables building Kudu
@@ -295,10 +296,10 @@ if [[ $OSTYPE == "darwin"* ]]; then
   IMPALA_THRIFT_JAVA_VERSION=0.9.2
 fi
 
-export IMPALA_HADOOP_VERSION=2.6.0-cdh5.9.0
-export IMPALA_HBASE_VERSION=1.2.0-cdh5.9.0
-export IMPALA_HIVE_VERSION=1.1.0-cdh5.9.0
-export IMPALA_SENTRY_VERSION=1.5.1-cdh5.9.0
+export IMPALA_HADOOP_VERSION=2.7.0-mapr-1509
+export IMPALA_HBASE_VERSION=1.1.1-mapr-1602
+export IMPALA_HIVE_VERSION=1.2.0-mapr-1508
+export IMPALA_SENTRY_VERSION=1.6.0-incubating
 export IMPALA_LLAMA_VERSION=1.0.0-cdh5.9.0
 export IMPALA_PARQUET_VERSION=1.5.0-cdh5.9.0
 export IMPALA_LLAMA_MINIKDC_VERSION=1.0.0
@@ -320,8 +321,8 @@ else
 fi
 
 # Hadoop dependencies are snapshots in the Impala tree
-export HADOOP_HOME=$CDH_COMPONENTS_HOME/hadoop-${IMPALA_HADOOP_VERSION}/
-export HADOOP_CONF_DIR=$IMPALA_FE_DIR/src/test/resources
+export HADOOP_HOME=${HADOOP_HOME:-/opt/mapr/hadoop/hadoop-2.7.0}
+export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
 
 : ${HADOOP_CLASSPATH=}
 export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:"${HADOOP_HOME}/share/hadoop/tools/lib/*"
@@ -329,7 +330,7 @@ export HADOOP_CLASSPATH=$HADOOP_CLASSPATH:"${HADOOP_HOME}/share/hadoop/tools/lib
 export LZO_JAR_PATH="$HADOOP_LZO/build/hadoop-lzo-0.4.15.jar"
 HADOOP_CLASSPATH+=":$LZO_JAR_PATH"
 
-export MINI_DFS_BASE_DATA_DIR=$IMPALA_HOME/cdh-${CDH_MAJOR_VERSION}-hdfs-data
+export MINI_DFS_BASE_DATA_DIR=$IMPALA_HOME/hdfs-data
 export PATH=$HADOOP_HOME/bin:$PATH
 
 export LLAMA_HOME=$CDH_COMPONENTS_HOME/llama-${IMPALA_LLAMA_VERSION}/
@@ -337,9 +338,9 @@ export MINIKDC_HOME=$CDH_COMPONENTS_HOME/llama-minikdc-${IMPALA_LLAMA_MINIKDC_VE
 export SENTRY_HOME=$CDH_COMPONENTS_HOME/sentry-${IMPALA_SENTRY_VERSION}
 export SENTRY_CONF_DIR=$IMPALA_HOME/fe/src/test/resources
 
-export HIVE_HOME=$CDH_COMPONENTS_HOME/hive-${IMPALA_HIVE_VERSION}/
+export HIVE_HOME=/opt/mapr/hive/hive-1.2
 export PATH=$HIVE_HOME/bin:$PATH
-export HIVE_CONF_DIR=$IMPALA_FE_DIR/src/test/resources
+export HIVE_CONF_DIR=$HIVE_HOME/conf
 
 # Hive looks for jar files in a single directory from HIVE_AUX_JARS_PATH plus
 # any jars in AUX_CLASSPATH. (Or a list of jars in HIVE_AUX_JARS_PATH.)
@@ -352,7 +353,7 @@ export AUX_CLASSPATH="${LZO_JAR_PATH}"
 ### Tell hive not to use jline
 export HADOOP_USER_CLASSPATH_FIRST=true
 
-export HBASE_HOME=$CDH_COMPONENTS_HOME/hbase-${IMPALA_HBASE_VERSION}/
+export HBASE_HOME=/opt/mapr/hbase/hbase-0.98.9
 export PATH=$HBASE_HOME/bin:$PATH
 
 # Add the jars so hive can create hbase tables.
@@ -362,7 +363,7 @@ export AUX_CLASSPATH=$AUX_CLASSPATH:$HBASE_HOME/lib/hbase-server-${IMPALA_HBASE_
 export AUX_CLASSPATH=$AUX_CLASSPATH:$HBASE_HOME/lib/hbase-protocol-${IMPALA_HBASE_VERSION}.jar
 export AUX_CLASSPATH=$AUX_CLASSPATH:$HBASE_HOME/lib/hbase-hadoop-compat-${IMPALA_HBASE_VERSION}.jar
 
-export HBASE_CONF_DIR=$HIVE_CONF_DIR
+export HBASE_CONF_DIR=$HBASE_HOME/conf
 
 # Set $THRIFT_HOME to the Thrift directory in toolchain.
 export THRIFT_HOME=${IMPALA_TOOLCHAIN}/thrift-${IMPALA_THRIFT_VERSION}
@@ -411,9 +412,11 @@ LD_LIBRARY_PATH="${LD_LIBRARY_PATH-}"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:`dirname ${LIB_JAVA}`:`dirname ${LIB_JSIG}`"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:`dirname ${LIB_JVM}`"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${HADOOP_HOME}/lib/native"
-LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IMPALA_HOME}/be/build/debug/service"
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IMPALA_HOME}/be/build/release/service"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IMPALA_SNAPPY_PATH}"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IMPALA_LZO}/build"
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$HADOOP_HOME/lib/native/Linux-amd64-64/"
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/mapr/lib"
 
 if [ $USE_SYSTEM_GCC -eq 0 ]; then
   IMPALA_TOOLCHAIN_GCC_LIB=${IMPALA_TOOLCHAIN}/gcc-${IMPALA_GCC_VERSION}/lib64

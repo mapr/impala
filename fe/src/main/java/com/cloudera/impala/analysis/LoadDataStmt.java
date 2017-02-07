@@ -25,7 +25,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.s3a.S3AFileSystem;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.fs.FileSystem;
 
 import com.cloudera.impala.authorization.Privilege;
 import com.cloudera.impala.catalog.HdfsFileFormat;
@@ -137,7 +137,7 @@ public class LoadDataStmt extends StatementBase {
     try {
       Path source = sourceDataPath_.getPath();
       FileSystem fs = source.getFileSystem(FileSystemUtil.getConfiguration());
-      if (!(fs instanceof DistributedFileSystem) && !(fs instanceof S3AFileSystem)) {
+      if (!(fs instanceof FileSystem) && !(fs instanceof S3AFileSystem)) {
         throw new AnalysisException(String.format("INPATH location '%s' " +
             "must point to an HDFS or S3A filesystem.", sourceDataPath_));
       }

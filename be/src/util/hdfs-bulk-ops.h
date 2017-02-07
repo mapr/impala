@@ -29,6 +29,9 @@
 #include "util/counting-barrier.h"
 #include "runtime/hdfs-fs-cache.h"
 
+const char* PATHONLY(const char* uri);
+const char* REMOVELEADINGSLASHES(const char* uri);
+
 namespace impala {
 
 enum HdfsOpType {

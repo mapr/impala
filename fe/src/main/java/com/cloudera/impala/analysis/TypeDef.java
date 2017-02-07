@@ -29,6 +29,7 @@ import com.cloudera.impala.catalog.StructField;
 import com.cloudera.impala.catalog.StructType;
 import com.cloudera.impala.catalog.Type;
 import com.cloudera.impala.common.AnalysisException;
+import com.cloudera.impala.util.MetaStoreUtilsProxy;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
@@ -133,7 +134,7 @@ public class TypeDef implements ParseNode {
                 f.getName(), toSql()));
       }
       // Check whether the column name meets the Metastore's requirements.
-      if (!MetaStoreUtils.validateName(f.getName().toLowerCase())) {
+      if (!MetaStoreUtilsProxy.validateName(f.getName().toLowerCase())) {
         throw new AnalysisException("Invalid struct field name: " + f.getName());
       }
     }

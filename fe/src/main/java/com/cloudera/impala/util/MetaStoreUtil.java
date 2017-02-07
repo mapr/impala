@@ -67,14 +67,19 @@ public class MetaStoreUtil {
     // Get the value from the Hive configuration, if present.
     HiveConf hiveConf = new HiveConf(HdfsTable.class);
     String strValue = hiveConf.get(
-        HiveConf.ConfVars.METASTORE_BATCH_RETRIEVE_TABLE_PARTITION_MAX.toString());
-    if (strValue != null) {
-      try {
-        maxPartitionsPerRpc_ = Short.parseShort(strValue);
-      } catch (NumberFormatException e) {
-        LOG.error("Error parsing max partition batch size from HiveConfig: ", e);
-      }
+            HiveConfProxy.METASTORE_BATCH_RETRIEVE_TABLE_PARTITION_MAX);
+
+    // Use default value from HiveConf
+    if (strValue == null) {
+      strValue = "1000";
     }
+
+    try {
+      maxPartitionsPerRpc_ = Short.parseShort(strValue);
+    } catch (NumberFormatException e) {
+      LOG.error("Error parsing max partition batch size from HiveConfig: ", e);
+    }
+
     if (maxPartitionsPerRpc_ <= 0) {
       LOG.error(String.format("Invalid value for max partition batch size: %d. Using " +
           "default: %d", maxPartitionsPerRpc_, DEFAULT_MAX_PARTITIONS_PER_RPC));

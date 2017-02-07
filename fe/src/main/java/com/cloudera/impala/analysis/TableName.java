@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.hadoop.hive.metastore.MetaStoreUtils;
 
+import com.cloudera.impala.util.MetaStoreUtilsProxy;
 import com.cloudera.impala.common.AnalysisException;
 import com.cloudera.impala.thrift.TTableName;
 import com.google.common.base.Preconditions;
@@ -54,12 +55,12 @@ public class TableName {
    */
   public void analyze() throws AnalysisException {
     if (db_ != null) {
-      if (!MetaStoreUtils.validateName(db_)) {
+      if (!MetaStoreUtilsProxy.validateName(db_)) {
         throw new AnalysisException("Invalid database name: " + db_);
       }
     }
     Preconditions.checkNotNull(tbl_);
-    if (!MetaStoreUtils.validateName(tbl_)) {
+    if (!MetaStoreUtilsProxy.validateName(tbl_)) {
       throw new AnalysisException("Invalid table/view name: " + tbl_);
     }
   }

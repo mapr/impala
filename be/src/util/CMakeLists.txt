@@ -86,6 +86,12 @@ add_library(Util
   ${SQUEASEL_SRC_DIR}/squeasel.c
   webserver.cc
   ${MUSTACHE_SRC_DIR}/mustache.cc
+
+  exception.c
+  htable.c
+  jni_helper.c
+  mutexes.c
+  thread_local_storage.c
 )
 add_dependencies(Util thrift-deps gen_ir_descriptions)
 

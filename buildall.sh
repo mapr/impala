@@ -59,7 +59,8 @@ LZO_CMAKE_ARGS=
 # Defaults that can be picked up from the environment, but are overridable through the
 # commandline.
 : ${EXPLORATION_STRATEGY:=core}
-: ${CMAKE_BUILD_TYPE:=Debug}
+: ${TARGET_BUILD_TYPE:=Release}
+: ${CMAKE_BUILD_TYPE:=Release}
 
 # parse command line options
 # TODO: We have to change this to use getopts, or something more sensible.

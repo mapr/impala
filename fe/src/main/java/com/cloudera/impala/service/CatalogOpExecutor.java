@@ -17,6 +17,9 @@
 
 package com.cloudera.impala.service;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,6 +32,7 @@ import java.util.Set;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.common.StatsSetupConst;
 import org.apache.hadoop.hive.conf.HiveConf;
+import org.apache.hadoop.hive.metastore.HiveMetaStoreClient;
 import org.apache.hadoop.hive.metastore.MetaStoreUtils;
 import org.apache.hadoop.hive.metastore.PartitionDropOptions;
 import org.apache.hadoop.hive.metastore.TableType;
@@ -41,6 +45,7 @@ import org.apache.hadoop.hive.metastore.api.ColumnStatisticsDesc;
 import org.apache.hadoop.hive.metastore.api.ColumnStatisticsObj;
 import org.apache.hadoop.hive.metastore.api.DecimalColumnStatsData;
 import org.apache.hadoop.hive.metastore.api.DoubleColumnStatsData;
+import org.apache.hadoop.hive.metastore.api.EnvironmentContext;
 import org.apache.hadoop.hive.metastore.api.FieldSchema;
 import org.apache.hadoop.hive.metastore.api.LongColumnStatsData;
 import org.apache.hadoop.hive.metastore.api.MetaException;
@@ -149,6 +154,9 @@ import com.cloudera.impala.thrift.TTruncateParams;
 import com.cloudera.impala.thrift.TUpdateCatalogRequest;
 import com.cloudera.impala.thrift.TUpdateCatalogResponse;
 import com.cloudera.impala.util.HdfsCachingUtil;
+import com.cloudera.impala.util.MetaStoreUtilsProxy;
+import com.cloudera.impala.util.SentryPolicyService;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -1686,8 +1694,13 @@ public class CatalogOpExecutor {
             cachePoolName, replication);
         cacheIds = Lists.<Long>newArrayList(id);
         // Update the partition metadata to include the cache directive id.
-        msClient.getHiveClient().alter_partition(partition.getDbName(),
-            partition.getTableName(), partition);
+        try {
+          Class c = msClient.getHiveClient().getClass();
+          Method alter_partition_Method_ = c.getMethod("alter_partition", String.class, String.class, Partition.class, EnvironmentContext.class);
+          alter_partition_Method_.invoke(msClient.getHiveClient(), partition.getDbName(), partition.getTableName(), partition, null);
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+          throw new RuntimeException(ex);
+        }
       }
       updateLastDdlTime(msTbl, msClient);
     } catch (AlreadyExistsException e) {
@@ -2211,8 +2224,13 @@ public class CatalogOpExecutor {
           cacheIds.add(id);
         }
         // Update the partition metadata to include the cache directive id.
-        msClient.getHiveClient().alter_partitions(tableName.getDb(),
-            tableName.getTbl(), hmsPartitions);
+        try {
+          Class c = msClient.getHiveClient().getClass();
+          Method alter_partition_Method_ = c.getMethod("alter_partitions", String.class, String.class, List.class, EnvironmentContext.class);
+          alter_partition_Method_.invoke(msClient.getHiveClient(), tableName.getDb(), tableName.getTbl(), hmsPartitions, null);
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+          throw new RuntimeException(ex);
+        }
       }
       updateLastDdlTime(msTbl, msClient);
     } catch (AlreadyExistsException e) {
@@ -2354,8 +2372,13 @@ public class CatalogOpExecutor {
       throws ImpalaException {
     try (MetaStoreClient msClient = catalog_.getMetaStoreClient()) {
       TableName tableName = tbl.getTableName();
-      msClient.getHiveClient().alter_partition(
-          tableName.getDb(), tableName.getTbl(), partition.toHmsPartition());
+      try {
+        Class c = msClient.getHiveClient().getClass();
+        Method alter_partition_Method_ = c.getMethod("alter_partition", String.class, String.class, Partition.class, EnvironmentContext.class);
+        alter_partition_Method_.invoke(msClient.getHiveClient(), tableName.getDb(), tableName.getTbl(), partition.toHmsPartition(), null);
+      } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+        throw new RuntimeException(ex);
+      }
       org.apache.hadoop.hive.metastore.api.Table msTbl =
           tbl.getMetaStoreTable().deepCopy();
       updateLastDdlTime(msTbl, msClient);
@@ -2376,15 +2399,17 @@ public class CatalogOpExecutor {
 
     Role role;
     if (createDropRoleParams.isIs_drop()) {
-      role = catalog_.getSentryProxy().dropRole(requestingUser,
-          createDropRoleParams.getRole_name());
+      catalog_.getSentryPolicyService().dropRole(requestingUser,
+              createDropRoleParams.getRole_name(),true);
+      role = catalog_.removeRole(createDropRoleParams.getRole_name());
       if (role == null) {
         role = new Role(createDropRoleParams.getRole_name(), Sets.<String>newHashSet());
         role.setCatalogVersion(catalog_.getCatalogVersion());
       }
     } else {
-      role = catalog_.getSentryProxy().createRole(requestingUser,
-          createDropRoleParams.getRole_name());
+      catalog_.getSentryPolicyService().createRole(requestingUser,
+              createDropRoleParams.getRole_name(),true);
+      role = catalog_.addRole(createDropRoleParams.getRole_name(), Sets.<String>newHashSet());
     }
     Preconditions.checkNotNull(role);
 
@@ -2414,11 +2439,12 @@ public class CatalogOpExecutor {
     String groupName = grantRevokeRoleParams.getGroup_names().get(0);
     Role role = null;
     if (grantRevokeRoleParams.isIs_grant()) {
-      role = catalog_.getSentryProxy().grantRoleGroup(requestingUser, roleName,
-          groupName);
-    } else {
-      role = catalog_.getSentryProxy().revokeRoleGroup(requestingUser, roleName,
-          groupName);
+      catalog_.getSentryPolicyService().grantRoleToGroup(requestingUser, roleName,
+              groupName);
+      role = catalog_.addRoleGrantGroup(roleName, groupName);
+    } else {        catalog_.getSentryPolicyService().revokeRoleFromGroup(requestingUser, roleName,
+            groupName);
+      role =  catalog_.removeRoleGrantGroup(roleName, groupName);
     }
     Preconditions.checkNotNull(role);
     TCatalogObject catalogObject = new TCatalogObject();
@@ -2442,11 +2468,11 @@ public class CatalogOpExecutor {
     List<TPrivilege> privileges = grantRevokePrivParams.getPrivileges();
     List<RolePrivilege> rolePrivileges = null;
     if (grantRevokePrivParams.isIs_grant()) {
-      rolePrivileges = catalog_.getSentryProxy().grantRolePrivileges(requestingUser,
+      rolePrivileges = catalog_.getSentryPolicyService().grantRolePrivileges(requestingUser,
           roleName, privileges);
     } else {
-      rolePrivileges = catalog_.getSentryProxy().revokeRolePrivileges(requestingUser,
-          roleName, privileges, grantRevokePrivParams.isHas_grant_opt());
+      rolePrivileges = catalog_.getSentryPolicyService().revokeRolePrivileges(requestingUser,
+          roleName, privileges);
     }
     Preconditions.checkNotNull(rolePrivileges);
     List<TCatalogObject> updatedPrivs = Lists.newArrayList();
@@ -2482,7 +2508,7 @@ public class CatalogOpExecutor {
    * Throws a CatalogException if the Sentry Service is not enabled.
    */
   private void verifySentryServiceEnabled() throws CatalogException {
-    if (catalog_.getSentryProxy() == null) {
+    if (catalog_.getSentryPolicyService() == null) {
       throw new CatalogException("Sentry Service is not enabled on the " +
           "CatalogServer.");
     }
@@ -2510,8 +2536,13 @@ public class CatalogOpExecutor {
             Math.min(i + MAX_PARTITION_UPDATES_PER_RPC, hmsPartitions.size());
         try {
           // Alter partitions in bulk.
-          msClient.getHiveClient().alter_partitions(dbName, tableName,
-              hmsPartitions.subList(i, numPartitionsToUpdate));
+          try {
+            Class c = msClient.getHiveClient().getClass();
+            Method alter_partition_Method_ = c.getMethod("alter_partitions", String.class, String.class, List.class, EnvironmentContext.class);
+            alter_partition_Method_.invoke(msClient.getHiveClient(), dbName, tableName, hmsPartitions.subList(i, numPartitionsToUpdate), null);
+          } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            throw new TException(ex);
+          }
           // Mark the corresponding HdfsPartition objects as dirty
           for (org.apache.hadoop.hive.metastore.api.Partition msPartition:
                hmsPartitions.subList(i, numPartitionsToUpdate)) {
@@ -2850,7 +2881,12 @@ public class CatalogOpExecutor {
               partition.getSd().setSerdeInfo(msTbl.getSd().getSerdeInfo().deepCopy());
               partition.getSd().setLocation(msTbl.getSd().getLocation() + "/" +
                   partName.substring(0, partName.length() - 1));
-              MetaStoreUtils.updatePartitionStatsFast(partition, warehouse);
+              try {
+                Method updatePartitionStatsFast_Method_ = MetaStoreUtils.class.getMethod("updatePartitionStatsFast", Partition.class, Warehouse.class, EnvironmentContext.class);
+                updatePartitionStatsFast_Method_.invoke(MetaStoreUtils.class, partition, warehouse, null);
+              } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                throw new RuntimeException(ex);
+              }
             }
 
             // First add_partitions and then alter_partitions the successful ones with
@@ -2880,8 +2916,13 @@ public class CatalogOpExecutor {
                   }
                 }
                 try {
-                  msClient.getHiveClient().alter_partitions(tblName.getDb(),
-                      tblName.getTbl(), cachedHmsParts);
+                  try {
+                    Class c = msClient.getHiveClient().getClass();
+                    Method alter_partition_Method_ = c.getMethod("alter_partitions", String.class, String.class, List.class, EnvironmentContext.class);
+                    alter_partition_Method_.invoke(msClient.getHiveClient(), tblName.getDb(), tblName.getTbl(), cachedHmsParts, null);
+                  } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                    throw new RuntimeException(ex);
+                  }
                 } catch (Exception e) {
                   LOG.error("Failed in alter_partitions: ", e);
                   // Try to uncache the partitions when the alteration in the HMS failed.

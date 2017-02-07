@@ -47,6 +47,44 @@ HdfsOp::HdfsOp(HdfsOpType op, const string& src, short permissions,
   DCHECK(!src_.empty());
 }
 
+const char* PATHONLY(const char* uri) {
+
+    // Scan to the ':', and return the rest of the string
+    for (const char* p=uri; *p!='\0'; p++)
+        if (*p == ':') return p+1;
+
+    // if none found, return the original string
+    return uri;
+}
+
+const char* REMOVELEADINGSLASHES(const char* uri) {
+
+    // if string not start from '/' return original string
+    if (*uri != '/') return uri;
+
+    // Scan to the first non '/' symbol, and return the string with single leading '/'
+    for (const char* p=uri; *p!='\0'; p++)
+        if (*p != '/') return p-1;
+
+    // if none found, return the original string
+    return uri;
+}
+
+static
+const char* REMOVETRAILINGSLASH(string path) {
+
+    if (path[path.length() - 1] == '/') {
+      const char* newPath = path.substr(0, path.length() - 1).c_str();
+      return newPath;
+    }
+    // if none found, return the original string
+    return path.c_str();
+}
+
+static int FIX_hdfsRename(hdfsFS fs, const char* p1, const char* p2) {
+    return hdfsRename(fs, PATHONLY(p1), PATHONLY(p2));
+}
+
 // Required for ThreadPool
 HdfsOp::HdfsOp() { }
 
@@ -91,7 +129,7 @@ void HdfsOp::Execute() const {
   }
   switch (op_) {
     case DELETE:
-      err = hdfsDelete(src_connection, src_.c_str(), 1);
+      err = hdfsDelete(src_connection, REMOVETRAILINGSLASH(src_.c_str()), 1);
       VLOG_FILE << "hdfsDelete() file=" << src_;
       break;
     case CREATE_DIR:
@@ -99,7 +137,7 @@ void HdfsOp::Execute() const {
       VLOG_FILE << "hdfsCreateDirectory() file=" << src_;
       break;
     case RENAME:
-      err = hdfsRename(src_connection, src_.c_str(), dst_.c_str());
+      err = FIX_hdfsRename(src_connection, src_.c_str(), dst_.c_str());
       VLOG_FILE << "hdfsRename() src_file=" << src_ << " dst_file=" << dst_;
       break;
     case MOVE:
@@ -111,7 +149,7 @@ void HdfsOp::Execute() const {
       VLOG_FILE << "hdfsMove() src_file=" << src_ << " dst_file=" << dst_;
       break;
     case DELETE_THEN_CREATE:
-      err = hdfsDelete(src_connection, src_.c_str(), 1);
+      err = hdfsDelete(src_connection, REMOVETRAILINGSLASH(src_.c_str()), 1);
       VLOG_FILE << "hdfsDelete() file=" << src_;
       if (err != -1) {
         err = hdfsCreateDirectory(src_connection, src_.c_str());

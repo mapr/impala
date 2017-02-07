@@ -67,6 +67,7 @@ import com.cloudera.impala.thrift.TTableDescriptor;
 import com.cloudera.impala.thrift.TTableType;
 import com.cloudera.impala.util.StatsHelper;
 import com.cloudera.impala.util.TResultRowBuilder;
+import com.cloudera.impala.util.HBaseUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 
@@ -123,7 +124,7 @@ public class HBaseTable extends Table {
   private static final String ROW_KEY_COLUMN_FAMILY = ":key";
 
   // Keep the conf around
-  private final static Configuration hbaseConf_ = HBaseConfiguration.create();
+  private final static Configuration hbaseConf_ = HBaseUtil.getHBaseConf();
 
   // Cached column families. Used primarily for speeding up row stats estimation
   // (see CDH-19292).
@@ -504,7 +505,7 @@ public class HBaseTable extends Table {
             currentRowSize += KeyValue.getKeyValueDataStructureSize(c.getRowLength(),
                 c.getFamilyLength(), c.getQualifierLength(), c.getValueLength(),
                 c.getTagsLength());
-          } else {
+          } else if (!c.getClass().getName().equals("com.mapr.fs.hbase.RowColKeyValue")) {
             throw new IllegalStateException("Celltype " + c.getClass().getName() +
                 " not supported.");
           }
@@ -624,7 +625,9 @@ public class HBaseTable extends Table {
       // Print the stack trace, but we'll ignore it
       // as this is just an estimate.
       // TODO: Put this into the per query log.
-      LOG.error("Error computing HBase row count estimate", ioe);
+      if (!(ioe instanceof java.io.FileNotFoundException)) {
+        LOG.error("Error computing HBase row count estimate", ioe);
+      }
       return new Pair<Long, Long>(-1l, -1l);
     } finally {
       if (table != null) closeHBaseTable(table);
