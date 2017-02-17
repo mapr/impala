@@ -113,7 +113,7 @@ Status hdfsCopyImpl(const hdfsFS& src_conn, const string& src_path,
 
   // MAPR-22240 for JAVA filesystem client try to use hdfsCopy
   if (!readNotZero) {
-    int error = hdfsCopy(src_conn, REMOVELEADINGSLASHES(PATHONLY(src_path.c_str())), dst_conn, dst_path.c_str());
+    int error = hdfsCopy(src_conn, src_path.c_str(), dst_conn, dst_path.c_str());
     if (error != 0) {
       string error_msg = GetHdfsErrorMsg("");
       stringstream ss;
