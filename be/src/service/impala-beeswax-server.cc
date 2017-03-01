@@ -72,7 +72,7 @@
 using boost::adopt_lock_t;
 using boost::algorithm::join;
 using namespace apache::thrift;
-using namespace apache::hive::service::cli::thrift;
+using namespace apache::hive::service::rpc::thrift;
 using namespace beeswax;
 
 #define RAISE_IF_ERROR(stmt, ex_type)                           \

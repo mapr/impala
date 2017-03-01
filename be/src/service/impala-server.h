@@ -140,68 +140,68 @@ class ImpalaServer : public ImpalaServiceIf, public ImpalaHiveServer2ServiceIf,
   /// ImpalaHiveServer2Service rpcs: HiveServer2 API (implemented in impala-hs2-server.cc)
   /// TODO: Migrate existing extra ImpalaServer RPCs to ImpalaHiveServer2Service.
   virtual void OpenSession(
-      apache::hive::service::cli::thrift::TOpenSessionResp& return_val,
-      const apache::hive::service::cli::thrift::TOpenSessionReq& request);
+      apache::hive::service::rpc::thrift::TOpenSessionResp& return_val,
+      const apache::hive::service::rpc::thrift::TOpenSessionReq& request);
   virtual void CloseSession(
-      apache::hive::service::cli::thrift::TCloseSessionResp& return_val,
-      const apache::hive::service::cli::thrift::TCloseSessionReq& request);
+      apache::hive::service::rpc::thrift::TCloseSessionResp& return_val,
+      const apache::hive::service::rpc::thrift::TCloseSessionReq& request);
   virtual void GetInfo(
-      apache::hive::service::cli::thrift::TGetInfoResp& return_val,
-      const apache::hive::service::cli::thrift::TGetInfoReq& request);
+      apache::hive::service::rpc::thrift::TGetInfoResp& return_val,
+      const apache::hive::service::rpc::thrift::TGetInfoReq& request);
   virtual void ExecuteStatement(
-      apache::hive::service::cli::thrift::TExecuteStatementResp& return_val,
-      const apache::hive::service::cli::thrift::TExecuteStatementReq& request);
+      apache::hive::service::rpc::thrift::TExecuteStatementResp& return_val,
+      const apache::hive::service::rpc::thrift::TExecuteStatementReq& request);
   virtual void GetTypeInfo(
-      apache::hive::service::cli::thrift::TGetTypeInfoResp& return_val,
-      const apache::hive::service::cli::thrift::TGetTypeInfoReq& request);
+      apache::hive::service::rpc::thrift::TGetTypeInfoResp& return_val,
+      const apache::hive::service::rpc::thrift::TGetTypeInfoReq& request);
   virtual void GetCatalogs(
-      apache::hive::service::cli::thrift::TGetCatalogsResp& return_val,
-      const apache::hive::service::cli::thrift::TGetCatalogsReq& request);
+      apache::hive::service::rpc::thrift::TGetCatalogsResp& return_val,
+      const apache::hive::service::rpc::thrift::TGetCatalogsReq& request);
   virtual void GetSchemas(
-      apache::hive::service::cli::thrift::TGetSchemasResp& return_val,
-      const apache::hive::service::cli::thrift::TGetSchemasReq& request);
+      apache::hive::service::rpc::thrift::TGetSchemasResp& return_val,
+      const apache::hive::service::rpc::thrift::TGetSchemasReq& request);
   virtual void GetTables(
-      apache::hive::service::cli::thrift::TGetTablesResp& return_val,
-      const apache::hive::service::cli::thrift::TGetTablesReq& request);
+      apache::hive::service::rpc::thrift::TGetTablesResp& return_val,
+      const apache::hive::service::rpc::thrift::TGetTablesReq& request);
   virtual void GetTableTypes(
-      apache::hive::service::cli::thrift::TGetTableTypesResp& return_val,
-      const apache::hive::service::cli::thrift::TGetTableTypesReq& request);
+      apache::hive::service::rpc::thrift::TGetTableTypesResp& return_val,
+      const apache::hive::service::rpc::thrift::TGetTableTypesReq& request);
   virtual void GetColumns(
-      apache::hive::service::cli::thrift::TGetColumnsResp& return_val,
-      const apache::hive::service::cli::thrift::TGetColumnsReq& request);
+      apache::hive::service::rpc::thrift::TGetColumnsResp& return_val,
+      const apache::hive::service::rpc::thrift::TGetColumnsReq& request);
   virtual void GetFunctions(
-      apache::hive::service::cli::thrift::TGetFunctionsResp& return_val,
-      const apache::hive::service::cli::thrift::TGetFunctionsReq& request);
+      apache::hive::service::rpc::thrift::TGetFunctionsResp& return_val,
+      const apache::hive::service::rpc::thrift::TGetFunctionsReq& request);
   virtual void GetOperationStatus(
-      apache::hive::service::cli::thrift::TGetOperationStatusResp& return_val,
-      const apache::hive::service::cli::thrift::TGetOperationStatusReq& request);
+      apache::hive::service::rpc::thrift::TGetOperationStatusResp& return_val,
+      const apache::hive::service::rpc::thrift::TGetOperationStatusReq& request);
   virtual void CancelOperation(
-      apache::hive::service::cli::thrift::TCancelOperationResp& return_val,
-      const apache::hive::service::cli::thrift::TCancelOperationReq& request);
+      apache::hive::service::rpc::thrift::TCancelOperationResp& return_val,
+      const apache::hive::service::rpc::thrift::TCancelOperationReq& request);
   virtual void CloseOperation(
-      apache::hive::service::cli::thrift::TCloseOperationResp& return_val,
-      const apache::hive::service::cli::thrift::TCloseOperationReq& request);
+      apache::hive::service::rpc::thrift::TCloseOperationResp& return_val,
+      const apache::hive::service::rpc::thrift::TCloseOperationReq& request);
   virtual void GetResultSetMetadata(
-      apache::hive::service::cli::thrift::TGetResultSetMetadataResp& return_val,
-      const apache::hive::service::cli::thrift::TGetResultSetMetadataReq& request);
+      apache::hive::service::rpc::thrift::TGetResultSetMetadataResp& return_val,
+      const apache::hive::service::rpc::thrift::TGetResultSetMetadataReq& request);
   virtual void FetchResults(
-      apache::hive::service::cli::thrift::TFetchResultsResp& return_val,
-      const apache::hive::service::cli::thrift::TFetchResultsReq& request);
-  virtual void GetLog(apache::hive::service::cli::thrift::TGetLogResp& return_val,
-      const apache::hive::service::cli::thrift::TGetLogReq& request);
+      apache::hive::service::rpc::thrift::TFetchResultsResp& return_val,
+      const apache::hive::service::rpc::thrift::TFetchResultsReq& request);
+  virtual void GetLog(apache::hive::service::rpc::thrift::TGetLogResp& return_val,
+      const apache::hive::service::rpc::thrift::TGetLogReq& request);
   virtual void GetExecSummary(TGetExecSummaryResp& return_val,
       const TGetExecSummaryReq& request);
   virtual void GetRuntimeProfile(TGetRuntimeProfileResp& return_val,
       const TGetRuntimeProfileReq& request);
   virtual void GetDelegationToken(
-      apache::hive::service::cli::thrift::TGetDelegationTokenResp& return_val,
-      const apache::hive::service::cli::thrift::TGetDelegationTokenReq& req);
+      apache::hive::service::rpc::thrift::TGetDelegationTokenResp& return_val,
+      const apache::hive::service::rpc::thrift::TGetDelegationTokenReq& req);
   virtual void CancelDelegationToken(
-      apache::hive::service::cli::thrift::TCancelDelegationTokenResp& return_val,
-      const apache::hive::service::cli::thrift::TCancelDelegationTokenReq& req);
+      apache::hive::service::rpc::thrift::TCancelDelegationTokenResp& return_val,
+      const apache::hive::service::rpc::thrift::TCancelDelegationTokenReq& req);
   virtual void RenewDelegationToken(
-      apache::hive::service::cli::thrift::TRenewDelegationTokenResp& return_val,
-      const apache::hive::service::cli::thrift::TRenewDelegationTokenReq& req);
+      apache::hive::service::rpc::thrift::TRenewDelegationTokenResp& return_val,
+      const apache::hive::service::rpc::thrift::TRenewDelegationTokenReq& req);
 
   /// ImpalaService common extensions (implemented in impala-server.cc)
   /// ImpalaInternalService rpcs
@@ -309,9 +309,9 @@ class ImpalaServer : public ImpalaServiceIf, public ImpalaHiveServer2ServiceIf,
   static const int ASCII_PRECISION;
 
   QueryResultSet* CreateHS2ResultSet(
-      apache::hive::service::cli::thrift::TProtocolVersion::type version,
+      apache::hive::service::rpc::thrift::TProtocolVersion::type version,
       const TResultSetMetadata& metadata,
-      apache::hive::service::cli::thrift::TRowSet* rowset = NULL);
+      apache::hive::service::rpc::thrift::TRowSet* rowset = NULL);
 
   /// Return exec state for given query_id, or NULL if not found.
   /// If 'lock' is true, the returned exec state's lock() will be acquired before
@@ -563,28 +563,28 @@ class ImpalaServer : public ImpalaServiceIf, public ImpalaHiveServer2ServiceIf,
   /// struct will be populated with the requesting user's session state.
   /// Returns a TOperationHandle and TStatus.
   void ExecuteMetadataOp(
-      const apache::hive::service::cli::thrift::THandleIdentifier& session_handle,
+      const apache::hive::service::rpc::thrift::THandleIdentifier& session_handle,
       TMetadataOpRequest* request,
-      apache::hive::service::cli::thrift::TOperationHandle* handle,
-      apache::hive::service::cli::thrift::TStatus* status);
+      apache::hive::service::rpc::thrift::TOperationHandle* handle,
+      apache::hive::service::rpc::thrift::TStatus* status);
 
   /// Executes the fetch logic for HiveServer2 FetchResults. If fetch_first is true, then
   /// the query's state should be reset to fetch from the beginning of the result set.
   /// Doesn't clean up the exec state if an error occurs.
   Status FetchInternal(const TUniqueId& query_id, int32_t fetch_size, bool fetch_first,
-      apache::hive::service::cli::thrift::TFetchResultsResp* fetch_results);
+      apache::hive::service::rpc::thrift::TFetchResultsResp* fetch_results);
 
   /// Helper functions to translate between HiveServer2 and Impala structs
 
   /// Returns !ok() if handle.guid.size() or handle.secret.size() != 16
   static Status THandleIdentifierToTUniqueId(
-      const apache::hive::service::cli::thrift::THandleIdentifier& handle,
+      const apache::hive::service::rpc::thrift::THandleIdentifier& handle,
       TUniqueId* unique_id, TUniqueId* secret);
   static void TUniqueIdToTHandleIdentifier(
       const TUniqueId& unique_id, const TUniqueId& secret,
-      apache::hive::service::cli::thrift::THandleIdentifier* handle);
+      apache::hive::service::rpc::thrift::THandleIdentifier* handle);
   Status TExecuteStatementReqToTQueryContext(
-      const apache::hive::service::cli::thrift::TExecuteStatementReq execute_request,
+      const apache::hive::service::rpc::thrift::TExecuteStatementReq execute_request,
       TQueryCtx* query_ctx);
 
   /// Helper method to process cancellations that result from failed backends, called from
@@ -715,7 +715,7 @@ class ImpalaServer : public ImpalaServiceIf, public ImpalaHiveServer2ServiceIf,
     /// child queries inherit the HS2 version from their parents, and a Beeswax session
     /// will never update the HS2 version from the default.
     SessionState() : closed(false), expired(false),
-        hs2_version(apache::hive::service::cli::thrift::
+        hs2_version(apache::hive::service::rpc::thrift::
         TProtocolVersion::HIVE_CLI_SERVICE_PROTOCOL_V1), total_queries(0), ref_count(0) {
     }
 
@@ -759,7 +759,7 @@ class ImpalaServer : public ImpalaServiceIf, public ImpalaHiveServer2ServiceIf,
     QueryOptionsMask set_query_options_mask;
 
     /// For HS2 only, the protocol version this session is expecting.
-    apache::hive::service::cli::thrift::TProtocolVersion::type hs2_version;
+    apache::hive::service::rpc::thrift::TProtocolVersion::type hs2_version;
 
     /// Inflight queries belonging to this session
     boost::unordered_set<TUniqueId> inflight_queries;

@@ -145,20 +145,20 @@ Status& Status::operator=(const TStatus& status) {
   return *this;
 }
 
-Status::Status(const apache::hive::service::cli::thrift::TStatus& hs2_status)
+Status::Status(const apache::hive::service::rpc::thrift::TStatus& hs2_status)
   : msg_(
       hs2_status.statusCode
-        == apache::hive::service::cli::thrift::TStatusCode::SUCCESS_STATUS ? NULL
+        == apache::hive::service::rpc::thrift::TStatusCode::SUCCESS_STATUS ? NULL
           : new ErrorMsg(
               static_cast<TErrorCode::type>(hs2_status.statusCode),
               hs2_status.errorMessage)) {
 }
 
 Status& Status::operator=(
-    const apache::hive::service::cli::thrift::TStatus& hs2_status) {
+    const apache::hive::service::rpc::thrift::TStatus& hs2_status) {
   delete msg_;
   if (hs2_status.statusCode
-        == apache::hive::service::cli::thrift::TStatusCode::SUCCESS_STATUS) {
+        == apache::hive::service::rpc::thrift::TStatusCode::SUCCESS_STATUS) {
     msg_ = NULL;
   } else {
     msg_ = new ErrorMsg(

@@ -28,9 +28,9 @@ namespace impala {
 /// queries, contained in the 'rowset', and any pre-existing per-partition measurements,
 /// contained in 'existing_part_stats'. The schema for 'rowset' is in 'col_stats_schema'.
 void FinalizePartitionedColumnStats(
-    const apache::hive::service::cli::thrift::TTableSchema& col_stats_schema,
+    const apache::hive::service::rpc::thrift::TTableSchema& col_stats_schema,
     const std::vector<TPartitionStats>& existing_part_stats,
     const std::vector<std::vector<std::string>>& expected_partitions,
-    const apache::hive::service::cli::thrift::TRowSet& rowset,
+    const apache::hive::service::rpc::thrift::TRowSet& rowset,
     int32_t num_partition_cols, TAlterTableUpdateStatsParams* params);
 }

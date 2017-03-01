@@ -92,11 +92,11 @@ class ChildQuery {
   /// so cancellation of a child query does not call into the parent's QueryExecState.
   void Cancel();
 
-  const apache::hive::service::cli::thrift::TTableSchema& result_schema() {
+  const apache::hive::service::rpc::thrift::TTableSchema& result_schema() {
     return meta_resp_.schema;
   }
 
-  const apache::hive::service::cli::thrift::TRowSet& result_data() {
+  const apache::hive::service::rpc::thrift::TRowSet& result_data() {
     return fetch_resp_.results;
   }
 
@@ -108,7 +108,7 @@ class ChildQuery {
   /// Sets the query options from the parent query in child's HS2 request.
   /// TODO: Consider moving this function into a more appropriate place.
   void SetQueryOptions(const TQueryOptions& parent_options,
-      apache::hive::service::cli::thrift::TExecuteStatementReq* exec_stmt_req);
+      apache::hive::service::rpc::thrift::TExecuteStatementReq* exec_stmt_req);
 
   /// Returns Status::Cancelled if this child query has been cancelled, otherwise OK.
   /// Acquires lock_.
@@ -125,11 +125,11 @@ class ChildQuery {
   ImpalaServer* parent_server_;
 
   /// Result metadata and result rows of query.
-  apache::hive::service::cli::thrift::TGetResultSetMetadataResp meta_resp_;
-  apache::hive::service::cli::thrift::TFetchResultsResp fetch_resp_;
+  apache::hive::service::rpc::thrift::TGetResultSetMetadataResp meta_resp_;
+  apache::hive::service::rpc::thrift::TFetchResultsResp fetch_resp_;
 
   /// HS2 query handle. Set in ExecChildQuery().
-  apache::hive::service::cli::thrift::TOperationHandle hs2_handle_;
+  apache::hive::service::rpc::thrift::TOperationHandle hs2_handle_;
 
   /// Protects is_running_ and is_cancelled_ to ensure idempotent cancellations.
   boost::mutex lock_;

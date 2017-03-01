@@ -36,7 +36,7 @@
 
 #include "common/names.h"
 using namespace impala;
-using namespace apache::hive::service::cli::thrift;
+using namespace apache::hive::service::rpc::thrift;
 using namespace apache::thrift;
 using strings::Substitute;
 

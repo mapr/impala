@@ -24,7 +24,7 @@
 namespace impala {
 
 inline Status ImpalaServer::THandleIdentifierToTUniqueId(
-    const apache::hive::service::cli::thrift::THandleIdentifier& handle,
+    const apache::hive::service::rpc::thrift::THandleIdentifier& handle,
     TUniqueId* unique_id, TUniqueId* secret) {
   if (handle.guid.length() != 16 || handle.secret.length() != 16) {
     std::stringstream ss;
@@ -42,7 +42,7 @@ inline Status ImpalaServer::THandleIdentifierToTUniqueId(
 
 inline void ImpalaServer::TUniqueIdToTHandleIdentifier(
     const TUniqueId& unique_id, const TUniqueId& secret,
-    apache::hive::service::cli::thrift::THandleIdentifier* handle) {
+    apache::hive::service::rpc::thrift::THandleIdentifier* handle) {
   char uuid[16];
   memcpy((void*)uuid, &unique_id.hi, 8);
   memcpy((void*)(uuid + 8), &unique_id.lo, 8);
