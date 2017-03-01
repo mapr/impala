@@ -248,7 +248,7 @@ struct ColumnType {
   /// optimizer can pull out fields of the returned ConstantStruct for constant folding.
   llvm::ConstantStruct* ToIR(LlvmCodeGen* codegen) const;
 
-  apache::hive::service::cli::thrift::TTypeEntry ToHs2Type() const;
+  apache::hive::service::rpc::thrift::TTypeEntry ToHs2Type() const;
   std::string DebugString() const;
 
  private:

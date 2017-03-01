@@ -26,7 +26,7 @@
 
 #include "common/names.h"
 
-using namespace apache::hive::service::cli;
+using namespace apache::hive::service::rpc;
 using namespace impala;
 using namespace strings;
 
@@ -401,7 +401,7 @@ void PrintVal(const T& val, ostream* ss) {
 // Specialisation for byte values that would otherwise be interpreted as character values,
 // not integers, when printed to the stringstream.
 template<>
-void PrintVal(const apache::hive::service::cli::thrift::TByteValue& val, ostream* ss) {
+void PrintVal(const apache::hive::service::rpc::thrift::TByteValue& val, ostream* ss) {
   if (val.__isset.value) {
     (*ss) << static_cast<int16_t>(val.value);
   } else {
@@ -410,7 +410,7 @@ void PrintVal(const apache::hive::service::cli::thrift::TByteValue& val, ostream
 }
 
 void impala::PrintTColumnValue(
-    const apache::hive::service::cli::thrift::TColumnValue& colval, stringstream* out) {
+    const apache::hive::service::rpc::thrift::TColumnValue& colval, stringstream* out) {
   if (colval.__isset.boolVal) {
     if (colval.boolVal.__isset.value) {
       (*out) << ((colval.boolVal.value) ? "true" : "false");

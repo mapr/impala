@@ -41,7 +41,7 @@
 #include "common/names.h"
 
 using boost::algorithm::join;
-using namespace apache::hive::service::cli::thrift;
+using namespace apache::hive::service::rpc::thrift;
 using namespace apache::thrift;
 using namespace beeswax;
 using namespace strings;

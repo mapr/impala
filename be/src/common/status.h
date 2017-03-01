@@ -171,11 +171,11 @@ class Status {
 
   /// "Copy c'tor from HS2 TStatus.
   /// Retains the TErrorCode value and the message
-  Status(const apache::hive::service::cli::thrift::TStatus& hs2_status);
+  Status(const apache::hive::service::rpc::thrift::TStatus& hs2_status);
 
   /// same as previous c'tor
   /// Retains the TErrorCode value and the message
-  Status& operator=(const apache::hive::service::cli::thrift::TStatus& hs2_status);
+  Status& operator=(const apache::hive::service::rpc::thrift::TStatus& hs2_status);
 
   bool ALWAYS_INLINE ok() const { return msg_ == NULL; }
 

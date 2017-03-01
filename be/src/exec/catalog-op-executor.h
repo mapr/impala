@@ -51,10 +51,10 @@ class CatalogOpExecutor {
   /// a new table alteration request for updating the stats metadata, and executes
   /// the alteration via Exec();
   Status ExecComputeStats(const TComputeStatsParams& compute_stats_params,
-      const apache::hive::service::cli::thrift::TTableSchema& tbl_stats_schema,
-      const apache::hive::service::cli::thrift::TRowSet& tbl_stats_data,
-      const apache::hive::service::cli::thrift::TTableSchema& col_stats_schema,
-      const apache::hive::service::cli::thrift::TRowSet& col_stats_data);
+      const apache::hive::service::rpc::thrift::TTableSchema& tbl_stats_schema,
+      const apache::hive::service::rpc::thrift::TRowSet& tbl_stats_data,
+      const apache::hive::service::rpc::thrift::TTableSchema& col_stats_schema,
+      const apache::hive::service::rpc::thrift::TRowSet& col_stats_data);
 
   /// Makes an RPC to the CatalogServer to prioritize the loading of the catalog objects
   /// specified in the TPrioritizeLoadRequest. Returns OK if the RPC was successful,
@@ -85,13 +85,13 @@ class CatalogOpExecutor {
   /// Helper functions used in ExecComputeStats() for setting the thrift structs in params
   /// for the table/column stats based on the results of the corresponding child query.
   static void SetTableStats(
-      const apache::hive::service::cli::thrift::TTableSchema& tbl_stats_schema,
-      const apache::hive::service::cli::thrift::TRowSet& tbl_stats_data,
+      const apache::hive::service::rpc::thrift::TTableSchema& tbl_stats_schema,
+      const apache::hive::service::rpc::thrift::TRowSet& tbl_stats_data,
       const std::vector<TPartitionStats>& existing_part_stats,
       TAlterTableUpdateStatsParams* params);
   static void SetColumnStats(
-      const apache::hive::service::cli::thrift::TTableSchema& col_stats_schema,
-      const apache::hive::service::cli::thrift::TRowSet& col_stats_data,
+      const apache::hive::service::rpc::thrift::TTableSchema& col_stats_schema,
+      const apache::hive::service::rpc::thrift::TRowSet& col_stats_data,
       TAlterTableUpdateStatsParams* params);
 
   /// Response from executing the DDL request, see ddl_exec_response().

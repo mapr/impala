@@ -685,7 +685,7 @@ public class CatalogOpExecutor {
           partition.getValuesAsString(), numRows));
       PartitionStatsUtil.partStatsToParameters(partitionStats, partition);
       partition.putToParameters(StatsSetupConst.ROW_COUNT, String.valueOf(numRows));
-      partition.putToParameters(StatsSetupConst.STATS_GENERATED_VIA_STATS_TASK,
+      partition.putToParameters("STATS_GENERATED_VIA_STATS_TASK",
           StatsSetupConst.TRUE);
       ++numTargetedPartitions;
       modifiedParts.add(partition);
@@ -704,7 +704,7 @@ public class CatalogOpExecutor {
     // Update the table's ROW_COUNT parameter.
     msTbl.putToParameters(StatsSetupConst.ROW_COUNT,
         String.valueOf(params.getTable_stats().num_rows));
-    msTbl.putToParameters(StatsSetupConst.STATS_GENERATED_VIA_STATS_TASK,
+    msTbl.putToParameters("STATS_GENERATED_VIA_STATS_TASK",
         StatsSetupConst.TRUE);
     return numTargetedPartitions;
   }

@@ -50,8 +50,8 @@ using boost::adopt_lock_t;
 using boost::algorithm::join;
 using boost::algorithm::iequals;
 using boost::uuids::uuid;
-using namespace apache::hive::service::cli::thrift;
-using namespace apache::hive::service::cli;
+using namespace apache::hive::service::rpc::thrift;
+using namespace apache::hive::service::rpc;
 using namespace apache::thrift;
 using namespace beeswax; // Converting QueryState
 using namespace strings;
@@ -783,7 +783,7 @@ void ImpalaServer::ExecuteStatement(TExecuteStatementResp& return_val,
   TUniqueIdToTHandleIdentifier(exec_state->query_id(), exec_state->query_id(),
                                &return_val.operationHandle.operationId);
   return_val.status.__set_statusCode(
-      apache::hive::service::cli::thrift::TStatusCode::SUCCESS_STATUS);
+      apache::hive::service::rpc::thrift::TStatusCode::SUCCESS_STATUS);
 
   VLOG_QUERY << "ExecuteStatement(): return_val=" << ThriftDebugString(return_val);
 }
