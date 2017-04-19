@@ -146,7 +146,7 @@ under the License.
 
     <dependency>
       <groupId>org.apache.sentry</groupId>
-      <artifactId>sentry-binding-hive</artifactId>
+      <artifactId>sentry-binding-hive-v2</artifactId>
       <version>${sentry.version}</version>
     </dependency>
 
