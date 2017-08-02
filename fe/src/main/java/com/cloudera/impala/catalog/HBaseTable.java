@@ -179,6 +179,9 @@ public class HBaseTable extends Table {
       Connection connection = ConnectionHolder.getConnection(hbaseConf_);
       admin = connection.getAdmin();
       clusterStatus = admin.getClusterStatus();
+      if (clusterStatus == null) {
+        throw new java.io.FileNotFoundException();
+      }
     } finally {
       if (admin != null) admin.close();
     }
