@@ -746,7 +746,11 @@ Status Coordinator::FinalizeSuccessfulInsert() {
       ss << "Error(s) deleting staging directories. First error (of "
          << dir_deletion_ops.errors().size() << ") was: "
          << dir_deletion_ops.errors()[0].second;
-      return Status(ss.str());
+      // MAPR porting changes
+      // Sometimes removing temporary data fails at this stage, but finally all will be cleared after
+      // removing staging directory. So there is no need in this case to fail query
+      //return Status(ss.str());
+      VLOG_QUERY << ss.str();
     }
   }
 

@@ -128,10 +128,10 @@ export KUDU_JAVA_VERSION=1.5.0-cdh5.13.1
 # Versions of Hadoop ecosystem dependencies.
 # ------------------------------------------
 export CDH_MAJOR_VERSION=5
-export IMPALA_HADOOP_VERSION=2.6.0-cdh5.13.1
-export IMPALA_HBASE_VERSION=1.2.0-cdh5.13.1
-export IMPALA_HIVE_VERSION=1.1.0-cdh5.13.1
-export IMPALA_SENTRY_VERSION=1.5.1-cdh5.13.1
+export IMPALA_HADOOP_VERSION=2.7.0-mapr-1509
+export IMPALA_HBASE_VERSION=1.1.8-mapr-1703
+export IMPALA_HIVE_VERSION=2.1.1-mapr-1703
+export IMPALA_SENTRY_VERSION=1.7.0-mapr-1703
 export IMPALA_PARQUET_VERSION=1.5.0-cdh5.13.1
 export IMPALA_LLAMA_MINIKDC_VERSION=1.0.0
 
@@ -338,6 +338,7 @@ export IMPALA_ALL_LOGS_DIRS="${IMPALA_CLUSTER_LOGS_DIR}
   ${IMPALA_BE_TEST_LOGS_DIR} ${IMPALA_EE_TEST_LOGS_DIR}
   ${IMPALA_CUSTOM_CLUSTER_TEST_LOGS_DIR}"
 
+export MINI_DFS_BASE_DATA_DIR=$IMPALA_HOME/hdfs-data
 # Reduce the concurrency for local tests to half the number of cores in the system.
 CORES=$(($(getconf _NPROCESSORS_ONLN) / 2))
 export NUM_CONCURRENT_TESTS="${NUM_CONCURRENT_TESTS-${CORES}}"
@@ -363,8 +364,8 @@ fi
 
 # Typically we build against a snapshot build of Hadoop that includes everything we need
 # for building Impala and running a minicluster.
-export HADOOP_HOME="$CDH_COMPONENTS_HOME/hadoop-${IMPALA_HADOOP_VERSION}/"
-export HADOOP_CONF_DIR="$IMPALA_FE_DIR/src/test/resources"
+export HADOOP_HOME=${HADOOP_HOME:-/opt/mapr/hadoop/hadoop-2.7.0}
+export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
 # The include and lib paths are needed to pick up hdfs.h and libhdfs.*
 # Allow overriding in case we want to point to a package/install with a different layout.
 export HADOOP_INCLUDE_DIR=${HADOOP_INCLUDE_DIR_OVERRIDE:-"${HADOOP_HOME}/include"}
@@ -386,12 +387,12 @@ export SENTRY_CONF_DIR="$IMPALA_HOME/fe/src/test/resources"
 
 # Extract the first component of the hive version.
 export IMPALA_HIVE_MAJOR_VERSION=$(echo "$IMPALA_HIVE_VERSION" | cut -d . -f 1)
-export HIVE_HOME="$CDH_COMPONENTS_HOME/hive-${IMPALA_HIVE_VERSION}/"
+export HIVE_HOME="/opt/mapr/hive/hive-2.1"
 export PATH="$HIVE_HOME/bin:$PATH"
 # Allow overriding of Hive source location in case we want to build Impala without
 # a complete Hive build.
 export HIVE_SRC_DIR=${HIVE_SRC_DIR_OVERRIDE:-"${HIVE_HOME}/src"}
-export HIVE_CONF_DIR="$IMPALA_FE_DIR/src/test/resources"
+export HIVE_CONF_DIR=$HIVE_HOME/conf
 
 # Hive looks for jar files in a single directory from HIVE_AUX_JARS_PATH plus
 # any jars in AUX_CLASSPATH. (Or a list of jars in HIVE_AUX_JARS_PATH.)
@@ -404,7 +405,7 @@ export AUX_CLASSPATH="${LZO_JAR_PATH}"
 ### Tell hive not to use jline
 export HADOOP_USER_CLASSPATH_FIRST=true
 
-export HBASE_HOME="$CDH_COMPONENTS_HOME/hbase-${IMPALA_HBASE_VERSION}/"
+export HBASE_HOME="/opt/mapr/hbase/hbase-1.1.8"
 export PATH="$HBASE_HOME/bin:$PATH"
 
 # Add the jars so hive can create hbase tables.
@@ -414,7 +415,7 @@ export AUX_CLASSPATH="$AUX_CLASSPATH:$HBASE_HOME/lib/hbase-server-${IMPALA_HBASE
 export AUX_CLASSPATH="$AUX_CLASSPATH:$HBASE_HOME/lib/hbase-protocol-${IMPALA_HBASE_VERSION}.jar"
 export AUX_CLASSPATH="$AUX_CLASSPATH:$HBASE_HOME/lib/hbase-hadoop-compat-${IMPALA_HBASE_VERSION}.jar"
 
-export HBASE_CONF_DIR="$HIVE_CONF_DIR"
+export HBASE_CONF_DIR="$HBASE_HOME/conf"
 
 # Set $THRIFT_HOME to the Thrift directory in toolchain.
 export THRIFT_HOME="${IMPALA_TOOLCHAIN}/thrift-${IMPALA_THRIFT_VERSION}"
@@ -462,6 +463,10 @@ LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:`dirname ${LIB_JVM}`"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${HADOOP_LIB_DIR}/native"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IMPALA_SNAPPY_PATH}"
 LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IMPALA_LZO}/build"
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:$HADOOP_HOME/lib/native/Linux-amd64-64/"
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/mapr/lib"
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${HADOOP_HOME}/lib/native"
+LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${IMPALA_HOME}/be/build/release/service"
 
 if [ $USE_SYSTEM_GCC -eq 0 ]; then
   IMPALA_TOOLCHAIN_GCC_LIB="${IMPALA_TOOLCHAIN}/gcc-${IMPALA_GCC_VERSION}/lib64"

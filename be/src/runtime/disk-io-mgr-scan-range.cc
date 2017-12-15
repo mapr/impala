@@ -328,6 +328,7 @@ void DiskIoMgr::ScanRange::Close() {
   unique_lock<mutex> hdfs_lock(hdfs_lock_);
   bool closed_file = false;
   if (fs_ != nullptr) {
+
     if (exclusive_hdfs_fh_ != nullptr) {
       GetHdfsStatistics(exclusive_hdfs_fh_->file());
 
@@ -342,7 +343,7 @@ void DiskIoMgr::ScanRange::Close() {
       exclusive_hdfs_fh_ = nullptr;
       closed_file = true;
     }
-
+/*
     if (FLAGS_use_hdfs_pread) {
       // Update Hedged Read Metrics.
       // We call it only if the --use_hdfs_pread flag is set, to avoid having the
@@ -356,7 +357,7 @@ void DiskIoMgr::ScanRange::Close() {
         hdfsFreeHedgedReadMetrics(hedged_metrics);
       }
     }
-
+*/
     if (num_remote_bytes_ > 0) {
       reader_->num_remote_ranges_.Add(1L);
       if (expected_local_) {

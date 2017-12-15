@@ -17,6 +17,7 @@
 
 set(LIBRARY_OUTPUT_PATH "${BUILD_OUTPUT_ROOT_DIRECTORY}/catalog")
 set(EXECUTABLE_OUTPUT_PATH "${BUILD_OUTPUT_ROOT_DIRECTORY}/catalog")
+set(CMAKE_SKIP_RPATH TRUE)
 
 add_library(Catalog
   catalog.cc

@@ -171,6 +171,9 @@ public class HBaseTable extends Table {
       Connection connection = ConnectionHolder.getConnection(hbaseConf_);
       admin = connection.getAdmin();
       clusterStatus = admin.getClusterStatus();
+      if (clusterStatus == null) {
+        throw new java.io.FileNotFoundException();
+      }
     } finally {
       if (admin != null) admin.close();
     }
@@ -497,7 +500,7 @@ public class HBaseTable extends Table {
             currentRowSize += KeyValue.getKeyValueDataStructureSize(c.getRowLength(),
                 c.getFamilyLength(), c.getQualifierLength(), c.getValueLength(),
                 c.getTagsLength());
-          } else {
+          } else if (!c.getClass().getName().equals("com.mapr.fs.hbase.RowColKeyValue")) {
             throw new IllegalStateException("Celltype " + c.getClass().getName() +
                 " not supported.");
           }
@@ -617,7 +620,9 @@ public class HBaseTable extends Table {
       // Print the stack trace, but we'll ignore it
       // as this is just an estimate.
       // TODO: Put this into the per query log.
-      LOG.error("Error computing HBase row count estimate", ioe);
+      if (!(ioe instanceof java.io.FileNotFoundException)) {
+        LOG.error("Error computing HBase row count estimate", ioe);
+      }
       return new Pair<Long, Long>(-1l, -1l);
     } finally {
       if (table != null) closeHBaseTable(table);

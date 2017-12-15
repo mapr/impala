@@ -148,6 +148,7 @@ import org.apache.impala.thrift.TUpdateCatalogRequest;
 import org.apache.impala.thrift.TUpdateCatalogResponse;
 import org.apache.impala.util.HdfsCachingUtil;
 import org.apache.impala.util.MetaStoreUtil;
+import org.apache.impala.util.SentryPolicyService;
 import org.apache.log4j.Logger;
 import org.apache.thrift.TException;
 
@@ -2826,16 +2827,18 @@ public class CatalogOpExecutor {
 
     Role role;
     if (createDropRoleParams.isIs_drop()) {
-      role = catalog_.getSentryProxy().dropRole(requestingUser,
-          createDropRoleParams.getRole_name());
+      catalog_.getSentryPolicyService().dropRole(requestingUser,
+              createDropRoleParams.getRole_name(),true);
+      role = catalog_.removeRole(createDropRoleParams.getRole_name());
       if (role == null) {
         // Nothing was removed from the catalogd's cache.
         resp.result.setVersion(catalog_.getCatalogVersion());
         return;
       }
     } else {
-      role = catalog_.getSentryProxy().createRole(requestingUser,
-          createDropRoleParams.getRole_name());
+      catalog_.getSentryPolicyService().createRole(requestingUser,
+              createDropRoleParams.getRole_name(),true);
+      role = catalog_.addRole(createDropRoleParams.getRole_name(), Sets.<String>newHashSet());
     }
     Preconditions.checkNotNull(role);
 
@@ -2865,11 +2868,12 @@ public class CatalogOpExecutor {
     String groupName = grantRevokeRoleParams.getGroup_names().get(0);
     Role role = null;
     if (grantRevokeRoleParams.isIs_grant()) {
-      role = catalog_.getSentryProxy().grantRoleGroup(requestingUser, roleName,
-          groupName);
-    } else {
-      role = catalog_.getSentryProxy().revokeRoleGroup(requestingUser, roleName,
-          groupName);
+      catalog_.getSentryPolicyService().grantRoleToGroup(requestingUser, roleName,
+              groupName);
+      role = catalog_.addRoleGrantGroup(roleName, groupName);
+    } else {        catalog_.getSentryPolicyService().revokeRoleFromGroup(requestingUser, roleName,
+            groupName);
+      role =  catalog_.removeRoleGrantGroup(roleName, groupName);
     }
     Preconditions.checkNotNull(role);
     TCatalogObject catalogObject = new TCatalogObject();
@@ -2893,11 +2897,11 @@ public class CatalogOpExecutor {
     List<TPrivilege> privileges = grantRevokePrivParams.getPrivileges();
     List<RolePrivilege> rolePrivileges = null;
     if (grantRevokePrivParams.isIs_grant()) {
-      rolePrivileges = catalog_.getSentryProxy().grantRolePrivileges(requestingUser,
+      rolePrivileges = catalog_.getSentryPolicyService().grantRolePrivileges(requestingUser,
           roleName, privileges);
     } else {
-      rolePrivileges = catalog_.getSentryProxy().revokeRolePrivileges(requestingUser,
-          roleName, privileges, grantRevokePrivParams.isHas_grant_opt());
+      rolePrivileges = catalog_.getSentryPolicyService().revokeRolePrivileges(requestingUser,
+          roleName, privileges);
     }
     Preconditions.checkNotNull(rolePrivileges);
     List<TCatalogObject> updatedPrivs = Lists.newArrayList();
@@ -2933,7 +2937,7 @@ public class CatalogOpExecutor {
    * Throws a CatalogException if the Sentry Service is not enabled.
    */
   private void verifySentryServiceEnabled() throws CatalogException {
-    if (catalog_.getSentryProxy() == null) {
+    if (catalog_.getSentryPolicyService() == null) {
       throw new CatalogException("Sentry Service is not enabled on the " +
           "CatalogServer.");
     }

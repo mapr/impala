@@ -23,7 +23,7 @@ import java.util.Map;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.hadoop.hdfs.DFSConfigKeys;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.hdfs.protocol.CacheDirectiveEntry;
 import org.apache.hadoop.hdfs.protocol.CacheDirectiveInfo;
 import org.apache.hadoop.hdfs.protocol.CacheDirectiveInfo.Expiration;
@@ -55,12 +55,12 @@ public class HdfsCachingUtil {
   // become cached before assuming no more progress is being made.
   private final static int MAX_UNCHANGED_CACHING_REFRESH_INTERVALS = 5;
 
-  private static DistributedFileSystem dfs = null;
+  private static FileSystem dfs = null;
 
   /**
    * Returns the dfs singleton object.
    */
-  private static DistributedFileSystem getDfs() throws ImpalaRuntimeException {
+  private static FileSystem getDfs() throws ImpalaRuntimeException {
     if (dfs == null) {
       try {
         dfs = FileSystemUtil.getDistributedFileSystem();
@@ -81,14 +81,10 @@ public class HdfsCachingUtil {
    * Returns the ID of the submitted cache directive and throws if there is an error
    * submitting.
    */
-  public static long submitCacheTblDirective(
+  public static Long submitCacheTblDirective(
       org.apache.hadoop.hive.metastore.api.Table table,
       String poolName, short replication) throws ImpalaRuntimeException {
-    long id = HdfsCachingUtil.submitDirective(new Path(table.getSd().getLocation()),
-        poolName, replication);
-    table.putToParameters(CACHE_DIR_ID_PROP_NAME, Long.toString(id));
-    table.putToParameters(CACHE_DIR_REPLICATION_PROP_NAME, Long.toString(replication));
-    return id;
+    return null;
   }
 
   /**
@@ -100,27 +96,19 @@ public class HdfsCachingUtil {
    * Returns the ID of the submitted cache directive and throws if there is an error
    * submitting the directive.
    */
-  public static long submitCachePartitionDirective(HdfsPartition part,
+  public static Long submitCachePartitionDirective(HdfsPartition part,
       String poolName, short replication) throws ImpalaRuntimeException {
-    long id = HdfsCachingUtil.submitDirective(new Path(part.getLocation()),
-        poolName, replication);
-    part.putToParameters(CACHE_DIR_ID_PROP_NAME, Long.toString(id));
-    part.putToParameters(CACHE_DIR_REPLICATION_PROP_NAME, Long.toString(replication));
-    return id;
+    return null;
   }
 
   /**
    * Convenience method for working directly on a metastore partition. See
    * submitCachePartitionDirective(HdfsPartition, String, short) for more details.
    */
-  public static long submitCachePartitionDirective(
+  public static Long submitCachePartitionDirective(
       org.apache.hadoop.hive.metastore.api.Partition part,
       String poolName, short replication) throws ImpalaRuntimeException {
-    long id = HdfsCachingUtil.submitDirective(new Path(part.getSd().getLocation()),
-        poolName, replication);
-    part.putToParameters(CACHE_DIR_ID_PROP_NAME, Long.toString(id));
-    part.putToParameters(CACHE_DIR_REPLICATION_PROP_NAME, Long.toString(replication));
-    return id;
+    return null;
   }
 
   /**
@@ -292,7 +280,7 @@ public class HdfsCachingUtil {
    * Submits a new caching directive for the specified cache pool name, path and
    * replication. Returns the directive ID if the submission was successful or an
    * ImpalaRuntimeException if the submission fails.
-   */
+
   private static long submitDirective(Path path, String poolName, short replication)
       throws ImpalaRuntimeException {
     Preconditions.checkNotNull(path);
@@ -311,6 +299,7 @@ public class HdfsCachingUtil {
       throw new ImpalaRuntimeException(e.getMessage(), e);
     }
   }
+   */
 
   /**
    * Update cache directive for a table and updates the metastore parameters.
@@ -347,23 +336,7 @@ public class HdfsCachingUtil {
    */
   private static void modifyCacheDirective(Long id, Path path, String poolName,
       short replication) throws ImpalaRuntimeException {
-    Preconditions.checkNotNull(path);
-    Preconditions.checkNotNull(id);
-    Preconditions.checkState(poolName != null && !poolName.isEmpty());
-    CacheDirectiveInfo info = new CacheDirectiveInfo.Builder()
-        .setId(id)
-        .setExpiration(Expiration.NEVER)
-        .setPool(poolName)
-        .setReplication(replication)
-        .setPath(path).build();
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("Modifying cache directive: " + info.toString());
-    }
-    try {
-      getDfs().modifyCacheDirective(info);
-    } catch (IOException e) {
-      throw new ImpalaRuntimeException(e.getMessage(), e);
-    }
+    return;
   }
 
   /**
@@ -373,15 +346,7 @@ public class HdfsCachingUtil {
    * directive.
    */
   private static void removeDirective(long directiveId) throws ImpalaRuntimeException {
-    if (LOG.isTraceEnabled()) LOG.trace("Removing cache directive id: " + directiveId);
-    try {
-      getDfs().removeCacheDirective(directiveId);
-    } catch (IOException e) {
-      // There is no special exception type for the case where a directive ID does not
-      // exist so we must inspect the error message.
-      if (e.getMessage().contains("No directive with ID")) return;
-      throw new ImpalaRuntimeException(e.getMessage(), e);
-    }
+    return;
   }
 
   /**
@@ -390,23 +355,9 @@ public class HdfsCachingUtil {
    */
   private static CacheDirectiveEntry getDirective(long directiveId)
       throws ImpalaRuntimeException {
-    if (LOG.isTraceEnabled()) {
-      LOG.trace("Getting cache directive id: " + directiveId);
-    }
-    CacheDirectiveInfo filter = new CacheDirectiveInfo.Builder()
-        .setId(directiveId)
-        .build();
-    try {
-      RemoteIterator<CacheDirectiveEntry> itr = getDfs().listCacheDirectives(filter);
-      if (itr.hasNext()) return itr.next();
-    } catch (IOException e) {
-      // Handle connection issues with e.g. HDFS and possible not found errors
-      throw new ImpalaRuntimeException(e.getMessage(), e);
-    }
-    throw new ImpalaRuntimeException(
-        "HDFS cache directive filter returned empty result. This must not happen");
+    return null;
   }
-
+  
   /**
    * Helper method for frequent lookup of replication factor in the thrift caching
    * structure.

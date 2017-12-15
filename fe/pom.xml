@@ -23,7 +23,7 @@ under the License.
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.impala</groupId>
   <artifactId>impala-frontend</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1-SNAPSHOT-mapr</version>
   <packaging>jar</packaging>
 
   <name>Apache Impala (Incubating) Query Engine Frontend</name>
@@ -60,6 +60,7 @@ under the License.
       <artifactId>impala-data-source-api</artifactId>
       <version>${impala.extdatasrc.api.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-hdfs</artifactId>
@@ -87,7 +88,7 @@ under the License.
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-azure-datalake</artifactId>
-      <version>${hadoop.version}</version>
+      <version>2.6.0-cdh5.13.1</version>
     </dependency>
 
     <dependency>
@@ -152,21 +153,8 @@ under the License.
 
     <dependency>
       <groupId>org.apache.sentry</groupId>
-      <artifactId>sentry-binding-hive</artifactId>
+      <artifactId>sentry-binding-hive-v2</artifactId>
       <version>${sentry.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.sentry</groupId>
-          <artifactId>sentry-provider-db</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.sentry</groupId>
-      <artifactId>sentry-provider-db</artifactId>
-      <version>${sentry.version}</version>
-      <classifier>sh</classifier>
     </dependency>
 
     <dependency>
@@ -364,6 +352,30 @@ under the License.
       <version>1.6.0.1</version>
     </dependency>
 
+    <!-- Add the maprfs dependencies -->
+    <dependency>
+      <groupId>com.mapr.hadoop</groupId>
+      <artifactId>maprfs</artifactId>
+      <version>5.0.0-mapr</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.hadoop</groupId>
+      <artifactId>maprfs-core</artifactId>
+      <version>5.0.0-mapr</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.hadoop</groupId>
+      <artifactId>maprfs-jni</artifactId>
+      <version>5.0.0-mapr</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.util</groupId>
+      <artifactId>central-logging</artifactId>
+      <version>5.0.0-mapr</version>
+    </dependency>
   </dependencies>
 
   <reporting>

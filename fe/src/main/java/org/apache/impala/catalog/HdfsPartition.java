@@ -310,14 +310,10 @@ public class HdfsPartition implements Comparable<HdfsPartition> {
       int fbReplicaHostIdxOffset = fbb.endVector();
 
       // disk ids
-      short[] diskIds = createDiskIds(loc, numUnknownDiskIds);
-      Preconditions.checkState(diskIds.length != 0);
-      int fbDiskIdsOffset = FbFileBlock.createDiskIdsVector(fbb, diskIds);
       FbFileBlock.startFbFileBlock(fbb);
       FbFileBlock.addOffset(fbb, loc.getOffset());
       FbFileBlock.addLength(fbb, loc.getLength());
       FbFileBlock.addReplicaHostIdxs(fbb, fbReplicaHostIdxOffset);
-      FbFileBlock.addDiskIds(fbb, fbDiskIdsOffset);
       return FbFileBlock.endFbFileBlock(fbb);
     }
 
@@ -347,7 +343,7 @@ public class HdfsPartition implements Comparable<HdfsPartition> {
     private static short[] createDiskIds(BlockLocation location,
         Reference<Long> numUnknownDiskIds) {
       long unknownDiskIdCount = 0;
-      String[] storageIds = location.getStorageIds();
+      String[] storageIds = new String[0];
       String[] hosts;
       try {
         hosts = location.getHosts();

@@ -19,6 +19,10 @@
 
 #include <sstream>
 #include <string.h>
+#include <iostream>
+#include <fstream>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "util/error-util.h"
 
@@ -31,10 +35,6 @@ string GetHdfsErrorMsg(const string& prefix, const string& file) {
   string error_msg = GetStrErrMsg();
   stringstream ss;
   ss << prefix << file << "\n" << error_msg;
-  char* root_cause = hdfsGetLastExceptionRootCause();
-  if (root_cause != nullptr) {
-    ss << "\nRoot cause: " << root_cause;
-  }
   return ss.str();
 }
 
@@ -59,16 +59,74 @@ bool IsHiddenFile(const string& filename) {
   return !filename.empty() && (filename[0] == '.' || filename[0] == '_');
 }
 
-Status CopyHdfsFile(const hdfsFS& src_conn, const string& src_path,
-                    const hdfsFS& dst_conn, const string& dst_path) {
-  int error = hdfsCopy(src_conn, src_path.c_str(), dst_conn, dst_path.c_str());
-  if (error != 0) {
-    string error_msg = GetHdfsErrorMsg("");
-    stringstream ss;
-    ss << "Failed to copy " << src_path << " to " << dst_path << ": " << error_msg;
-    return Status(ss.str());
+Status hdfsCopyImpl(const hdfsFS& src_conn, const string& src_path,
+                  const hdfsFS& dst_conn, const string& dst_path) {
+  tSize readBytes = 0;
+  tSize readLength = 8 * 1024;
+
+  // create a file
+  FILE * pFile;
+  hdfsFile srcFile = hdfsOpenFile(src_conn, src_path.c_str(), O_RDONLY, 0, 0, 0);
+
+  // allocated buffer of size 8k
+  void *buffer = malloc (readLength);
+
+  readBytes = hdfsRead(src_conn, srcFile, buffer, readLength);
+
+  // prevent creating empty files when read fails or readed zero bytes
+
+  bool readNotZero = (readBytes > 0);
+
+  if (readNotZero) {
+    pFile = fopen(dst_path.c_str(), "wb");
+
+      if (pFile == NULL) {
+        stringstream ss;
+        ss << "Failed to create or open local file:" << dst_path;
+        return Status(ss.str());
+      }
+  }
+
+  while (readBytes != 0) {
+    if (readBytes == -1) {
+      stringstream ss;
+      ss << "Failed to read from path:" << src_path;
+      return Status(ss.str());
+    }
+    fwrite(buffer, sizeof(char), readBytes, pFile);
+
+    // Check if the write was successful
+    if (ferror(pFile)) {
+      stringstream ss;
+      ss << "Failed to write to path:" << dst_path;
+      return Status(ss.str());
+    }
+    readBytes = hdfsRead(src_conn, srcFile, buffer, readLength);
+  }
+  if (readNotZero) {
+    fclose(pFile);
+  }
+
+  hdfsCloseFile(src_conn, srcFile);
+
+  free(buffer);
+
+  // MAPR-22240 for JAVA filesystem client try to use hdfsCopy
+  if (!readNotZero) {
+    int error = hdfsCopy(src_conn, src_path.c_str(), dst_conn, dst_path.c_str());
+    if (error != 0) {
+      string error_msg = GetHdfsErrorMsg("");
+      stringstream ss;
+      ss << "Failed to copy " << src_path << " to " << dst_path << ": " << error_msg;
+      return Status(ss.str());
+    }
   }
   return Status::OK();
+}
+
+Status CopyHdfsFile(const hdfsFS& src_conn, const string& src_path,
+                    const hdfsFS& dst_conn, const string& dst_path) {
+  return hdfsCopyImpl(src_conn, src_path, dst_conn, dst_path);
 }
 
 bool IsHdfsPath(const char* path) {

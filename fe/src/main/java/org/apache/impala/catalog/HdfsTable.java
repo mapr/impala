@@ -1697,7 +1697,7 @@ public class HdfsTable extends Table {
     FileStatus[] statuses = FileSystemUtil.listStatus(fs, path);
     if (statuses == null) return;
     for (FileStatus status: statuses) {
-      if (!status.isDirectory()) continue;
+      if (!status.isDir()) continue;
       Pair<String, LiteralExpr> keyValues =
           getTypeCompatibleValue(status.getPath(), partitionKeys.get(depth));
       if (keyValues == null) continue;

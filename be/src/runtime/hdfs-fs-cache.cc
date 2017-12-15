@@ -98,9 +98,11 @@ Status HdfsFsCache::GetConnection(const string& path, hdfsFS* fs,
         hdfsBuilderConfSetStr(hdfs_builder, "fs.s3a.secret.key", s3a_secret_key_.c_str());
       }
       *fs = hdfsBuilderConnect(hdfs_builder);
+      /*
       if (*fs == NULL) {
         return Status(GetHdfsErrorMsg("Failed to connect to FS: ", namenode));
       }
+      */
       fs_map_.insert(make_pair(namenode, *fs));
     } else {
       *fs = i->second;
@@ -145,6 +147,7 @@ string HdfsFsCache::GetNameNodeFromPath(const string& path, string* err) {
       namenode = path.substr(0, n + 1);
     }
   }
+  if (namenode == "maprfs:///") namenode = "default";
   return namenode;
 }
 

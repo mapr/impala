@@ -29,15 +29,10 @@ CLASSPATH=\
 "$IMPALA_HOME"/fe/target/test-classes:\
 "${HIVE_HOME}"/lib/datanucleus-api-jdo-3.2.1.jar:\
 "${HIVE_HOME}"/lib/datanucleus-core-3.2.2.jar:\
-"${HIVE_HOME}"/lib/datanucleus-rdbms-3.2.1.jar:
+"${HIVE_HOME}"/lib/datanucleus-rdbms-3.2.1.jar:\
+"/opt/mapr/conf"
 
 for jar in "${IMPALA_HOME}"/fe/target/dependency/*.jar; do
-  if [ -e "$jar" ] ; then
-    CLASSPATH="${CLASSPATH}:$jar"
-  fi
-done
-
-for jar in "${IMPALA_HOME}"/testdata/target/dependency/*.jar; do
   if [ -e "$jar" ] ; then
     CLASSPATH="${CLASSPATH}:$jar"
   fi

@@ -29,6 +29,7 @@
 #include "util/counting-barrier.h"
 #include "runtime/hdfs-fs-cache.h"
 
+
 namespace impala {
 
 enum HdfsOpType {

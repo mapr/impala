@@ -1,3 +1,7 @@
+# Impala toolchain directory
+toolchain/
+
+.idea
 target
 
 # Eclipse artifacts
