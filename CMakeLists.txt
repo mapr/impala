@@ -219,9 +219,10 @@ find_package(Llvm REQUIRED)
 include_directories(${LLVM_INCLUDE_DIR})
 
 # find Sasl
+set_dep_root(CYRUS_SASL)
 set(SASL_FIND_QUIETLY TRUE)
 find_package(Sasl REQUIRED)
-IMPALA_ADD_THIRDPARTY_LIB(cyrus_sasl ${SASL_INCLUDE_DIR} "" ${SASL_SHARED_LIB})
+IMPALA_ADD_THIRDPARTY_LIB(cyrus_sasl ${SASL_INCLUDE_DIR} ${SASL_STATIC_LIBRARY} "")
 
 # find openldap
 find_package(Ldap REQUIRED)
