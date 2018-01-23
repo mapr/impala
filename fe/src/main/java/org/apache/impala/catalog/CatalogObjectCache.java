@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -106,7 +107,7 @@ public class CatalogObjectCache<T extends CatalogObject> implements Iterable<T> 
    * returned set, use add()/remove() instead.
    */
   public Set<String> keySet() {
-    return metadataCache_.keySet();
+    return ((Map) metadataCache_).keySet();
   }
 
   /**
