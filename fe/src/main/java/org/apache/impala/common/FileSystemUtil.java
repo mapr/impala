@@ -17,6 +17,7 @@
 
 package org.apache.impala.common;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -375,6 +376,13 @@ public class FileSystemUtil {
    * Fully-qualifies the given path based on the FileSystem configuration.
    */
   public static Path createFullyQualifiedPath(Path location) {
+    String coreSiteLocationString = "/opt/mapr/impala/impala-2.10.0/conf/core-site.xml";
+    File coreSiteFile = new File(coreSiteLocationString);
+    if (coreSiteFile.exists() && CONF.getResource("core-site.xml") != null
+        && !CONF.getResource("core-site.xml").getFile().equals(coreSiteLocationString)) {
+      Path coreSitePath = new Path("file:" + coreSiteLocationString);
+      CONF.addResource(coreSitePath);
+    }
     URI defaultUri = FileSystem.getDefaultUri(CONF);
     URI locationUri = location.toUri();
     // Use the default URI only if location has no scheme or it has the same scheme as
