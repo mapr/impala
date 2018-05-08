@@ -53,7 +53,7 @@ if [ -z "$IMPALA_HOME" ]; then
   fi
 fi
 
-export IMPALA_TOOLCHAIN=${IMPALA_TOOLCHAIN-"$IMPALA_HOME/toolchain"}
+export IMPALA_TOOLCHAIN="$IMPALA_HOME/toolchain"
 if [ -z "$IMPALA_TOOLCHAIN" ]; then
   echo "IMPALA_TOOLCHAIN must be specified. Please set it to a valid directory or"\
        "leave it unset."

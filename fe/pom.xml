@@ -656,6 +656,18 @@ under the License.
     </repository>
 
     <repository>
+      <id>mapr</id>
+      <name>MapR Maven repository</name>
+      <url>http://repository.mapr.com/nexus/content/repositories/releases/</url>
+      <releases>
+          <enabled>true</enabled>
+          <checksumPolicy>warn</checksumPolicy>
+      </releases>
+      <snapshots>
+          <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
       <id>cdh.rcs.releases.repo</id>
       <url>https://repository.cloudera.com/content/groups/cdh-releases-rcs</url>
       <name>CDH Releases Repository</name>
