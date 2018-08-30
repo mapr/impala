@@ -725,7 +725,6 @@ under the License.
             <enabled>true</enabled>
         </snapshots>
     </repository>
-
     <repository>
       <id>mapr</id>
       <name>MapR Maven repository</name>
@@ -738,9 +737,17 @@ under the License.
           <enabled>false</enabled>
       </snapshots>
     </repository>
+     <repository>
+      <id>mapr.snapshots</id>
+      <name>MapR Maven snapshots repository</name>
+      <url>${env.MAPR_MAVEN_REPO}</url>
+      <snapshots>
+          <enabled>true</enabled>
+      </snapshots>
+    </repository>
     <repository>
       <id>cdh.rcs.releases.repo</id>
-      <url>https://repository.cloudera.com/content/groups/cdh-releases-rcs</url>
+      <url>${env.MAPR_MAVEN_REPO}</url>
       <name>CDH Releases Repository</name>
       <snapshots>
         <enabled>true</enabled>
@@ -748,7 +755,7 @@ under the License.
     </repository>
     <repository>
       <id>cdh.releases.repo</id>
-      <url>https://repository.cloudera.com/content/repositories/releases</url>
+      <url>${env.MAPR_MAVEN_REPO}</url>
       <name>CDH Releases Repository</name>
       <snapshots>
         <enabled>false</enabled>
@@ -756,7 +763,7 @@ under the License.
     </repository>
     <repository>
       <id>cdh.snapshots.repo</id>
-      <url>https://repository.cloudera.com/content/repositories/snapshots</url>
+      <url>${env.MAPR_MAVEN_REPO}</url>
       <name>CDH Snapshots Repository</name>
       <snapshots>
         <enabled>true</enabled>
@@ -764,7 +771,7 @@ under the License.
     </repository>
     <repository>
       <id>cloudera.thirdparty.repo</id>
-      <url>https://repository.cloudera.com/content/repositories/third-party</url>
+      <url>${env.MAPR_MAVEN_REPO}</url>
       <name>Cloudera Third Party Repository</name>
       <snapshots>
         <enabled>false</enabled>
