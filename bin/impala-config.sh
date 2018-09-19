@@ -128,10 +128,10 @@ export KUDU_JAVA_VERSION=1.5.0-cdh5.13.1
 # Versions of Hadoop ecosystem dependencies.
 # ------------------------------------------
 export CDH_MAJOR_VERSION=5
-export IMPALA_HADOOP_VERSION=2.7.0-mapr-1509
-export IMPALA_HBASE_VERSION=1.1.8-mapr-1703
-export IMPALA_HIVE_VERSION=2.1.1-mapr-1703
-export IMPALA_SENTRY_VERSION=1.7.0-mapr-1703
+export IMPALA_HADOOP_VERSION=2.7.0-mapr-1808
+export IMPALA_HBASE_VERSION=1.1.8-mapr-1808
+export IMPALA_HIVE_VERSION=2.1.1-mapr-1808
+export IMPALA_SENTRY_VERSION=1.7.0-mapr-1808
 export IMPALA_PARQUET_VERSION=1.5.0-cdh5.13.1
 export IMPALA_LLAMA_MINIKDC_VERSION=1.0.0
 

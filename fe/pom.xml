@@ -53,7 +53,7 @@ under the License.
     <dependency>
       <groupId>com.mapr.security</groupId>
       <artifactId>mapr-security-web</artifactId>
-      <version>6.1.0-mapr-SNAPSHOT</version> <!-- TODO : remove after release -->
+      <version>6.1.0-mapr</version> <!-- TODO : remove after release -->
       <exclusions>
         <exclusion>
           <groupId>com.mapr.hadoop</groupId>
